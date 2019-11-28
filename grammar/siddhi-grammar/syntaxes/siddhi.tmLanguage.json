@@ -487,8 +487,8 @@
         "include": "#mathOperation"
       }
     },
-    "functionDefinition": {
-      "begin": "\\b(?i)(define)\\b(\\s*)\\b(function)\\b",
+    "definitionFunction": {
+      "begin": "(?i)(\\bdefine\\b)(\\s*)(\\bfunction\\b)",
       "end": ";",
       "beginCaptures": {
         "1": {
@@ -510,16 +510,16 @@
           "match": "(?i)\\breturn\\b"
         },
         {
-          "include": "#keywords"
+          "include": "#attributeType"
         },
         {
-          "include": "#functionName"
+          "include": "#keywords"
         },
         {
           "include": "#languageName"
         },
         {
-          "include": "#attributeType"
+          "include": "#functionName"
         },
         {
           "include": "#functionBody"
@@ -542,32 +542,17 @@
       "name": "function.body.siddhi",
       "patterns": [
         {
-          "include": "#script"
-        }
-      ]
-    },
-    "script": {
-      "patterns": [
-        {
-          "name": "script.siddhi",
-          "match": "~[{}]|'\"' ~[\"]* '\"'|'//' ~[\\r\\n]*"
-        },
-        {
-          "include": "$self"
-        },
-        {
-          "include": "#qqstring"
-        },
-        {
-          "include": "#qstring"
+          "include": "source.js"
         }
       ]
     },
     "functionName": {
-      "patterns": {
-        "name": "entity.name.function.siddhi",
-        "match": "[a-zA-Z_][a-zA-Z_0-9]*"
-      }
+      "patterns": [
+        {
+          "name": "entity.other.attribute-name.function.name.siddhi",
+          "match": "[a-zA-Z_][a-zA-Z_0-9]*"
+        }
+      ]
     },
     "languageName": {
       "begin": "\\[",
@@ -582,8 +567,12 @@
           "name": "support.constant.siddhi"
         }
       },
-      "name": "entity.name.tag.language.siddhi",
-      "match": "[a-zA-Z_][a-zA-Z_0-9]*"
+      "patterns": [
+        {
+          "name": "entity.name.tag.language.siddhi",
+          "match": "[a-zA-Z_][a-zA-Z_0-9]*"
+        }
+      ]
     },
     "definitionTrigger": {
       "begin": "((?i)define)(\\s*)((?i)trigger)",
@@ -1230,6 +1219,10 @@
         {
           "name": "keyword.other.rightouterjoin.join.sidhdi",
           "match": "(?i)right(\\W*)(?i)outer(\\W*)(?i)join"
+        },
+        {
+          "name": "keyword.other.fullouterjoin.join.sidhdi",
+          "match": "(?i)full(\\W*)(?i)outer(\\W*)(?i)join"
         },
         {
           "name": "keyword.other.outerjoin.join.siddhi",

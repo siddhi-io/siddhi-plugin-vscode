@@ -22,12 +22,6 @@
   * Log messages 
   */
 export const SIDDHI_HOME = "siddhi.home";
-export const INVALID_HOME_MSG: string = "Siddhi Home is invalid, please check `" + SIDDHI_HOME + "` in settings";
-export const INSTALL_SIDDHI: string = "Unable to auto detect ballerina in your environment. If you just installed Ballerina, you may need to restart VSCode." + 
-    " If not, please install Ballerina or configure `" + SIDDHI_HOME + "` in settings.";
-export const INSTALL_NEW_SIDDHI: string = " version of Siddhi VSCode extension only supports Siddhi v5.1.2 or later. If you just installed a new Ballerina version, you may need to restart VSCode. If not, please download and install the latest version or point `" + SIDDHI_HOME + "` in settings to a latest Siddhi distribution.";
-export const DOWNLOAD_SIDDHI: string = "https://siddhi.io/en/v5.1/download/";
-export const CONFIG_CHANGED: string = "Ballerina plugin configuration changed. Please restart vscode for changes to take effect.";
-export const MISSING_SERVER_CAPABILITY: string = "Your version of siddhi distribution does not support this feature. Please update to the latest siddhi distribution";
-export const INVALID_FILE: string = "The current file is not a valid siddhi file. Please open a siddhi file and try again.";
+export const EXTENSION_NOT_INITIALIZED_ERROR = "Siddhi Extesnion is not initialized"
+export const INVALID_HOME_MSG: string = "Siddhi Home is invalid, please check " + SIDDHI_HOME + " in settings or environmental variables";
 export const UNKNOWN_ERROR: string ="Unknown Error : Failed to start Siddhi Language Server.";

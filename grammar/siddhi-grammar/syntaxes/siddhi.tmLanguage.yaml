@@ -256,10 +256,8 @@ repository:
     patterns:
       include: '#mathOperation'
 
-
-  #functiondefinition fix
-  functionDefinition:
-    begin: '\b(?i)(define)\b(\s*)\b(function)\b'
+  definitionFunction:
+    begin: '(?i)(\bdefine\b)(\s*)(\bfunction\b)'
     end: ';'
     beginCaptures:
       '1': { name: keyword.control.siddhi}
@@ -270,10 +268,10 @@ repository:
     patterns:
       - name: keyword.control.siddhi
         match: '(?i)\breturn\b'
-      - include: '#keywords'
-      - include: '#functionName'
-      - include: '#languageName'
       - include: '#attributeType'
+      - include: '#keywords'
+      - include: '#languageName'
+      - include: '#functionName'
       - include: '#functionBody'
   
   functionBody:
@@ -285,18 +283,15 @@ repository:
       '0': {name: support.constant.siddhi}
     name: function.body.siddhi
     patterns:
-      - include: '#script'
-  script:
-    patterns: 
-      - name: script.siddhi
-        match: ~[{}]|'"' ~["]* '"'|'//' ~[\r\n]*
-      - include: '$self'
-      - include: '#qqstring'
-      - include: '#qstring'
+      - include: 'source.js'
+      #- include: 'source.r'
+      #include other supported languages as source.r,source.py ,vscode-api will automattically 
+      #load the grammar and provide synatx highlights.
+      
   functionName:
     patterns:
-      name: entity.name.function.siddhi
-      match: '[a-zA-Z_][a-zA-Z_0-9]*'
+     - name: entity.other.attribute-name.function.name.siddhi
+       match: '[a-zA-Z_][a-zA-Z_0-9]*'
   
   languageName:
     begin: '\['
@@ -305,8 +300,9 @@ repository:
     end: '\]'
     endCaptures:
       '0': {name: support.constant.siddhi}
-    name: entity.name.tag.language.siddhi 
-    match: '[a-zA-Z_][a-zA-Z_0-9]*'
+    patterns:
+      - name: entity.name.tag.language.siddhi 
+        match: '[a-zA-Z_][a-zA-Z_0-9]*'
   
   definitionTrigger:
     begin: '((?i)define)(\s*)((?i)trigger)'
@@ -349,7 +345,6 @@ repository:
       - include: '#aggregationName'
       - include: '#attributeReference'
       
-   
   groupByQuerySelection:
     begin: '(?i)select'
     beginCaptures:
@@ -362,7 +357,6 @@ repository:
       - include: '#groupBy'
       - include: '#outputAttribute'
 
-  
   aggregationTime:
     begin: \b(?i)every\b
     end: '(?=;)'
@@ -425,7 +419,6 @@ repository:
     patterns:
      - include: '#integerLiteral'
   
-  #look into this attribute(mathoperation should be prioritised)
   outputAttribute:
     patterns:
       - name: 'keyword.control.siddhi'
@@ -601,7 +594,6 @@ repository:
       - include: '#propertyName'
       - include: '#integerLiteral'
   
-  #todo:solve issue can't distinguish between inner source and stream function 
   standardStream:
     begin: '(?i)(?<=from)'
     end: '(?i)(?=select)'
@@ -653,6 +645,8 @@ repository:
         match: '(?i)left(\W*)(?i)outer(\W*)(?i)join'
       - name: keyword.other.rightouterjoin.join.sidhdi
         match: '(?i)right(\W*)(?i)outer(\W*)(?i)join'
+      - name: keyword.other.fullouterjoin.join.sidhdi
+        match: '(?i)full(\W*)(?i)outer(\W*)(?i)join'
       - name: keyword.other.outerjoin.join.siddhi
         match: '(?i)outer(\W*)(?i)join'
       - name: keyword.other.innerjoin.join.siddhi
@@ -874,7 +868,6 @@ repository:
     patterns:
       - include: '#expression'
   
-  #todo:solve the issue:attribute reference stream reference being the same
   setClause:
     begin: '(?i)set'
     end: '(?i)(?=on|update|delete)'

@@ -19,7 +19,7 @@
  */
 
 /**
- * Main method which activates the extesnion.
+ * Main method which activates the extension.
  */
 import {ExtensionContext,window} from 'vscode';
 import { siddhiExtensionInstance } from './core/extension'
@@ -27,7 +27,7 @@ import { log } from './utils/logger';
 
 export function activate(context:ExtensionContext): Promise<any>{
    siddhiExtensionInstance.setContext(context);
-   return siddhiExtensionInstance.init().then()
+   return siddhiExtensionInstance.init()
    .catch(exception =>{
       log("Failed to activate Siddhi extension. " + (exception.message ? exception.message : exception));
       window.showWarningMessage("Siddhi extension did not start properly.")

@@ -17,34 +17,26 @@
  * under the License.
  *
  */
-import {
-    ExtensionContext, Extension, extensions,window
-} from "vscode";
-import {
-    INVALID_HOME_MSG, UNKNOWN_ERROR
-} from "./messages";
+
+import {ExtensionContext,window} from "vscode";
+import {INVALID_HOME_MSG, UNKNOWN_ERROR, EXTENSION_NOT_INITIALIZED_ERROR} from "./messages";
 import {getOutputChannel,log} from '../utils/logger';
 import { getServerOptions } from '../server/server';
 import { LanguageClient, LanguageClientOptions,RevealOutputChannelOn,State as LS_STATE} from "vscode-languageclient";
-const SIDDHI_HOME = "siddhi.home";
 import {workspace} from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
-
+const SIDDHI_HOME_CONFIG = "siddhi.home";
 export const EXTENSION_ID = 'siddhi.siddhi';
-//todo:check extension ID
 
-export class SiddhiExtension{
+export class SiddhiExtension {
 
-    public siddhiHome:string
-    public context?:ExtensionContext;
+    private siddhiHome:string
+    private context?:ExtensionContext;
     private clientOptions: LanguageClientOptions;
-    public langClient?: LanguageClient;
-    public extension: Extension<any>;
-
+    private langClient?: LanguageClient;
     constructor() {
         this.siddhiHome = '';
-        this.extension = extensions.getExtension(EXTENSION_ID)!;
         this.clientOptions = {
             documentSelector: [{ scheme: 'file', language: 'siddhi' }],
             outputChannel: getOutputChannel(),
@@ -58,61 +50,60 @@ export class SiddhiExtension{
     
     async init(): Promise<void>{
         try{
-            if(this.findSiddhiHome != null){
-                this.siddhiHome = this.findSiddhiHome();
+            let siddhiHome = this.findSiddhiHome()
+            if(siddhiHome != null){
+                this.siddhiHome = siddhiHome;
                 if(!this.isValidSiddhiHome(this.siddhiHome)){
-                    const msg = "Configured Siddhi home is not valid.";
-                    log(msg);
+                    log(INVALID_HOME_MSG);
                     this.showMessageInvalidSiddhiHome();
-                    return Promise.reject(msg);
+                    return Promise.reject(INVALID_HOME_MSG);
                 }
-                //add capability to auto detect siddhi home
+                log("Using " + String(this.siddhiHome) + " as Siddhi home.");
+                //forced debug option(parameter) is set to false as extension host enable forced debugging.
+                this.langClient = new LanguageClient('siddhi-vscode', 'Siddhi_Language_Server_Client', getServerOptions(this.siddhiHome),this.clientOptions,false);
+                const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
+                    if (stateChangeEvent.newState === LS_STATE.Stopped) {
+                        window.showErrorMessage(UNKNOWN_ERROR);
+                    }
+                });
+
+                let disposable = this.langClient.start();
+                this.langClient.onReady().then( state => {
+                    disposeDidChange.dispose()
+                    this.context!.subscriptions.push(disposable);
+                });
+            } else {
+                log(INVALID_HOME_MSG);
+                this.showMessageInvalidSiddhiHome();
+                return Promise.reject(INVALID_HOME_MSG);
             }
-            log("Using " + String(this.siddhiHome) + " as Siddhi home.");
-            this.langClient = new LanguageClient('siddhi-vscode', 'Siddhi Language Server Client', getServerOptions(this.siddhiHome),this.clientOptions,false);
-            const disposeDidChange = this.langClient.onDidChangeState(stateChangeEvent => {
-                if (stateChangeEvent.newState === LS_STATE.Stopped) {
-                    window.showErrorMessage(UNKNOWN_ERROR);
-                }
-            });
-
-            let disposable = this.langClient.start();
-
-            this.langClient.onReady().then(fulfilled => {
-                disposeDidChange.dispose()
-                this.context!.subscriptions.push(disposable);
-            });
-
         } catch (exception) {
-            const msg = "Error while activating plugin. " + (exception.message ? exception.message : exception);
+            const msg = INVALID_HOME_MSG + (exception.message ? exception.message : exception);
             window.showErrorMessage(UNKNOWN_ERROR);
             return Promise.reject(msg);
         }
     }
 
     public findSiddhiHome(): string {
-        return <string>workspace.getConfiguration().get(SIDDHI_HOME);
+        //if the siddhi.home is not configured in settings.json try SIDDHI_HOME environment variable
+        let siddhiHome = workspace.getConfiguration().get(SIDDHI_HOME_CONFIG);
+        if(siddhiHome){
+            return <string>siddhiHome;
+        } else {
+            return <string>process.env.SIDDHI_HOME;
+        }
     }
 
     public isValidSiddhiHome(siddhiHome:string):boolean{
         const siddhiCmdTooling = this.getSiddhiCmdTooling(siddhiHome);
         const siddhiCmdRunner = this.getSiddhiCmdRunner(siddhiHome);
-        if (fs.existsSync(siddhiCmdTooling)) {
-            return true;
-        }
-        else if (fs.existsSync(siddhiCmdRunner)){
-            return true
-        }
-        else{
-            return false;
-        }
+        return fs.existsSync(siddhiCmdTooling)|| fs.existsSync(siddhiCmdRunner);
     }
 
     onReady(): Promise<void> {
         if (!this.langClient) {
-            return Promise.reject('Siddhi Extesnion is not initialized');
+            return Promise.reject(EXTENSION_NOT_INITIALIZED_ERROR);
         }
-
         return this.langClient.onReady();
     }
 
@@ -128,7 +119,7 @@ export class SiddhiExtension{
 
     showMessageInvalidSiddhiHome(): void {
         const action = 'Open Settings';
-        window.showWarningMessage(INVALID_HOME_MSG, action)
+        window.showWarningMessage(INVALID_HOME_MSG, action);
     }
 }
 

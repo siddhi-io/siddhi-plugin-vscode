@@ -29,14 +29,12 @@ const main:string='StdioLauncher';
 
 export function getServerOptions(SIDDHI_HOME: string) : ServerOptions {
     debug(`Using Siddhi distribution at ${SIDDHI_HOME} for Language server.`);
-
     //configuration for setting java classpath at plugin start up 
     const SIDDHI_HOME_LIB = path.join(String(SIDDHI_HOME), 'lib','*');
     const SIDDHI_HOME_PLUGINS = path.join(String(SIDDHI_HOME), 'wso2','lib','plugins','*');
-    const LANGSERVER_LIB = path.join(String(SIDDHI_HOME), 'langserver_lib','*');
     const JAVA_HOME = process.env.JAVA_HOME
     let executable : string = path.join(String(JAVA_HOME),'bin', 'java');
-    let classPath = SIDDHI_HOME+':'+SIDDHI_HOME_LIB+':'+SIDDHI_HOME_PLUGINS+':'+LANGSERVER_LIB
+    let classPath = SIDDHI_HOME_LIB+':'+SIDDHI_HOME_PLUGINS
     let args: string[] = ['-cp',classPath];
 
     //To start the language server in debug mode for plugin development.

@@ -24,7 +24,6 @@
       {
         "id": "siddhi",
         "aliases": [
-          "siddhi",
           "siddhi"
         ],
         "extensions": [
@@ -43,25 +42,15 @@
       "type": "object",
       "title": "siddhi",
       "properties": {
-        "java.home": {
-          "type": "string",
-          "default": "",
-          "description": "Specifies the path to the java home directory"
-        },
         "siddhi.home": {
           "type": "string",
           "default": "",
           "description": "Specifies the path to the siddhi home directory"
         },
-        "siddhi.plugin.dev.mode": {
-          "type": "boolean",
-          "default": false,
-          "description": "Enable plugin development mode"
-        },
         "siddhi.debugLog": {
           "type": "boolean",
           "default": false,
-          "description": "If set to true debug msgs will be printed to Siddhi output channel"
+          "description": "If set to true debug messages will be printed to output channel"
         }
       }
     }
