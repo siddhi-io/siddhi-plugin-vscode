@@ -900,7 +900,4 @@ repository:
         captures:
           '2': {name: support.constant.siddhi }
           '4': {name: entity.other.attribute-name.siddhi}   
-  
 ...
-
-

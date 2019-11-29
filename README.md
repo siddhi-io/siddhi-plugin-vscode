@@ -108,12 +108,5 @@ To build the grammar file from `siddhi.tmLanguage.yaml` file execute `npm run bu
 5. Start Siddhi Language Server as a remote debug process at `port 5005`
 4. Refer more on debugging extension host at [https://code.visualstudio.com/docs/nodejs/nodejs-debugging](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
 
-
 # Support and contribution
 You can reachout through Slack channel, Google mail group and etc. Please refer the community contribution [site](https://siddhi.io/community/) for more information.
-
-
-
-
-
-

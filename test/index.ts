@@ -1,11 +1,8 @@
+"use strict";
 /**
  * Adopted code from https://github.com/codecov/example-typescript-vscode-extension/blob/master/test/index.ts (MIT license)
  */
-
-"use strict";
-
 declare var global: any;
-
 import * as fs from "fs";
 import * as glob from "glob";
 import * as paths from "path";

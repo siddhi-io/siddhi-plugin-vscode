@@ -18,10 +18,9 @@
  *
  */
 
-//import * as fs from 'fs';
 import * as path from 'path';
-// Siddhi  distribution home
-const SIDDHI_HOME = '/home/malintha/Documents/wso2/siddhi-modules/tooling/siddhi-tooling-5.1.0/';
+// Siddhi  distribution home:Siddhi home should be specified here
+const SIDDHI_HOME = '<SIDDHI-HOME>';
 
 export function getSiddhiHome(): string {
     return SIDDHI_HOME;

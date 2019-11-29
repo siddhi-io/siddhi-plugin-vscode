@@ -122,5 +122,4 @@ export class SiddhiExtension {
         window.showWarningMessage(INVALID_HOME_MSG, action);
     }
 }
-
 export const siddhiExtensionInstance = new SiddhiExtension();
