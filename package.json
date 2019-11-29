@@ -1,0 +1,84 @@
+{
+  "name": "siddhi",
+  "displayName": "Siddhi",
+  "description": "Intellisense for Siddhi",
+  "version": "1.0.0",
+  "publisher": "malintha16",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Malintha1996/siddhi-plugin-vscode"
+  },
+  "icon": "resources/images/siddhi.jpeg",
+  "engines": {
+    "vscode": "^1.30.2"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onLanguage:siddhi"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "siddhi",
+        "aliases": [
+          "siddhi"
+        ],
+        "extensions": [
+          ".siddhi"
+        ]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "siddhi",
+        "scopeName": "source.siddhi",
+        "path": "./grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "siddhi",
+      "properties": {
+        "siddhi.home": {
+          "type": "string",
+          "default": "",
+          "description": "Specifies the path to the siddhi home directory"
+        },
+        "siddhi.debugLog": {
+          "type": "boolean",
+          "default": false,
+          "description": "If set to true debug messages will be printed to output channel"
+        }
+      }
+    }
+  },
+  "main": "./out/src/extension",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test",
+    "package": "vsce package",
+    "build-tm-grammar": "js-yaml grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.yaml > grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.json"
+  },
+  "devDependencies": {
+    "@types/node": "^12.0.12",
+    "@types/mocha": "^2.2.42",
+    "mocha": "^5.2.0",
+    "glob": "^7.1.6",
+    "js-yaml": "^3.13.1",
+    "tslint": "^5.8.0",
+    "typescript": "^3.5.2",
+    "vsce": "^1.64.0",
+    "vscode": "1.1.34",
+    "istanbul": "^0.4.5",
+    "remap-istanbul": "^0.13.0"
+  },
+  "dependencies": {
+    "@types/glob": "^7.1.1",
+    "vscode-languageclient": "5.1.1"
+  }
+}
