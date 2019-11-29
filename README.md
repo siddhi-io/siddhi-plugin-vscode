@@ -23,16 +23,16 @@ VSCode Siddhi extension provides rich Siddhi development capabilities in VSCode.
 ## Syntax Highlighting
 * Lexical sub-elements are highlighted in various colors based on the theme that has been activated in your VSCode editor.
 ![syntax-highlighting-image](./resources/images/syntax_highlighting.png)
-# How to use the extension
-## Download Visual Studio Code
-Download the [Visual Studio Code editor.](https://code.visualstudio.com/download)
 
-## Siddhi Language Server
+# Siddhi Language Server
 The extension uses Siddhi Language Server to provide language analytic capabilits using [language server protocol](https://microsoft.github.io/language-server-protocol/).
 
 Currently, the language server is capable of providing context based auto-completions and diagnostics.
 
 Find the implementation of the Siddhi Language Server at [https://github.com/siddhi-io/distribution](https://github.com/siddhi-io/distribution)
+# How to use the extension
+## Download Visual Studio Code
+Download the [Visual Studio Code editor.](https://code.visualstudio.com/download)
 
 ## Installing the plugin
 * Installing from VSCode editor's extension marketplace

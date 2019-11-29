@@ -2,7 +2,7 @@
   "name": "siddhi",
   "displayName": "Siddhi",
   "description": "Intellisense for Siddhi",
-  "version": "1.0.0-alpha",
+  "version": "1.0.0",
   "publisher": "siddhi",
   "repository": {
     "type": "git",
