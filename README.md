@@ -1,2 +1,2 @@
-# siddhi-plugin-vscode
+#  siddhi-plugin-vscode
 Siddhi extension for VSCode Editor
