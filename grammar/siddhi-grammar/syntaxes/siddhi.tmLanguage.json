@@ -9,15 +9,11 @@
       "include": "#siddhiApp"
     },
     {
-      "include": "#onDemandQuery"
-    },
-    {
       "include": "#comment"
     }
   ],
   "repository": {
     "siddhiApp": {
-      "begin": "(?i)(?=@\\s*app\\s*:\\s*name)",
       "name": "siddhiapp.siddhi",
       "patterns": [
         {
@@ -83,6 +79,9 @@
       "name": "appannotation.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#annotationElement"
         }
       ]
@@ -109,6 +108,9 @@
       "name": "annotation.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#annotation"
         },
         {
@@ -121,6 +123,9 @@
       "end": "(?=\\))",
       "name": "annotation.annotationelement.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "include": "#annotation"
         },
@@ -163,6 +168,9 @@
       "name": "definition.stream.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#annotation"
         },
         {
@@ -192,6 +200,9 @@
       "name": "definition.table.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#definitionAttributeList"
         },
         {
@@ -217,6 +228,9 @@
       },
       "name": "definition.window.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "include": "#definitionAttributeList"
         },
@@ -251,6 +265,9 @@
       "name": "attributelist.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#attributeType"
         },
         {
@@ -261,20 +278,40 @@
     "attribute": {
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#mathOperation"
         }
       ]
     },
     "attributeType": {
-      "name": "storage.type.attributetype.siddhi",
-      "match": "\\b((?i)string|(?i)int|(?i)long|(?i)float|(?i)double|(?i)bool|(?i)object)\\b"
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "name": "storage.type.attributetype.siddhi",
+          "match": "\\b((?i)string|(?i)int|(?i)long|(?i)float|(?i)double|(?i)bool|(?i)object)\\b"
+        }
+      ]
     },
     "attributeName": {
-      "name": "variable.parameter.attributename.siddhi",
-      "match": "([a-zA-Z_][a-zA-Z_0-9]*)"
+      "patterns": [
+        {
+          "include": "#comment"
+        },
+        {
+          "name": "variable.parameter.attributename.siddhi",
+          "match": "([a-zA-Z_][a-zA-Z_0-9]*)"
+        }
+      ]
     },
     "source": {
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "entity.other.attribute-name.streamid.source.siddhi",
           "match": "(?i)(?<=\\stable)(\\s*)(\\s*[a-zA-Z_][a-zA-Z_0-9]*)"
@@ -327,6 +364,9 @@
       "name": "function.operation.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#functionNamespace"
         },
         {
@@ -371,6 +411,9 @@
     "mathOperation": {
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "operator.numerical.math.operation.siddhi",
           "match": "\\+|\\*|\\/|-|%|==|!=|\\>=|<=|\\>|\\<"
         },
@@ -410,6 +453,9 @@
     "streamReference": {
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "support.constant.siddhi",
           "match": "#|!"
         },
@@ -426,6 +472,9 @@
       "name": "attribute.reference.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "support.constant.siddhi",
           "match": "#|!"
         },
@@ -440,6 +489,9 @@
     },
     "constantValue": {
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "constant.language.boolean.siddhi",
           "match": "\\b(?i)(true|false)\\b"
@@ -506,6 +558,9 @@
       "name": "definition.function.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "keyword.control.siddhi",
           "match": "(?i)\\breturn\\b"
         },
@@ -542,12 +597,18 @@
       "name": "function.body.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "source.js"
         }
       ]
     },
     "functionName": {
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "entity.other.attribute-name.function.name.siddhi",
           "match": "[a-zA-Z_][a-zA-Z_0-9]*"
@@ -568,6 +629,9 @@
         }
       },
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "entity.name.tag.language.siddhi",
           "match": "[a-zA-Z_][a-zA-Z_0-9]*"
@@ -592,6 +656,9 @@
       },
       "name": "definition.trigger.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "include": "#keywords"
         },
@@ -633,6 +700,9 @@
       "name": "aggregation.definition.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "keyword.control.siddhi",
           "match": "(?i)by"
         },
@@ -672,6 +742,9 @@
       "name": "groupbyqueryselection.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "support.constant.siddhi",
           "match": "\\*"
         },
@@ -693,6 +766,9 @@
       },
       "name": "aggregation.time.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "support.constnst.siddhi",
           "match": "\\.\\s*\\.\\s*\\."
@@ -760,6 +836,9 @@
       "name": "stream.function.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#functionOperation"
         }
       ]
@@ -789,6 +868,9 @@
     },
     "outputAttribute": {
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "keyword.control.siddhi",
           "match": "(?i)\\bas\\b"
@@ -1000,6 +1082,9 @@
       "name": "executionelement.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#query"
         },
         {
@@ -1012,6 +1097,9 @@
       "end": "(?=;)",
       "name": "query.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "include": "#queryInput"
         },
@@ -1036,6 +1124,9 @@
       "end": "(?i)(?=select|update|delete|return|insert)",
       "name": "input.query.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "keyword.other.siddhi",
           "match": "(?<=from)\\s*(?i)\\bevery\\b"
@@ -1136,6 +1227,9 @@
       "name": "standardstream.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#filter"
         },
         {
@@ -1148,6 +1242,9 @@
     },
     "sequenceSource": {
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "entity.other.attribute-name.sequence.source.siddhi",
           "match": "(?<=\\=)(\\s*)[a-zA-Z_][a-zA-Z_0-9]*"
@@ -1173,6 +1270,9 @@
       "name": "anonymousstream.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "keyword.control.siddhi",
           "match": "(?i)return"
         },
@@ -1196,6 +1296,9 @@
       "name": "on.expression.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#expression"
         }
       ]
@@ -1206,12 +1309,18 @@
       "name": "on.expression.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#expression"
         }
       ]
     },
     "join": {
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "keyword.other.siddhi.leftouterjoin.join.siddhi",
           "match": "(?i)left(\\W*)(?i)outer(\\W*)(?i)join"
@@ -1248,6 +1357,9 @@
       "end": "(?i)(?=return|insert|delete|update|;)",
       "name": "outputrate.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "include": "#outputRateType"
         },
@@ -1291,6 +1403,9 @@
       "name": "output.query.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "keyword.control.siddhi",
           "match": "(?i)for"
         },
@@ -1318,6 +1433,9 @@
       "name": "partition.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#partitionWithStreamList"
         },
         {
@@ -1341,12 +1459,18 @@
       "name": "partitionwithstreamlist.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#partitionWithStream"
         }
       ]
     },
     "partitionWithStream": {
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "keyword.other.siddhi",
           "match": "(?i)of"
@@ -1385,6 +1509,9 @@
       },
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "keyword.control.siddhi",
           "match": "(?i)from"
         },
@@ -1412,6 +1539,9 @@
       },
       "name": "ondemand.query.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "keyword.control.siddhi",
           "match": "(?i)insert(\\s*)(?i)into"
@@ -1458,6 +1588,9 @@
       "name": "input.ondemand.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "name": "keyword.control.siddhi",
           "match": "(?i)\\bas\\b"
         },
@@ -1500,6 +1633,9 @@
       "name": "withintimerange.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#expression"
         }
       ]
@@ -1514,6 +1650,9 @@
       },
       "name": "querysection.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "support.constant.sddhi",
           "match": "\\*"
@@ -1556,6 +1695,9 @@
       "name": "phrase.groupbys.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#attributeReference"
         }
       ]
@@ -1570,6 +1712,9 @@
       },
       "name": "phrase.having.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "include": "#expression"
         }
@@ -1588,6 +1733,9 @@
       },
       "name": "phrase.orderby.siddhi",
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "include": "#order"
         },
@@ -1662,6 +1810,9 @@
       "name": "output.ondemand.siddhi",
       "patterns": [
         {
+          "include": "#comment"
+        },
+        {
           "include": "#target"
         },
         {
@@ -1671,6 +1822,9 @@
     },
     "target": {
       "patterns": [
+        {
+          "include": "#comment"
+        },
         {
           "name": "entity.other.attribute-name.source.target.siddhi",
           "match": "(?i)(?<=into|update|delete)(\\s*)([a-zA-Z_][a-zA-Z_0-9]*)"

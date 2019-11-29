@@ -5,12 +5,11 @@ fileTypes: [siddhi]
 
 patterns:
   - include: '#siddhiApp'
-  - include: '#onDemandQuery'
+ # - include: '#onDemandQuery'
   - include: '#comment'
   
 repository:
   siddhiApp:
-    begin: '(?i)(?=@\s*app\s*:\s*name)'
     name: siddhiapp.siddhi
     patterns:
       - include: '#appAnnotation'
@@ -38,6 +37,7 @@ repository:
       '0': { name: support.constant.punctuation.paren.close.siddhi}
     name: appannotation.siddhi
     patterns:
+      - include: '#comment'
       - include: '#annotationElement'
 
   annotation:
@@ -51,6 +51,7 @@ repository:
       '0': {name: support.constant.punctuation.paren.close.siddhi}
     name: annotation.siddhi
     patterns:
+      - include: '#comment'
       - include: '#annotation'
       - include: '#annotationElement'
 
@@ -59,6 +60,7 @@ repository:
     end: '(?=\))'
     name: annotation.annotationelement.siddhi
     patterns:
+      - include: '#comment'
       - include: '#annotation'
       - include: '#propertyName'
       - include: '#propertyValue'
@@ -82,6 +84,7 @@ repository:
       '0': { name: support.constant.punctuation.semi-colon.siddhi}
     name: definition.stream.siddhi
     patterns:
+      - include: '#comment'
       - include: '#annotation'
       - include: '#definitionAttributeList'
       - include: '#source'
@@ -96,6 +99,7 @@ repository:
       '0': { name: support.constant.punctuation.semi-colon.siddhi}
     name: definition.table.siddhi
     patterns:
+      - include: '#comment'
       - include: '#definitionAttributeList'
       - include: '#source'
 
@@ -109,6 +113,7 @@ repository:
       '0': { name: support.constant.siddhi}
     name: definition.window.siddhi
     patterns:
+      - include: '#comment'
       - include: '#definitionAttributeList'
       - include: '#functionOperation'
       - include: '#source'
@@ -125,23 +130,30 @@ repository:
      '0': {name: support.constant.punctuation.paren.close.siddhi}
     name: attributelist.siddhi
     patterns:
+      - include: '#comment'
       - include: '#attributeType'
       - include: '#attributeName'
   
   attribute:
     patterns:
+      - include: '#comment' 
       - include: '#mathOperation'
 
   attributeType:
-      name: storage.type.attributetype.siddhi
-      match: '\b((?i)string|(?i)int|(?i)long|(?i)float|(?i)double|(?i)bool|(?i)object)\b'
+    patterns:
+      - include: '#comment' 
+      - name: storage.type.attributetype.siddhi
+        match: '\b((?i)string|(?i)int|(?i)long|(?i)float|(?i)double|(?i)bool|(?i)object)\b'
 
   attributeName:
-    name: variable.parameter.attributename.siddhi
-    match: '([a-zA-Z_][a-zA-Z_0-9]*)'  
+    patterns:
+      - include: '#comment' 
+      - name: variable.parameter.attributename.siddhi
+        match: '([a-zA-Z_][a-zA-Z_0-9]*)'  
 
   source:
     patterns:
+      - include: '#comment' 
       - name: entity.other.attribute-name.streamid.source.siddhi
         match: '(?i)(?<=\stable)(\s*)(\s*[a-zA-Z_][a-zA-Z_0-9]*)'
       - name: entity.other.attribute-name.streamid.source.siddhi
@@ -170,6 +182,7 @@ repository:
     end: '(?<=\))'
     name: function.operation.siddhi
     patterns:
+      - include: '#comment' 
       - include: '#functionNamespace'
       - include: '#functionId'
       - include: '#attributeList'
@@ -196,6 +209,7 @@ repository:
 
   mathOperation:
     patterns:
+      - include: '#comment' 
       - name: operator.numerical.math.operation.siddhi
         match: '\+|\*|\/|-|%|==|!=|\>=|<=|\>|\<'
       - name: keyword.operator.logical.math.operation.siddhi
@@ -214,6 +228,7 @@ repository:
        
   streamReference:
     patterns:
+     - include: '#comment'
      - name: support.constant.siddhi
        match: '#|!'
      - name: variable.parameter.stream.reference.siddhi
@@ -223,6 +238,7 @@ repository:
   attributeReference:
     name: attribute.reference.siddhi
     patterns:
+     - include: '#comment'
      - name: support.constant.siddhi
        match: '#|!'
      - name: variable.parameter.attributereference.siddhi
@@ -231,6 +247,7 @@ repository:
 
   constantValue:
     patterns:
+      - include: '#comment' 
       - name: constant.language.boolean.siddhi
         match: '\b(?i)(true|false)\b'
       - name: constant.numeric.double.siddhi
@@ -266,6 +283,7 @@ repository:
       '0': { name: support.constant.siddhi}
     name: definition.function.siddhi
     patterns:
+      - include: '#comment'
       - name: keyword.control.siddhi
         match: '(?i)\breturn\b'
       - include: '#attributeType'
@@ -283,6 +301,7 @@ repository:
       '0': {name: support.constant.siddhi}
     name: function.body.siddhi
     patterns:
+      - include: '#comment'
       - include: 'source.js'
       #- include: 'source.r'
       #include other supported languages as source.r,source.py ,vscode-api will automattically 
@@ -290,6 +309,7 @@ repository:
       
   functionName:
     patterns:
+     - include: '#comment' 
      - name: entity.other.attribute-name.function.name.siddhi
        match: '[a-zA-Z_][a-zA-Z_0-9]*'
   
@@ -301,6 +321,7 @@ repository:
     endCaptures:
       '0': {name: support.constant.siddhi}
     patterns:
+      - include: '#comment' 
       - name: entity.name.tag.language.siddhi 
         match: '[a-zA-Z_][a-zA-Z_0-9]*'
   
@@ -314,6 +335,7 @@ repository:
       '0': { name: support.constant.siddhi}
     name: definition.trigger.siddhi
     patterns:
+      - include: '#comment'
       - include: '#keywords'
       - include: '#triggerName'
       - name: keyword.control.siddhi
@@ -333,6 +355,7 @@ repository:
       '0': { name: support.constant}
     name: aggregation.definition.siddhi
     patterns:
+      - include: '#comment'
       - name: keyword.control.siddhi
         match: '(?i)by'
       - name: keyword.control.siddhi
@@ -352,6 +375,7 @@ repository:
     end: '(?=(?i)aggregate)'
     name: groupbyqueryselection.siddhi
     patterns:
+      - include: '#comment'
       - name: support.constant.siddhi
         match: '\*'
       - include: '#groupBy'
@@ -364,6 +388,7 @@ repository:
       '0': {name: keyword.control.siddhi}
     name: aggregation.time.siddhi
     patterns:
+      - include: '#comment' 
       - name: support.constnst.siddhi
         match: '\.\s*\.\s*\.'
       - name: constant.other.timevalue.siddhi
@@ -400,6 +425,7 @@ repository:
       '0': {name: support.constant.siddhi}
     name: stream.function.siddhi
     patterns:
+      - include: '#comment' 
       - include: '#functionOperation'
 
   expression:
@@ -421,6 +447,7 @@ repository:
   
   outputAttribute:
     patterns:
+      - include: '#comment' 
       - name: 'keyword.control.siddhi'
         match: '(?i)\bas\b'
       - include: '#attribute'
@@ -533,6 +560,7 @@ repository:
       '0': { name: support.constant.siddi}
     name: executionelement.siddhi
     patterns:  
+      - include: '#comment'
       - include: '#query'
       - include: '#partition'
   
@@ -541,6 +569,7 @@ repository:
     end: '(?=;)'
     name: query.siddhi
     patterns:
+      - include: '#comment'
       - include: '#queryInput'
       - include: '#querySection'
       - include: '#outputRate'
@@ -553,6 +582,7 @@ repository:
     end: '(?i)(?=select|update|delete|return|insert)'
     name: input.query.siddhi
     patterns:
+      - include: '#comment' 
       - name: keyword.other.siddhi
         match: '(?<=from)\s*(?i)\bevery\b'
       - name: keyword.other.siddhi
@@ -599,12 +629,14 @@ repository:
     end: '(?i)(?=select)'
     name: standardstream.siddhi
     patterns:
+      - include: '#comment' 
       - include: '#filter'
       - include: '#streamFunction'
       - include: '#source'
 
   sequenceSource:
     patterns:
+      - include: '#comment' 
       - name: entity.other.attribute-name.sequence.source.siddhi
         match: '(?<=\=)(\s*)[a-zA-Z_][a-zA-Z_0-9]*'
 
@@ -618,6 +650,7 @@ repository:
       '0': {name: support.constant.siddhi}
     name: anonymousstream.siddhi 
     patterns:
+      - include: '#comment'
       - name: keyword.control.siddhi
         match: '(?i)return'
       - include: '#queryInput'
@@ -630,6 +663,7 @@ repository:
     end: '(?i)(?=select|within|;)'
     name: on.expression.siddhi
     patterns:
+      - include: '#comment'
       - include: '#expression'
 
   perExpression:
@@ -637,10 +671,12 @@ repository:
     end: '(?i)(?=select|output|insert|delete|update|return|;)'
     name: on.expression.siddhi
     patterns:
+      - include: '#comment'
       - include: '#expression'
 
   join:
     patterns:
+      - include: '#comment'
       - name: keyword.other.siddhi.leftouterjoin.join.siddhi
         match: '(?i)left(\W*)(?i)outer(\W*)(?i)join'
       - name: keyword.other.rightouterjoin.join.sidhdi
@@ -661,6 +697,7 @@ repository:
     end: '(?i)(?=return|insert|delete|update|;)'
     name: outputrate.siddhi
     patterns:
+      - include: '#comment'
       - include: '#outputRateType'
       - include: '#integerLiteral'
       - name: keyword.control.siddhi
@@ -684,6 +721,7 @@ repository:
       '1' : {name: keyword.control.siddhi}
     name: output.query.siddhi
     patterns:
+      - include: '#comment'
       - name: keyword.control.siddhi
         match: '(?i)for'
       - name: keyword.control.siddhi
@@ -698,6 +736,7 @@ repository:
     end: '(?=;)'
     name: partition.siddhi
     patterns:
+      - include: '#comment'
       - include: '#partitionWithStreamList'
       - include: '#queryBlock'
 
@@ -710,10 +749,12 @@ repository:
       '0': { name: support.constant.siddhi}
     name: partitionwithstreamlist.siddhi
     patterns:
+      - include: '#comment'
       - include: '#partitionWithStream'
     
   partitionWithStream:
     patterns: 
+      - include: '#comment'
       - name: keyword.other.siddhi
         match: '(?i)of'
       - name: keyword.other.siddhi
@@ -732,6 +773,7 @@ repository:
     endCaptures:
       '0': {name: keyword.other.sidhdi}
     patterns:
+      - include: '#comment'
       - name: keyword.control.siddhi
         match: '(?i)from'
       - name: support.constant.siddhi
@@ -747,6 +789,7 @@ repository:
       '0': {name: support.constant.siddhi}
     name: ondemand.query.siddhi
     patterns:
+      - include: '#comment'
       - name: keyword.control.siddhi
         match: '(?i)insert(\s*)(?i)into'
       - name: keyword.control.siddhi
@@ -769,6 +812,7 @@ repository:
     end: '(?i)(?=select|delete|update|output)' 
     name: input.ondemand.siddhi
     patterns:
+      - include: '#comment'
       - name: keyword.control.siddhi
         match: '(?i)\bas\b'
       - name: keyword.control.siddhi
@@ -791,6 +835,7 @@ repository:
       '0': {name: keyword.control.siddhi}
     name: withintimerange.siddhi
     patterns:
+      - include: '#comment'
       - include: '#expression'
   
   #todo:change instert-> insert_into , update-> update or insert_into
@@ -801,6 +846,7 @@ repository:
       '0': {name: 'keyword.control.siddhi'}
     name: querysection.siddhi
     patterns:
+      - include: '#comment'
       - name: support.constant.sddhi
         match: '\*'
       - name: keyword.other.siddhi
@@ -820,6 +866,7 @@ repository:
     end: '(?=aggregate|having|order\s*by|limit|offset|insert|update|output|;)'
     name: phrase.groupbys.siddhi
     patterns:
+      - include: '#comment'
       - include: '#attributeReference'
 
   having:
@@ -829,6 +876,7 @@ repository:
       '0': { name: keyword.control.siddhi}
     name: phrase.having.siddhi
     patterns:
+      - include: '#comment'
       - include: '#expression'
 
   orderBy:
@@ -839,6 +887,7 @@ repository:
       '3': {name: keyword.control.siddhi}
     name: phrase.orderby.siddhi
     patterns:
+      - include: '#comment'
       - include: '#order'
       - include: '#expression'
 
@@ -883,11 +932,13 @@ repository:
     end: (?=;)
     name: output.ondemand.siddhi
     patterns:
+      - include: '#comment'
       - include: '#target'
       - include: '#expression'
 
   target:
     patterns:
+      - include: '#comment'
       - name: entity.other.attribute-name.source.target.siddhi
         match: '(?i)(?<=into|update|delete)(\s*)([a-zA-Z_][a-zA-Z_0-9]*)' 
       - name: source.target.siddhi

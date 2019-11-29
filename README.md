@@ -15,14 +15,14 @@ VSCode Siddhi extension provides rich Siddhi development capabilities in VSCode.
 ## IntelliSence
 * Auto completion-Context based auto completions by Siddhi Language Server
 * Snippets- Context based snippets by Siddhi Language Server
-![comepltion-image](./resources/images/completion.png)
+![comepltion-image](resources/images/completion.png)
 ## Diagnostics
 * Semantic/Syntactic error reporting as code is typed
-![diagnostics-image](./resources/images/diagnostics.png)
+![diagnostics-image](resources/images/diagnostics.png)
 
 ## Syntax Highlighting
 * Lexical sub-elements are highlighted in various colors based on the theme that has been activated in your VSCode editor.
-![syntax-highlighting-image](./resources/images/syntax_highlighting.png)
+![syntax-highlighting-image](resources/images/syntax_highlighting.png)
 
 # Siddhi Language Server
 The extension uses Siddhi Language Server to provide language analytic capabilits using [language server protocol](https://microsoft.github.io/language-server-protocol/).
@@ -59,12 +59,12 @@ In a new Command Line tab, execute the below command.
 `$ code --install-extension <SIDDHI-PLUGIN-DIRECTORY>`
 
 ## Configuring Siddhi Home
- >**Note**: Siddhi distribution **version 5.1.8** or higher should be available locally.
+ >**Note**: Siddhi distribution **version 5.1.2** or higher should be available locally.
 1. Configure Siddhi home in `settings.json`
     * Press `Ctrl+Shift+P`  and type  `Open settings`. 
     * The Open Settings (JSON) command will let you directly edit the `settings.json` file.
     * add `siddhi.home:"<SIDDHI-HOME-DIRECTORY>"` to `settings.json` file as below.
-    ![siddhi-home-configuration-image](./resources/images/siddhi-home-configuration.png)
+    ![siddhi-home-configuration-image](resources/images/siddhi-home-configuration.png)
 2. Having ``SIDDHI_HOME`` as an environment variable.
 
 # Building and Debugging the Extesnion
@@ -73,7 +73,7 @@ In a new Command Line tab, execute the below command.
 1. Fork and Colone  [https://github.com/siddhi-io/siddhi-plugin-vscode](https://github.com/siddhi-io/siddhi-plugin-vscode)
 2. execute  `npm install` in the terminal at the cloned directory, which downloads the required dependencies in the `package.json` file.
 3. execute  `npm run compile` in the terminal at the cloned directory, which compiles the source code of the extension.
-4. execute `npm run package` to build the `.vsix` .file.
+4. execute `npm run package` to build the `.vsix` file.
 
 ## Building Siddhi TextMate grammar file
 `siddhi.tmLanguage.json` file provides [*text mate garmmar*](https://macromates.com/manual/en/language_grammars) for siddhi, which is used for syntax highlighting feature of the extension.
@@ -106,7 +106,7 @@ To build the grammar file from `siddhi.tmLanguage.yaml` file execute `npm run bu
 2. Add  `"siddhi.debugLog":true` configuration to `settings.json` file to enable debug log.
 3. Clone Siddhi Language Server source code from [https://github.com/siddhi-io/distribution](https://github.com/siddhi-io/distribution).
 5. Start Siddhi Language Server as a remote debug process at `port 5005`
-4. Refer more on debugging extension host at [https://code.visualstudio.com/docs/nodejs/nodejs-debugging](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
+4. Refer more on debugging on extension host at [https://code.visualstudio.com/docs/nodejs/nodejs-debugging](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
 
 # Support and contribution
 You can reachout through Slack channel, Google mail group and etc. Please refer the community contribution [site](https://siddhi.io/community/) for more information.
