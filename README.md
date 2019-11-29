@@ -1,3 +1,4 @@
+
 # Siddhi Extension for Visual Studio Code
 VSCode Siddhi extension provides rich Siddhi development capabilities in VSCode.
 
@@ -110,3 +111,4 @@ To build the grammar file from `siddhi.tmLanguage.yaml` file execute `npm run bu
 
 # Support and contribution
 You can reachout through Slack channel, Google mail group and etc. Please refer the community contribution [site](https://siddhi.io/community/) for more information.
+
