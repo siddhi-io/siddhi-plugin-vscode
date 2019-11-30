@@ -6,7 +6,7 @@
   "publisher": "siddhi.io",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Malintha1996/siddhi-plugin-vscode"
+    "url": "https://github.com/siddhi-io/siddhi-plugin-vscode"
   },
   "icon": "resources/images/siddhi-logo.png",
   "engines": {

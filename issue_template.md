@@ -16,7 +16,3 @@
 
 **Related Issues:**
 <!-- Any related issues such as sub tasks, issues reported in other repositories (e.g component repositories), similar problems, etc. -->
-
-
-**Related Issues:**
-<!-- Any related issues such as sub tasks, issues reported in other repositories (e.g component repositories), similar problems, etc. -->
