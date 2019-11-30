@@ -1,3 +1,4 @@
+
 # Siddhi Extension for Visual Studio Code
 A VSCode extension which provides rich Siddhi development capabilities. This extension supports [siddhi distribution](https://github.com/siddhi-io/distribution) *version (>=5.1.2)* with features such as IntelliSence, diagnostics and syntax highlighting.
 

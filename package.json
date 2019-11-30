@@ -1,20 +1,25 @@
 {
   "name": "siddhi",
   "displayName": "Siddhi",
-  "description": "Intellisense for Siddhi",
+  "description": "IntelliSense, Diagnostics and Syntax Highlighting for Siddhi apps",
   "version": "1.0.0",
-  "publisher": "malintha16",
+  "publisher": "siddhi.io",
   "repository": {
     "type": "git",
     "url": "https://github.com/Malintha1996/siddhi-plugin-vscode"
   },
-  "icon": "resources/images/siddhi.jpeg",
+  "icon": "resources/images/siddhi-logo.png",
   "engines": {
     "vscode": "^1.30.2"
   },
   "categories": [
     "Programming Languages",
     "Snippets"
+  ],
+  "keywords": [
+    "siddhi",
+    "stream processing",
+    "cep"
   ],
   "activationEvents": [
     "onLanguage:siddhi"
