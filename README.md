@@ -14,10 +14,9 @@ A VSCode extension which provides rich Siddhi development capabilities, such as 
     * Press `Ctrl+Shift+P` / `Cmd+Shift+P` and type  `Open settings`. 
     * The `Open Settings (JSON)` command will let you edit the `settings.json` file directly.
     * Add `siddhi.home:"<SIDDHI-HOME-DIRECTORY>"` to `settings.json` file as below,
-
-    <img height="281" width="500" src="resources/images/siddhi-home-configuration.png" alt="siddhi-home-configuration-image"></img>
+      <img height="281" width="500" src="resources/images/siddhi-home-configuration.png" alt="siddhi-home-configuration-image"></img>
     
-2. Having ``SIDDHI_HOME`` as an environment variable.
+2. Add ``SIDDHI_HOME`` as an environment variable.
 
 
 ## Language Features
@@ -31,13 +30,10 @@ A VSCode extension which provides rich Siddhi development capabilities, such as 
 ### Syntax Highlighting
 * Lexical sub-elements are highlighted in various colors based on the theme that has been activated in your VSCode editor.
 
-|  IntelliSence         |Diagnostics  |
+|||
 :-------------------------:|:-------------------------:
 | <img height="281" width="500" src="resources/images/completion.png" alt="comepltion-image"></img> | <img height="281" width="500" src="resources/images/diagnostics.png" alt="diagnostics-image"></img> |
-
-|    Syntax Highlighting      |  
-:-------------------------:
-<img height="281" width="500" src="resources/images/syntax_highlighting.png" alt="syntax-highlighting-image"></img> 
+|<img height="281" width="500" src="resources/images/syntax_highlighting.png" alt="syntax-highlighting-image"></img> ||
 
 ## Contributing
 
