@@ -30,10 +30,17 @@ A VSCode extension which provides rich Siddhi development capabilities, such as 
 ### Syntax Highlighting
 * Lexical sub-elements are highlighted in various colors based on the theme that has been activated in your VSCode editor.
 
-|||
-:-------------------------:|:-------------------------:
-| <img height="281" width="500" src="resources/images/completion.png" alt="comepltion-image"></img> | <img height="281" width="500" src="resources/images/diagnostics.png" alt="diagnostics-image"></img> |
-|<img height="281" width="500" src="resources/images/syntax_highlighting.png" alt="syntax-highlighting-image"></img> ||
+<table>
+  <tr>
+    <td> <img height="281" width="500" src="resources/images/completion.png" alt="comepltion-image"/> </td>
+    <td> <img height="281" width="500" src="resources/images/diagnostics.png" alt="diagnostics-image"/> </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center"> 
+     <img height="281" width="500" src="resources/images/syntax_highlighting.png" alt="syntax-highlighting-image"/> 
+     </td>
+  </tr>
+</table>
 
 ## Contributing
 
