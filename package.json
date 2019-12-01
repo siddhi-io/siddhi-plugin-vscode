@@ -3,7 +3,7 @@
   "displayName": "Siddhi",
   "description": "IntelliSense, Diagnostics and Syntax Highlighting for Siddhi apps",
   "version": "1.0.0",
-  "publisher": "siddhi-io",
+  "publisher": "siddhi",
   "repository": {
     "type": "git",
     "url": "https://github.com/siddhi-io/siddhi-plugin-vscode"
@@ -29,7 +29,8 @@
       {
         "id": "siddhi",
         "aliases": [
-          "Siddhi"
+          "Siddhi",
+          "siddhi"
         ],
         "extensions": [
           ".siddhi"
