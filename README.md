@@ -5,9 +5,10 @@ A VSCode extension which provides rich Siddhi development capabilities, such as 
 ## Quick Start
 
 1. Download [Siddhi distribution](https://siddhi.io/en/v5.1/download/) (**version 5.1.2** or higher should be available locally)
+<!-- update the version of the distribution url to once the /latest is supported.>
 <!-- add sdk support as well-->
 <!--or [Siddhi SDK](https://siddhi.io/en/v5.1/download/#pysiddhi) should be available locally.-->
-1. Configure Siddhi Home
+2. Configure Siddhi Home
 
     `Siddhi Home` can be configured by either of the following methods,
 
@@ -49,7 +50,8 @@ A VSCode extension which provides rich Siddhi development capabilities, such as 
 
 ## Contributing
 
-For instructions on how to build, debug and contribute to Siddhi vscode extension go to The [Siddhi Visual Studio Code Contribution Guide.](contribute.md)
+## Contributing to Siddhi VSCode Extesnion
+For instructions on how to build, debug and contribute to vscode extension go to The [Siddhi Visual Studio Code Contribution Guide.](CONTRIBUTING.md)
 
 ## Support
 

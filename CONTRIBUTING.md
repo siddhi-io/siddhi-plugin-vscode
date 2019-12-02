@@ -22,6 +22,7 @@ To build the grammar file from `siddhi.tmLanguage.yaml` file execute `npm run bu
     * Add the following configuration to `launch.json` to run the extension on extension host.
 
     ```json
+
         {
             "type": "extensionHost",
             "request": "launch",
