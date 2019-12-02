@@ -3,12 +3,12 @@
   "displayName": "Siddhi",
   "description": "IntelliSense, Diagnostics and Syntax Highlighting for Siddhi apps",
   "version": "1.0.0",
-  "publisher": "siddhi.io",
+  "publisher": "siddhi",
   "repository": {
     "type": "git",
     "url": "https://github.com/siddhi-io/siddhi-plugin-vscode"
   },
-  "icon": "resources/images/siddhi-logo.png",
+  "icon": "resources/images/siddhi-icon.png",
   "engines": {
     "vscode": "^1.30.2"
   },
@@ -29,6 +29,7 @@
       {
         "id": "siddhi",
         "aliases": [
+          "Siddhi",
           "siddhi"
         ],
         "extensions": [
@@ -45,12 +46,12 @@
     ],
     "configuration": {
       "type": "object",
-      "title": "siddhi",
+      "title": "Siddhi",
       "properties": {
         "siddhi.home": {
           "type": "string",
           "default": "",
-          "description": "Specifies the path to the siddhi home directory"
+          "description": "Specifies the path to the Siddhi home directory"
         },
         "siddhi.debugLog": {
           "type": "boolean",
