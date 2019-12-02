@@ -14,6 +14,7 @@ To build the grammar file from `siddhi.tmLanguage.yaml` file execute `npm run bu
 1. Configure extension host debugging in `launch.json`
     * Press `Ctrl+Shift+P`/`Cmd+Shift+P`  and type  `Open launch`. 
     * The Open launch (JSON) command will let you directly edit the  `launch.json` file.
+    * Choose Node.js as the debug configuration type.
     * Add the following configuration to `launch.json` to run the extension on extesnion host.
     ```
         {

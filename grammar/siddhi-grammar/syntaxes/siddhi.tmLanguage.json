@@ -1388,12 +1388,12 @@
       "patterns": [
         {
           "name": "keyword.control.outputratetype.siddhi",
-          "match": "(?i)(ALL|LAST|FIRST)"
+          "match": "(?i)\\b(ALL|LAST|FIRST)\\b"
         }
       ]
     },
     "queryOutput": {
-      "begin": "(?i)(insert\\s*into|delete|update\\s*or\\s*insert\\s*into|update|delete)",
+      "begin": "(?i)(insert|delete|update\\s*or\\s*insert\\s*into|update|delete|return)",
       "end": "(?=;)",
       "beginCaptures": {
         "1": {
@@ -1402,6 +1402,10 @@
       },
       "name": "output.query.siddhi",
       "patterns": [
+        {
+          "name": "keyword.control.siddhi",
+          "match": "(?i)\\binto\\b"
+        },
         {
           "include": "#comment"
         },
@@ -1642,7 +1646,7 @@
     },
     "querySection": {
       "begin": "(?i)select",
-      "end": "(?=insert|update|output|\\)|;)",
+      "end": "(?i)(?=insert|update|delete|return|output|\\)|;)",
       "beginCaptures": {
         "0": {
           "name": "keyword.control.siddhi"

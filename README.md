@@ -39,7 +39,7 @@ A VSCode extension which provides rich Siddhi development capabilities. This ext
 <img height="281" width="500" src="resources/images/syntax_highlighting.png" alt="syntax-highlighting-image"></img> 
 
 ## Contributing to Siddhi VSCode Extesnion
-For instructions on how to build, debug and contribute to vscode extension go to The [Siddhi Visual Studio Code Contribution Guide.](contribute.md)
+For instructions on how to build, debug and contribute to vscode extension go to The [Siddhi Visual Studio Code Contribution Guide.](CONTRIBUTES.md)
 
 ## Support
 You can reach out through Slack channel, Google mail group and etc.Please refer the community contribution [site](https://siddhi.io/community/) for more information.
