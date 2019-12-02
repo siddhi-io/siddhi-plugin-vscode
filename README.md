@@ -12,7 +12,7 @@ A VSCode extension which provides rich Siddhi development capabilities, such as 
 
     `Siddhi Home` can be configured by either of the following methods,
 
-   1. Configure SiWddhi home in `settings.json`
+   1. Configure Siddhi home in `settings.json`
        * Press `Ctrl+Shift+P` / `Cmd+Shift+P` and type  `Open settings`.
        * Select `Open Settings (JSON)`.
        * Add `siddhi.home:"<SIDDHI-HOME-DIRECTORY>"` to `settings.json` file as below,
