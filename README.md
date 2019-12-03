@@ -15,7 +15,7 @@ A VSCode extension which provides rich Siddhi development capabilities, such as 
    1. Configure Siddhi home in `settings.json`
        * Press `Ctrl+Shift+P` / `Cmd+Shift+P` and type  `Open settings`.
        * Select `Open Settings (JSON)`.
-       * Add `siddhi.home:"<SIDDHI-HOME-DIRECTORY>"` to `settings.json` file as below,
+       * Add `"siddhi.home":"<SIDDHI-HOME-DIRECTORY>"` to `settings.json` file as below,
 
          <img height="100" width="280" src="resources/images/siddhi-home-configuration.png" alt="siddhi-home-configuration-image"/>
 
