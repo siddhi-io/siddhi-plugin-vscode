@@ -25,16 +25,27 @@
 import { ServerOptions} from 'vscode-languageclient';
 import {debug} from '../utils/logger';
 import * as path from 'path';
+import * as fs from 'fs';
 const main:string='StdioLauncher';
 
 export function getServerOptions(SIDDHI_HOME: string) : ServerOptions {
     debug(`Using Siddhi distribution at ${SIDDHI_HOME} for Language server.`);
     //configuration for setting java classpath at plugin start up 
     const SIDDHI_HOME_LIB = path.join(String(SIDDHI_HOME), 'lib','*');
-    const SIDDHI_HOME_PLUGINS = path.join(String(SIDDHI_HOME), 'wso2','lib','plugins','*');
+    const SIDDHI_HOME_PLUGINS = path.join(String(SIDDHI_HOME), 'wso2','lib','plugins');
+    const SIDDHI_HOME_LS = path.join(String(SIDDHI_HOME), 'wso2','lib','plugins','languageServer','*');
     const JAVA_HOME = process.env.JAVA_HOME
+    
     let executable : string = path.join(String(JAVA_HOME),'bin', 'java');
-    let classPath = SIDDHI_HOME_LIB+':'+SIDDHI_HOME_PLUGINS
+    let classPath = SIDDHI_HOME_LS+':'+SIDDHI_HOME_LIB;
+
+    //add all dependencies except pax.logging to classpath
+    fs.readdirSync(SIDDHI_HOME_PLUGINS).forEach(function(file) {
+       if (file.endsWith('.jar') && !file.includes('org.ops4j.pax')) {
+        var filePath = path.join(SIDDHI_HOME_PLUGINS, file);
+        classPath = classPath.concat(':').concat(filePath);
+       }
+    });
     let args: string[] = ['-cp',classPath];
 
     //To start the language server in debug mode for plugin development.
