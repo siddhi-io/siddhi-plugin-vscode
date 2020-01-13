@@ -40,7 +40,7 @@ export function getServerOptions(SIDDHI_HOME: string) : ServerOptions {
         separator = ';';
     }
     let executable : string = path.join(String(JAVA_HOME),'bin', 'java');
-    let classPath = SIDDHI_HOME_LS+separator+SIDDHI_HOME_LIB;
+    let classPath = SIDDHI_HOME_LS + separator + SIDDHI_HOME_LIB;
 
     //add all dependencies except pax.logging to classpath
     fs.readdirSync(SIDDHI_HOME_PLUGINS).forEach(function(file) {
