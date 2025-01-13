@@ -535,9 +535,11 @@
         }
       },
       "name": "basic.math.operation.siddhi",
-      "patterns": {
-        "include": "#mathOperation"
-      }
+      "patterns": [
+        {
+          "include": "#mathOperation"
+        }
+      ]
     },
     "definitionFunction": {
       "begin": "(?i)(\\bdefine\\b)(\\s*)(\\bfunction\\b)",

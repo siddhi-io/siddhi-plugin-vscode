@@ -271,7 +271,7 @@ repository:
       '0': {name: support.constant.punctuation.paren.close.xdcd.siddhi }
     name: basic.math.operation.siddhi
     patterns:
-      include: '#mathOperation'
+      - include: '#mathOperation'
 
   definitionFunction:
     begin: '(?i)(\bdefine\b)(\s*)(\bfunction\b)'
