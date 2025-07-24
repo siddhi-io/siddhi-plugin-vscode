@@ -6,7 +6,7 @@
   "publisher": "WSO2",
   "repository": {
     "type": "git",
-    "url": "https://github.com/wso2/vscode-extensions"
+    "url": "https://github.com/siddhi-io/siddhi-plugin-vscode"
   },
   "icon": "resources/images/icons/si-icon.png",
   "engines": {

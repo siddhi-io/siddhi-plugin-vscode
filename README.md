@@ -1,18 +1,21 @@
-# WSO2 VSCode Extensions
+# WSO2 Integrator: SI VSCode Extension
 
-This repository contains multiple Visual Studio Code extensions developed by WSO2, along with a set of shared libraries. The extensions in this monorepo include:
+This repository contains the Visual Studio Code extension for WSO2 Integrator: SI (Streaming Integrator), along with shared libraries and components used by the extension.
 
-- [Ballerina](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina)
-- [Choreo](https://marketplace.visualstudio.com/items?itemName=WSO2.choreo)
-- [WSO2 Integrator: BI](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina-integrator)
-- [APK Config Language Support](https://marketplace.visualstudio.com/items?itemName=WSO2.apk-config-language-support)
-- [WSO2 Integrator: MI](https://marketplace.visualstudio.com/items?itemName=WSO2.micro-integrator)
+The extension provides:
+- **IntelliSense** for Siddhi applications
+- **Syntax highlighting** for Siddhi query language
+- **Diagnostics** and error detection
+- **Code snippets** for common Siddhi patterns
+- **Graphical visualization** of Siddhi applications
+- **Event simulation** capabilities
+- **Build and run** functionality for Siddhi apps
 
 ## Prerequisites
 
 Before using this repository, ensure you have the following installed:
 
-- **Node.js** – version **22.x** or later  
+- **Node.js** – version **20.x** or later  
   [Download Node.js](https://nodejs.org)
 
 - **npm** – version **10.x** or later (comes with Node.js)
@@ -39,7 +42,7 @@ rush install
 
 This will install dependencies for all workspaces in the monorepo.
 
-## Building the Monorepo
+## Building the Extension
 
 To build all packages:
 
@@ -49,7 +52,7 @@ rush build
 
 This uses a local build cache, so only changed packages are rebuilt.
 
-### Building a Single Workspace
+### Building Individual Components
 
 To build a specific package:
 
@@ -57,26 +60,48 @@ To build a specific package:
 rush build --to <package-name>
 ```
 
-Replace `<package-name>` with the name of the package you want to build.
+Available packages:
+- `si` - Main VSCode extension
+- `@wso2/ui-toolkit` - Shared UI components
+- `@wso2/font-wso2-vscode` - WSO2 icon font for VSCode
 
 Example:
 ```bash
-rush build --to @wso2/ballerina-visualizer
+rush build
 ```
 
-### Adding a New Package
+## Development
 
-To add a new package:
+### Watch Mode
+For development, you can run the extension in watch mode:
 
-1. Navigate to the root directory of the desired package:
-    ```bash
-    cd <path-to-workspace>
-    ```
-2. Run:
-    ```bash
-    rush add --package <package-name>
-    ```
-   Use the `-m` argument to update other packages' `package.json` files to the same version if needed.
+```bash
+cd workspaces/si/si-extension
+npm run watch
+```
+
+### Testing the Extension
+1. Open this repository in VSCode
+2. Press `F5` to launch a new Extension Development Host window
+3. Open a `.siddhi` file to test the extension features
+
+## Extension Features
+
+### Language Support
+- Syntax highlighting for Siddhi query language
+- Code completion and IntelliSense
+- Error diagnostics and validation
+- Code snippets for common patterns
+
+### Visualization
+- Graphical view of Siddhi applications
+- Interactive flow diagrams
+- Real-time event simulation
+
+### Development Tools
+- Build and run Siddhi applications
+- Integration with WSO2 Streaming Integrator server
+- Extension installer for Siddhi extensions
 
 ## Other Important Commands
 
@@ -87,25 +112,22 @@ To add a new package:
 
 ## Contribution Guidelines
 
-If you are planning on contributing to the development efforts of WSO2 API Manager or related extensions, you can do so by checking out the latest development version. The `master` branch holds the latest unreleased source code.
+If you are planning on contributing to the development of the WSO2 Integrator: SI VSCode extension:
 
-Please follow the detailed instructions available here: [https://wso2.github.io](https://wso2.github.io)
+1. Fork the repository before making changes
+2. Follow the structure and conventions outlined in this document
+3. Test your changes thoroughly using the Extension Development Host
+4. Submit pull requests with clear descriptions and reference related issues if applicable
 
-- Fork the repository before making changes.
-- Follow the structure and conventions outlined in this document.
-- Submit pull requests with clear descriptions and reference related issues if applicable.
 
 ## License
 
-By downloading and using any of the Visual Studio Code extensions in this repository, you agree to the [license terms](https://wso2.com/licenses/ballerina-vscode-plugin-2021-05-25/) and [privacy statement](https://wso2.com/privacy-policy).
+By downloading and using the WSO2 Integrator: SI VSCode extension, you agree to the [Apache License 2.0](./LICENSE).
 
-Some extensions use additional components licensed separately. For example:
+The extension integrates with the WSO2 Streaming Integrator server and Siddhi language runtime, which are also licensed under Apache License 2.0.
 
-- The Ballerina extension uses the Ballerina Language Server, part of the [Ballerina language](https://ballerina.io/) (Apache License 2.0).
-- The Ballerina extension pack includes [TOML Language Support](https://marketplace.visualstudio.com/items?itemName=be5invis.toml).
+## Related Resources
 
-Please refer to each extension's documentation for more details on licensing and dependencies.
-
-## Source Organization Document
-
-For organization-wide standards and additional information, see [SOURCE_ORG.md](./SOURCE_ORG.md).
+- [WSO2 Streaming Integrator Documentation](https://si.docs.wso2.com/)
+- [Siddhi Query Language Guide](https://siddhi.io/)
+- [WSO2 Streaming Integrator Downloads](https://wso2.com/streaming-integrator/)

@@ -24,7 +24,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wso2/vscode-extensions.git"
+    "url": "git+https://github.com/siddhi-io/siddhi-plugin-vscode.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
