@@ -1,20 +1,8 @@
-name: Publish VSIX to VSCode Marketplace and OpenVSX
+name: Publish SI Extension to VSCode Marketplace and OpenVSX
 
 on:
   workflow_dispatch:
     inputs:
-      extension:
-        type: choice
-        description: 'Select the extension'
-        required: true
-        default: 'ballerina'
-        options:
-          - 'ballerina'
-          - 'ballerina-integrator'
-          - 'choreo'
-          - 'wso2-platform'
-          - 'apk'
-          - 'micro-integrator'
       isPreRelease:
         required: true
         type: boolean 
@@ -29,17 +17,12 @@ on:
         type: boolean
         required: true
         default: false
-      notify:
-        description: Notify release on VSCode chat
-        type: boolean
-        required: true
-        default: false        
       workflowRunId:
         required: true
 
 jobs:
   publish:
-    name: Publish vsix to marketplaces
+    name: Publish SI extension to marketplaces
     runs-on: ubuntu-latest
     steps:
       - name: Download artifact
@@ -66,36 +49,16 @@ jobs:
       - name: Get version
         id: vsix
         run: | 
-          file=$(ls ${{ github.event.inputs.extension }}-[0-9]*.[0-9]*.[0-9]*.vsix)
+          file=$(ls streaming-integrator-[0-9]*.[0-9]*.[0-9]*.vsix)
           fileName=${file##*-}
           version=${fileName%.*}
-          extension=${{ github.event.inputs.extension }}
-          extensionName="$(echo "$extension" | sed 's/.*/\u&/')"
           echo "vsixName=$file" >> $GITHUB_OUTPUT
           echo "version=$version" >> $GITHUB_OUTPUT
-          echo "extensionName=$extensionName" >> $GITHUB_OUTPUT
           if [ "${{ github.event.inputs.isPreRelease }}" == "true" ]; then
             echo "releaseMode=--pre-release" >> $GITHUB_OUTPUT
           else
             echo "releaseMode= " >> $GITHUB_OUTPUT
           fi  
-
-      - name: Get Repo
-        id: repo
-        run: |
-          if [ "${{ github.event.inputs.extension }}" == "ballerina" ]; then
-            echo "repo=wso2/ballerina-vscode" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.inputs.extension }}" == "ballerina-integrator" ]; then
-            echo "repo=wso2/ballerina-vscode" >> $GITHUB_OUTPUT  
-          elif [ "${{ github.event.inputs.extension }}" == "choreo" ]; then
-            echo "repo=wso2/choreo-vscode" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.inputs.extension }}" == "wso2-platform" ]; then
-            echo "repo=wso2/wso2-platform-vscode" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.inputs.extension }}" == "apk" ]; then
-            echo "repo=wso2/apk-vscode" >> $GITHUB_OUTPUT
-          elif [ "${{ github.event.inputs.extension }}" == "micro-integrator" ]; then
-            echo "repo=wso2/mi-vscode" >> $GITHUB_OUTPUT
-          fi
 
       - name: Publish to VSCode marketplace
         if: ${{ github.event.inputs.vscode == 'true' }}
@@ -105,28 +68,16 @@ jobs:
         if: ${{ github.event.inputs.openVSX == 'true' && github.event.inputs.isPreRelease == 'false' }}
         run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}
 
-      - name: Create a release in wso2/${{ steps.repo.outputs.repo }} repo
-        if: ${{ steps.repo.outputs.repo != '' }}
+      - name: Create a release in this repo
         run: |
           id=`curl -X GET  -H "Accept: application/vnd.github.v3+json" \
-          -H "Authorization:token ${{ secrets.CHOREO_BOT_TOKEN }}" \
-          https://api.github.com/repos/wso2/${{ steps.repo.outputs.repo }}/releases/tags/v${{ steps.vsix.outputs.version }} \
+          -H "Authorization:token ${{ secrets.GITHUB_TOKEN }}" \
+          https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ steps.vsix.outputs.version }} \
            | jq -r .id` && \
            updateResponse=`curl -X PATCH -H "Accept: application/vnd.github.v3+json" \
-          -H "Authorization:token ${{ secrets.CHOREO_BOT_TOKEN }}" \
+          -H "Authorization:token ${{ secrets.GITHUB_TOKEN }}" \
             -d '{"draft":false,"prerelease":false}' \
-            https://api.github.com/repos/wso2/${{ steps.repo.outputs.repo }}/releases/$id`         
-
-      - name: Set Chat API
-        id: chat
-        run: |
-          if [ "${{ inputs.extension }}" == "micro-integrator" ]; then
-            echo "chatAPI=${{ secrets.MI_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
-          elif [ "${{ inputs.extension }}" == "ballerina" ] || [ "${{ inputs.extension }}" == "ballerina-integrator" ]; then
-            echo "chatAPI=${{ secrets.BI_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
-          else
-            echo "chatAPI=${{ secrets.TOOLING_TEAM_CHAT_API }}" >> $GITHUB_OUTPUT
-          fi
+            https://api.github.com/repos/${{ github.repository }}/releases/$id`         
 
       - name: "Release Notification"
         if: ${{ github.event.inputs.notify == 'true' }}
@@ -137,7 +88,7 @@ jobs:
               {
                 "header": {
                     "title": "Marketplace Release",
-                    "subtitle": "${{ steps.vsix.outputs.extensionName }} Extension"
+                    "subtitle": "WSO2 Integrator: SI Extension"
                 },
                 "sections": [
                   {
@@ -152,7 +103,7 @@ jobs:
                               "text": "View",
                               "onClick": {
                                 "openLink": {
-                                  "url": "https://marketplace.visualstudio.com/items?itemName=WSO2.${{ github.event.inputs.extension }}"
+                                  "url": "https://marketplace.visualstudio.com/items?itemName=WSO2.streaming-integrator"
                                 }
                               }
                             }
@@ -169,7 +120,7 @@ jobs:
                               "text": "View",
                               "onClick": {
                                 "openLink": {
-                                  "url": "https://open-vsx.org/extension/wso2/${{ github.event.inputs.extension }}"
+                                  "url": "https://open-vsx.org/extension/wso2/streaming-integrator"
                                 }
                               }
                             }
@@ -187,5 +138,5 @@ jobs:
           curl \
             -X POST \
             -H 'Content-Type: application/json' \
-            "${{ steps.chat.outputs.chatAPI }}" \
+            "${{ secrets.TOOLING_TEAM_CHAT_API }}" \
             -d "$body"
