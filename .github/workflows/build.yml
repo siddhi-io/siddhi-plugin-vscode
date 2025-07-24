@@ -1,0 +1,53 @@
+name: Build and Test SI Extension
+
+on: 
+  workflow_call:
+    inputs: 
+      isPreRelease:
+        default: false
+        type: boolean  
+      enableCache:
+        default: true
+        type: boolean
+
+jobs:
+  Build_Stage:
+    name: Build repo
+    timeout-minutes: 45
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'
+
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1.2.0
+        with:
+          pnpm: 10.11.0
+          node: 22.x
+          rush-install: true
+
+      - name: Build SI Extension
+        run: |
+          node common/scripts/install-run-rush.js build
+        env:
+          isPreRelease: ${{ inputs.isPreRelease }}
+
+      - name: Package VSIX
+        run: |
+          cd workspaces/si/si-extension
+          npm run package
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ExtBuild
+          path: |
+            workspaces/si/si-extension/*.vsix
+            workspaces/si/si-extension/dist/
+            common/temp/
