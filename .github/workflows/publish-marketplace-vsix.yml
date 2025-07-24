@@ -1,0 +1,70 @@
+name: Publish SI Extension to VSCode Marketplace and OpenVSX
+
+on:
+  workflow_dispatch:
+    inputs:
+      isPreRelease:
+        description: Indicates if the release is a pre-release
+        required: true
+        type: boolean 
+        default: false
+      vscode:
+        description: Publish to VSCode marketplace
+        type: boolean
+        required: true
+        default: false
+      openVSX:
+        description: Publish to OpenVSX marketplace
+        type: boolean
+        required: true
+        default: false
+      workflowRunId:
+        required: true
+
+jobs:
+  publish:
+    name: Publish SI extension to marketplaces
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          run_id: ${{ github.event.inputs.workflowRunId }}
+          name: VSIX
+
+      - name: Unzip
+        run: |
+          unzip VSIX.zip
+          rm VSIX.zip
+
+      - name: Use Node.js 20.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 20.x
+
+      - run: | 
+          npm install -g vsce
+          npm install -g ovsx
+
+      - name: Get version
+        id: vsix
+        run: | 
+          file=$(ls streaming-integrator-[0-9]*.[0-9]*.[0-9]*.vsix)
+          fileName=${file##*-}
+          version=${fileName%.*}
+          echo "vsixName=$file" >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
+          if [ "${{ github.event.inputs.isPreRelease }}" == "true" ]; then
+            echo "releaseMode=--pre-release" >> $GITHUB_OUTPUT
+          else
+            echo "releaseMode= " >> $GITHUB_OUTPUT
+          fi  
+
+      - name: Publish to VSCode marketplace
+        if: ${{ github.event.inputs.vscode == 'true' }}
+        run: vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}
+
+      - name: Publish to OpenVSX marketplace
+        if: ${{ github.event.inputs.openVSX == 'true' && github.event.inputs.isPreRelease == 'false' }}
+        run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}

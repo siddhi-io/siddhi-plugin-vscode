@@ -1,0 +1,159 @@
+name: Release SI Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        type: choice
+        description: 'Type of version bump'
+        required: true
+        default: 'patch'
+        options:
+          - 'patch'
+          - 'minor'
+          - 'major'
+      prerelease:
+        type: boolean
+        description: 'Create as prerelease'
+        default: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.WSO2_INTEGRATION_BOT_TOKEN }}
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22.x'
+
+    - name: Setup Rush
+      uses: gigara/setup-rush@v1.2.0
+      with:
+        pnpm: 10.11.0
+        node: 22.x
+        rush-install: true
+
+    - name: Get Current Version and Calculate Release Version
+      id: version
+      run: |
+        cd workspaces/si/si-extension
+        current_version=$(node -p "require('./package.json').version")
+        echo "current_version=$current_version" >> $GITHUB_OUTPUT
+        
+        # Calculate new version based on input using semver logic
+        IFS='.' read -r major minor patch <<< "$current_version"
+        
+        if [ "${{ inputs.version_type }}" = "major" ]; then
+          new_version="$((major + 1)).0.0"
+        elif [ "${{ inputs.version_type }}" = "minor" ]; then
+          new_version="$major.$((minor + 1)).0"
+        else
+          new_version="$major.$minor.$((patch + 1))"
+        fi
+        
+        echo "VERSION=$new_version" >> $GITHUB_ENV
+        echo "version=$new_version" >> $GITHUB_OUTPUT
+        
+        echo "Current version: $current_version"
+        echo "New version: $new_version"
+
+    - name: Create Release Branch and Update Versions
+      run: |
+        echo "Creating release for version: ${VERSION}"
+        git config --global user.name ${{ secrets.WSO2_INTEGRATION_BOT_USERNAME }}
+        git config --global user.email ${{ secrets.WSO2_INTEGRATION_BOT_EMAIL }}
+        
+        # Create release branch
+        git checkout -b release-${VERSION}
+        
+        # Update version in SI extension package.json
+        cd workspaces/si/si-extension
+        npm version ${VERSION} --no-git-tag-version
+        
+        # Update version in any other package.json files that reference the extension
+        cd ../../..
+        
+        # Commit version changes
+        git add .
+        git commit -m "Prepare release ${VERSION}" || echo "No changes to commit"
+        
+        # Push the release branch to remote
+        git push origin release-${VERSION}
+
+    - name: Build Release Artifacts
+      run: |
+        # Build all packages
+        node common/scripts/install-run-rush.js build --verbose
+      env:
+        isPreRelease: ${{ inputs.prerelease }}
+
+    - name: Package Extension
+      run: |
+        cd workspaces/si/si-extension
+        npm run package
+        
+        # Verify VSIX was created
+        if [ ! -f "streaming-integrator-${VERSION}.vsix" ]; then
+          echo "Error: VSIX file not found"
+          ls -la *.vsix || echo "No VSIX files found"
+          exit 1
+        fi
+        
+        echo "Successfully created streaming-integrator-${VERSION}.vsix"
+
+    - name: Upload release artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: streaming-integrator-${{ env.VERSION }}
+        path: workspaces/si/si-extension/streaming-integrator-${{ env.VERSION }}.vsix
+
+    - name: Create GitHub Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.WSO2_INTEGRATION_BOT_TOKEN }}
+      run: |
+        cd workspaces/si/si-extension
+        
+        # Determine release flags
+        release_flags="--generate-notes"
+        if [ "${{ inputs.prerelease }}" = "true" ]; then
+          release_flags="$release_flags --prerelease"
+        fi
+        
+        # Create GitHub release
+        gh release create "v${{ env.VERSION }}" \
+          --repo="$GITHUB_REPOSITORY" \
+          --title="WSO2 Integrator: SI Extension ${{ env.VERSION }}" \
+          $release_flags \
+          streaming-integrator-${{ env.VERSION }}.vsix
+
+    - name: Create Release Sync PR
+      env:
+        GITHUB_TOKEN: ${{ secrets.WSO2_INTEGRATION_BOT_TOKEN }}
+      run: |
+        # Create PR to merge release branch back to main
+        gh pr create \
+          --base ${GITHUB_REF##*/} \
+          --head release-${{ env.VERSION }} \
+          --title "[Automated] Sync ${GITHUB_REF##*/} after ${{ env.VERSION }} release" \
+          --body "
+        ## Release Sync PR
+        
+        This PR syncs the ${GITHUB_REF##*/} branch after the ${{ env.VERSION }} release.
+        
+        ### Changes:
+        - Updated version to ${{ env.VERSION }} in package.json
+        - Built and released streaming-integrator-${{ env.VERSION }}.vsix
+        
+        ### Release Details:
+        - **Version**: ${{ env.VERSION }}
+        - **Type**: ${{ inputs.version_type }}
+        - **Prerelease**: ${{ inputs.prerelease }}
+        - **Release URL**: https://github.com/${{ github.repository }}/releases/tag/v${{ env.VERSION }}
+        "
