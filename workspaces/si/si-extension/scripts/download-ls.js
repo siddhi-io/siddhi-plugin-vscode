@@ -49,8 +49,8 @@ function checkExistingJars() {
 function httpsRequest(url, options = {}) {
     return new Promise((resolve, reject) => {
         const authHeader = {};
-        if (process.env.GITHUB_TOKEN) {
-            authHeader['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+        if (process.env.WSO2_INTEGRATION_BOT_TOKEN) {
+            authHeader['Authorization'] = `Bearer ${process.env.WSO2_INTEGRATION_BOT_TOKEN}`;
         }
 
         const req = https.request(url, {
@@ -65,7 +65,7 @@ function httpsRequest(url, options = {}) {
             // Handle HTTP 403 errors specifically
             if (res.statusCode === 403) {
                 console.error('HTTP 403: Forbidden. This may be due to GitHub API rate limiting.');
-                console.error('Set GITHUB_TOKEN environment variable with a personal access token to increase rate limits.');
+                console.error('Set WSO2_INTEGRATION_BOT_TOKEN environment variable with a personal access token to increase rate limits.');
 
                 // Log rate limit info if available
                 if (res.headers['x-ratelimit-limit']) {
@@ -108,8 +108,8 @@ function downloadFile(url, outputPath, maxRedirects = 5) {
 
         const makeRequest = (requestUrl, redirectCount = 0) => {
             const authHeaders = {};
-            if (process.env.GITHUB_TOKEN) {
-                authHeaders['Authorization'] = `Bearer ${process.env.GITHUB_TOKEN}`;
+            if (process.env.WSO2_INTEGRATION_BOT_TOKEN) {
+                authHeaders['Authorization'] = `Bearer ${process.env.WSO2_INTEGRATION_BOT_TOKEN}`;
             }
 
             const req = https.request(requestUrl, {
