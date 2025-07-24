@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs: 
       isPreRelease:
-        default: true
+        default: false
         type: boolean  
       enableCache:
         default: true
@@ -51,28 +51,3 @@ jobs:
             workspaces/si/si-extension/*.vsix
             workspaces/si/si-extension/dist/
             common/temp/
-
-  SI:
-    name: Run SI extension tests
-    needs: Build_Stage
-    if: ${{ inputs.runTests || !inputs.isPreRelease }}
-    timeout-minutes: 30
-    runs-on: ubuntu-latest
-    steps:
-      - name: Restore build
-        uses: actions/download-artifact@v4
-        with:
-          name: ExtBuild
-          path: ./
-
-      - name: Set up workspace
-        run: |
-          unzip build.zip
-          rm build.zip
-
-      - name: Setup Rush
-        uses: gigara/setup-rush@v1.2.0
-        with:
-          pnpm: 10.10.0
-          node: 22.x
-          rush-install: true
