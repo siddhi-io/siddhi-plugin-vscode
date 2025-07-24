@@ -1,87 +1,9 @@
 {
-  "name": "siddhi",
-  "displayName": "Siddhi",
-  "description": "IntelliSense, Diagnostics and Syntax Highlighting for Siddhi apps",
-  "version": "1.0.0",
-  "publisher": "WSO2",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/siddhi-io/siddhi-plugin-vscode"
-  },
-  "icon": "resources/images/siddhi-icon.png",
-  "engines": {
-    "vscode": "^1.59.0"
-  },
-  "categories": [
-    "Programming Languages",
-    "Snippets"
-  ],
-  "keywords": [
-    "siddhi",
-    "stream processing",
-    "cep"
-  ],
-  "activationEvents": [
-    "onLanguage:siddhi"
-  ],
-  "contributes": {
-    "languages": [
-      {
-        "id": "siddhi",
-        "aliases": [
-          "Siddhi",
-          "siddhi"
-        ],
-        "extensions": [
-          ".siddhi"
-        ]
-      }
-    ],
-    "grammars": [
-      {
-        "language": "siddhi",
-        "scopeName": "source.siddhi",
-        "path": "./grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.json"
-      }
-    ],
-    "configuration": {
-      "type": "object",
-      "title": "Siddhi",
-      "properties": {
-        "siddhi.home": {
-          "type": "string",
-          "default": "",
-          "description": "Specifies the path to the Siddhi home directory"
-        },
-        "siddhi.debugLog": {
-          "type": "boolean",
-          "default": false,
-          "description": "If set to true debug messages will be printed to output channel"
-        }
-      }
+    "name": "si-vscode-extensions-repo",
+    "scripts": {
+        "prebuild": "rush install",
+        "build": "rush build",
+        "build:si": "rush build --to si",
+        "ui-toolkit-stories": "npm run --prefix ./workspaces/common-libs/ui-toolkit serve-storybook"
     }
-  },
-  "main": "./out/src/extension",
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test",
-    "package": "vsce package",
-    "build-tm-grammar": "js-yaml grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.yaml > grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.json"
-  },
-  "devDependencies": {
-    "@types/mocha": "^2.2.42",
-    "@types/node": "^12.0.12",
-    "@types/vscode": "^1.59.0",
-    "glob": "^7.1.6",
-    "istanbul": "^0.4.5",
-    "js-yaml": "^3.13.1",
-    "tslint": "^5.8.0",
-    "typescript": "^3.5.2",
-    "vsce": "^1.93.0"
-  },
-  "dependencies": {
-    "@types/glob": "^7.1.1",
-    "vscode-languageclient": "5.1.1"
-  }
 }

@@ -1,67 +1,70 @@
-# Contributing to Siddhi VSCode Extension
+# Contributing to WSO2 VSCode Extensions Monorepo
 
-## Build and Debug the extension
+Thank you for your interest in contributing! We welcome contributions from the community to improve our Visual Studio Code extensions and supporting libraries.
 
-### Setting up the development environment
+---
 
-1. Fork and Clone  [https://github.com/siddhi-io/siddhi-plugin-vscode](https://github.com/siddhi-io/siddhi-plugin-vscode)
-2. execute  `npm install` in the terminal at the cloned directory, which downloads the required dependencies in the `package.json` file.
-3. execute  `npm run compile` in the terminal at the cloned directory, which compiles the source code of the extension.
+## How to Contribute
 
-### Building Siddhi TextMate grammar file
+1. **Fork the Repository**  
+   Click the "Fork" button on GitHub and clone your fork locally.
 
-`siddhi.tmLanguage.json` file provides [*text mate grammar*](https://macromates.com/manual/en/language_grammars) for siddhi, which is used for syntax highlighting feature of the extension.
+2. **Create a Branch**  
+   Create a new branch for your feature, bugfix, or improvement:
+   ```bash
+   git checkout -b my-feature-branch
+   ```
 
-To build the grammar file from `siddhi.tmLanguage.yaml` file execute `npm run build-tm-grammar` in the command line at the cloned directory.
+3. **Install Dependencies**  
+   Use [Rush](https://rushjs.io/) for dependency management:
+   ```bash
+   rush install
+   ```
 
-### Debugging the extension on extension host (Optional)
+4. **Set Up Environment Variables**  
+   Some extensions require a `.env` file. Copy `.env.example` to `.env` in the relevant extension directory and fill in the required values.
 
-1. Configure extension host debugging in `launch.json`
-    * Press `Ctrl+Shift+P`/`Cmd+Shift+P`  and type  `Open launch`.
-    * The Open launch (JSON) command will let you directly edit the  `launch.json` file.
-    * Add the following configuration to `launch.json` to run the extension on extension host.
+5. **Make Your Changes**  
+   Follow the code style and structure of the project. Add tests if applicable.
 
-    ```json
+6. **Build and Test**  
+   Build and test your changes using Rush:
+   ```bash
+   rush build
+   rush test
+   ```
 
-        {
-            "type": "extensionHost",
-            "request": "launch",
-            "name": "Launch Extension",
-            "runtimeExecutable": "${execPath}",
-            "args": [
-                "--extensionDevelopmentPath=${workspaceFolder}"
-            ],
-            "env": {
-                "LSDEBUG":"true"
-            },
-            "outFiles": [
-                "${workspaceFolder}/out/src/extension.js"
-            ]
-        }
-    ```
+7. **Commit and Push**  
+   Commit your changes with a clear message and push your branch to your fork.
 
-    >**Note**: `"LSDEBUG":"true"` configuration is to start the Siddhi Language Server in **debug mode**, which enables remote debugging of language server.
-2. Add  `"siddhi.debugLog":true` configuration to `settings.json` file to enable debug log.
-3. Clone Siddhi Language Server source code from [https://github.com/siddhi-io/distribution](https://github.com/siddhi-io/distribution).
-4. Start Siddhi Language Server as a remote debug process at `port 5005`
-5. Refer more on debugging on extension host at [https://code.visualstudio.com/docs/nodejs/nodejs-debugging](https://code.visualstudio.com/docs/nodejs/nodejs-debugging)
+8. **Open a Pull Request**  
+   Go to the main repository and open a pull request from your branch. Describe your changes and reference any related issues.
 
-### Building the Extension file
+---
 
-Execute `npm run package` to build the `.vsix` file.
+## Guidelines
 
-### Install and Test the extension
+- **Follow the directory structure** as described in `SOURCE_ORG.md`.
+- **Use Rush commands** for all dependency and build operations.
+- **Write clear commit messages** and PR descriptions.
+- **Add or update tests** for your changes.
+- **Ensure your code passes linting and CI checks.**
+- **Do not commit sensitive information** (such as secrets or credentials).
 
-Execute `code --install-extension <SIDDHI-PLUGIN-DIRECTORY>/siddhi-*.vsix` to install the extension.
+---
 
-## Siddhi Language Server
+## Reporting Issues
 
-The extension uses Siddhi Language Server to provide language analytic capabilities using [language server protocol](https://microsoft.github.io/language-server-protocol/).
+- Use the [issue templates](.github/ISSUE_TEMPLATE) for bug reports, feature requests, improvements, questions, or tasks.
+- Provide as much detail as possible, including steps to reproduce, environment, and screenshots if applicable.
 
-Currently, the language server is capable of providing context based auto-completions and diagnostics.
+---
 
-Find the implementation of the Siddhi Language Server at [https://github.com/siddhi-io/distribution](https://github.com/siddhi-io/distribution)
+## Community & Support
 
-## Support and Contribution
+- For questions, open an issue or visit our [community page](https://wso2.com/community/).
+- Please review our [Code of Conduct](https://github.com/wso2/code-of-conduct) before contributing.
 
-You can reach out through Slack channel, Google mail group and etc.Please refer the community contribution [site](https://siddhi.io/community/) for more information.
+---
+
+Thank you for helping us make WSO2 VSCode Extensions better!

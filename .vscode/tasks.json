@@ -1,0 +1,21 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "npm: watch-si",
+			"type": "npm",
+			"script": "watch",
+            "path": "workspaces/si/si-extension",
+            "problemMatcher": "$tsc-watch",
+			"isBackground": true,
+			"presentation": {
+				"reveal": "never",
+				"group": "watchers"
+			},
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+    ]
+}

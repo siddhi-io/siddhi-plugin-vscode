@@ -1,62 +1,111 @@
-# Siddhi Extension for Visual Studio Code
+# WSO2 VSCode Extensions
 
-A VSCode extension which provides rich Siddhi development capabilities, such as IntelliSence, diagnostics and syntax highlighting. This extension supports [siddhi distribution](https://github.com/siddhi-io/distribution) *version (>=5.1.2)*.
+This repository contains multiple Visual Studio Code extensions developed by WSO2, along with a set of shared libraries. The extensions in this monorepo include:
 
-## Quick Start
+- [Ballerina](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina)
+- [Choreo](https://marketplace.visualstudio.com/items?itemName=WSO2.choreo)
+- [WSO2 Integrator: BI](https://marketplace.visualstudio.com/items?itemName=WSO2.ballerina-integrator)
+- [APK Config Language Support](https://marketplace.visualstudio.com/items?itemName=WSO2.apk-config-language-support)
+- [WSO2 Integrator: MI](https://marketplace.visualstudio.com/items?itemName=WSO2.micro-integrator)
 
-1. Download [Siddhi distribution](https://siddhi.io/en/v5.1/download/) (**version 5.1.2** or higher should be available locally)
-<!-- update the version of the distribution url to once the /latest is supported.>
-<!-- add sdk support as well-->
-<!--or [Siddhi SDK](https://siddhi.io/en/v5.1/download/#pysiddhi) should be available locally.-->
-2. Configure Siddhi Home
+## Prerequisites
 
-    `Siddhi Home` can be configured by either of the following methods,
+Before using this repository, ensure you have the following installed:
 
-   1. Configure Siddhi home in `settings.json`
-       * Press `Ctrl+Shift+P` / `Cmd+Shift+P` and type  `Open settings`.
-       * Select `Open Settings (JSON)`.
-       * Add `"siddhi.home":"<SIDDHI-HOME-DIRECTORY>"` to `settings.json` file as below,
+- **Node.js** – version **22.x** or later  
+  [Download Node.js](https://nodejs.org)
 
-         <img height="100" width="280" src="resources/images/siddhi-home-configuration.png" alt="siddhi-home-configuration-image"/>
+- **npm** – version **10.x** or later (comes with Node.js)
 
-   2. Add ``SIDDHI_HOME`` as an environment variable.
+- **pnpm** – version **10.10** or later  
+  Install with:
+    ```bash
+    npm install -g pnpm
+    ```
 
-## Features
+- **Rush.js** – version **5.153** or later  
+  Install with:
+    ```bash
+    npm install -g @microsoft/rush
+    ```
 
-### IntelliSence
+## Installation
 
-* Auto completion: Context based auto completions by Siddhi Language Server.
-* Snippets: Context based snippets by Siddhi Language Server.
+Install all dependencies for the repository:
 
-### Diagnostics
+```bash
+rush install
+```
 
-* Semantic/Syntactic error reporting as code is typed
+This will install dependencies for all workspaces in the monorepo.
 
-### Syntax Highlighting
+## Building the Monorepo
 
-* Lexical sub-elements are highlighted in various colors based on the theme that has been activated in your VSCode editor.
+To build all packages:
 
-<table>
-  <tr>
-    <td> <img height="413" width="734" src="resources/images/completion.png" alt="completion-image"/> </td>
-    <td> <img height="413" width="734" src="resources/images/diagnostics.png" alt="diagnostics-image"/> </td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center">
-     <img height="413" width="734" src="resources/images/syntax_highlighting.png" alt="syntax-highlighting-image"/>
-     </td>
-  </tr>
-</table>
+```bash
+rush build
+```
 
-## Contributing
+This uses a local build cache, so only changed packages are rebuilt.
 
-## Contributing to Siddhi VSCode Extesnion
-For instructions on how to build, debug and contribute to vscode extension go to The [Siddhi Visual Studio Code Contribution Guide.](CONTRIBUTING.md)
+### Building a Single Workspace
 
-## Support
+To build a specific package:
 
-You can reach out Siddhi Developers through Slack channel, Google mail group and etc. Please refer the community contribution [site](https://siddhi.io/community/) for more information.
+```bash
+rush build --to <package-name>
+```
 
-## Licence
+Replace `<package-name>` with the name of the package you want to build.
 
-Siddhi VS Code extension is licensed under [Apache License 2.0](https://github.com/siddhi-io/siddhi-plugin-vscode/blob/master/LICENSE).
+Example:
+```bash
+rush build --to @wso2/ballerina-visualizer
+```
+
+### Adding a New Package
+
+To add a new package:
+
+1. Navigate to the root directory of the desired package:
+    ```bash
+    cd <path-to-workspace>
+    ```
+2. Run:
+    ```bash
+    rush add --package <package-name>
+    ```
+   Use the `-m` argument to update other packages' `package.json` files to the same version if needed.
+
+## Other Important Commands
+
+- `rush update`: Updates the dependencies shrinkwrap file.
+- `rush rebuild`: Cleans the `common/temp` folder and then runs `rush build`.
+- `rush check`: Checks dependency consistency across packages.
+- `rush purge`: Cleans up temporary files and folders.
+
+## Contribution Guidelines
+
+If you are planning on contributing to the development efforts of WSO2 API Manager or related extensions, you can do so by checking out the latest development version. The `master` branch holds the latest unreleased source code.
+
+Please follow the detailed instructions available here: [https://wso2.github.io](https://wso2.github.io)
+
+- Fork the repository before making changes.
+- Follow the structure and conventions outlined in this document.
+- Submit pull requests with clear descriptions and reference related issues if applicable.
+
+## License
+
+By downloading and using any of the Visual Studio Code extensions in this repository, you agree to the [license terms](https://wso2.com/licenses/ballerina-vscode-plugin-2021-05-25/) and [privacy statement](https://wso2.com/privacy-policy).
+
+Some extensions use additional components licensed separately. For example:
+
+- The Ballerina extension uses the Ballerina Language Server, part of the [Ballerina language](https://ballerina.io/) (Apache License 2.0).
+- The Ballerina extension pack includes [TOML Language Support](https://marketplace.visualstudio.com/items?itemName=be5invis.toml).
+
+Please refer to each extension's documentation for more details on licensing and dependencies.
+
+## Source Organization Document
+
+For organization-wide standards and additional information, see [SOURCE_ORG.md](./SOURCE_ORG.md).
