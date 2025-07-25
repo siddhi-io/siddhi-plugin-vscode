@@ -13,6 +13,7 @@ import * as path from "path";
 import { getJavaHomeFromConfig } from "../utils/onboardingUtils";
 import { getClassPath } from "../utils/utils";
 import * as fs from "fs";
+import { extension } from "../SIExtensionContext";
 const child_process = require("child_process");
 
 const main: string = "io.siddhi.langserver.launcher.StdioLauncher";
@@ -40,6 +41,7 @@ export function getServerOptions(CARBON_HOME: string): ServerOptions {
         `-Dcarbon.home=${CARBON_HOME}`,
         `-Dwso2.runtime.path=${runtimePath}`,
         `-Dwso2.runtime=server`,
+        `-Dlog4j2.configurationFile=jar:file:${findLauncherJar()}!/log4j2.properties`
     );
 
     let serverOptions: ServerOptions = {
@@ -105,4 +107,14 @@ export function installJars(carbonHome: string) {
     javaProcess.on("close", (code) => {
         debug(`Installing jars completed.`);
     });
+}
+
+function findLauncherJar(): string {
+    const languageServerPath = extension.context.asAbsolutePath(path.join("ls"));
+    const files = fs.readdirSync(languageServerPath);
+
+    const launcherJar = files.find(
+        (file) => file.toLowerCase().endsWith(".jar") && file.toLowerCase().includes("launcher")
+    );
+    return path.join(languageServerPath, launcherJar!);
 }
