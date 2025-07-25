@@ -425,7 +425,7 @@ td {
 
 select.form-control,
 .btn-group > div {
-    background: #2f2f2f !important;
+    background: var(--vscode-editor-background) !important;
 }
 
 .design-view-form-content th {
@@ -477,11 +477,11 @@ h3,
     width: 100%;
     height: 100vh;
     z-index: 22;
-    background-color: #282828;
-    color: #fff;
+    background: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
     font-size: 40px;
     text-align: center;
-    padding: 30% 0;
+    padding: 10% 0;
 }
 
 .app-annotations-button {

@@ -1385,7 +1385,8 @@ a:hover {
 }
 
 .sidebar-left {
-    background: #333;
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
 }
 
 .modal-dialog.file-dialog {
@@ -1608,8 +1609,8 @@ textarea.form-control.curl-editor {
 }
 
 .table {
-    background: #242424;
-    color: #b7b7b7;
+    background: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
     font-size: 1.4rem;
 }
 
@@ -1648,11 +1649,13 @@ table.dataTable thead .sorting::after {
 }
 
 .table-hover > tbody > tr:hover {
-    background-color: #313131;
+    background-color: var(--vscode-list-hoverBackground);
+    color: var(--vscode-editor-foreground);
 }
 
 .table.table-hover > tbody > tr:hover td:not(.dataTables_empty) {
-    background: #383838 !important;
+    background-color: var(--vscode-list-hoverBackground);
+    color: var(--vscode-editor-foreground);
 }
 
 .table > tbody > tr > td {
@@ -1875,4 +1878,9 @@ div.consoleIcon {
 
 .extension-installer-form-scrollable-block .table > tbody > tr > td {
     vertical-align: initial;
+}
+
+.nav-tabs li:hover {
+    background-color: var(--vscode-tab-hoverBackground);
+    color: var(--vscode-tab-hoverForeground, var(--vscode-editor-foreground));
 }

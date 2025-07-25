@@ -46,7 +46,7 @@
     <title>Streaming Integrator Tooling</title>
 </head>
 
-<body class="sticky-footer">
+<body class="sticky-footer vscode-webview-body">
 <div id="mavenVersion" hidden>${project.version}</div>
 
 <!-- Start: page-content-wrapper -->
@@ -192,8 +192,10 @@
 
 <!-- .left-sidebar-sub -->
 <div id="sidebar-nav-sub-backdrop" class="modal-backdrop fade in hidden"></div>
-<div class="sidebar-wrapper sidebar-nav sidebar-nav-sub" id="left-sidebar-sub" data-side="left" data-width="450">
-    <div class="nano" style="overflow-y: scroll;">
+<div class="sidebar-wrapper sidebar-nav sidebar-nav-sub" id="left-sidebar-sub" data-side="left" data-width="450" style="background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);">
+    <div class="nano" style="overflow-y: scroll;" style="background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);">
         <div class="nano-content">
             <button class="close close-handle" data-handle="close" rel="createPage"><i class="fw fw-cancel"></i>
             </button>
