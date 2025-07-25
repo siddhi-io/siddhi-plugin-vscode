@@ -18,14 +18,13 @@ import { INVALID_SERVER_PATH_MSG, SIDDHI_HOME_CONFIG, VS_CODE_COMMANDS } from ".
 import { PathDetailsResponse, SetupDetails, SetPathRequest } from "@wso2/si-core";
 
 export const supportedJavaVersionsForSI: { [key: string]: string } = {
-    "4.3.0": "17",
-    "4.2.0": "17",
-    "4.1.0": "11",
+    "4.3.1": "21",
+
 };
-export const LATEST_SI_VERSION = "4.3.0";
+export const LATEST_SI_VERSION = "4.3.1";
 
 const siDownloadUrls: { [key: string]: string } = {
-    "4.3.0": "https://si-distribution.wso2.com/4.3.0/wso2si-4.3.0.zip",
+    "4.3.1": "https://si-distribution.wso2.com/4.3.1/wso2si-4.3.1.zip"
 };
 
 const CACHED_FOLDER = path.join(os.homedir(), ".wso2-si");

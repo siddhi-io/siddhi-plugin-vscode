@@ -176,6 +176,9 @@ importers:
       '@types/glob':
         specifier: ^7.1.1
         version: 7.2.0
+      '@wso2/font-wso2-vscode':
+        specifier: workspace:*
+        version: link:../../common-libs/font-wso2-vscode
       '@wso2/si-core':
         specifier: workspace:*
         version: link:../si-core

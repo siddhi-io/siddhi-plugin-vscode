@@ -1,7 +1,7 @@
 {
   "name": "streaming-integrator",
   "displayName": "WSO2 Integrator: SI",
-  "description": "IntelliSense, Diagnostics and Syntax Highlighting for Siddhi apps",
+  "description": "An extension which provides a development environment for designing, developing, debugging, and testing streaming integration solutions.",
   "version": "0.0.0",
   "publisher": "WSO2",
   "repository": {
@@ -123,6 +123,15 @@
         "category": "SI"
       }
     ],
+    "icons": {
+      "distro-design-view": {
+          "description": "design-view",
+          "default": {
+              "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+              "fontCharacter": "\\f16b"
+          }
+      }
+    },
     "menus": {
       "commandPalette": [
         {
@@ -226,10 +235,11 @@
     "test": "pnpm run pretest && node ./out/test/runTest.js",
     "download-ls": "node scripts/download-ls.js",
     "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
+    "copyFonts": "copyfiles -f ./node_modules/@wso2/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
     "copyJSLibs": "copyfiles -f ../si-visualizer/build/*.js resources/jslibs",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
-    "postbuild": "if [ \"$isPreRelease\" = \"true\" ]; then pnpm run download-ls --prerelease; else pnpm run download-ls; fi && pnpm run copyJSLibs && pnpm run package && pnpm run copyVSIX",
+    "postbuild": "if [ \"$isPreRelease\" = \"true\" ]; then pnpm run download-ls --prerelease; else pnpm run download-ls; fi && pnpm run copyFonts && pnpm run copyJSLibs && pnpm run package && pnpm run copyVSIX",
     "build-tm-grammar": "js-yaml grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.yaml > grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.json"
   },
   "devDependencies": {
@@ -260,6 +270,7 @@
     "vscode-messenger": "^0.5.1",
     "vscode-messenger-webview": "^0.5.1",
     "xstate": "^4.38.3",
-    "@wso2/si-core": "workspace:*"
+    "@wso2/si-core": "workspace:*",
+    "@wso2/font-wso2-vscode": "workspace:*"
   }
 }
