@@ -2,7 +2,7 @@
   "name": "streaming-integrator",
   "displayName": "WSO2 Integrator: SI",
   "description": "An extension which provides a development environment for designing, developing, debugging, and testing streaming integration solutions.",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "publisher": "WSO2",
   "repository": {
     "type": "git",
@@ -125,11 +125,11 @@
     ],
     "icons": {
       "distro-design-view": {
-          "description": "design-view",
-          "default": {
-              "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
-              "fontCharacter": "\\f16b"
-          }
+        "description": "design-view",
+        "default": {
+          "fontPath": "./resources/font-wso2-vscode/dist/wso2-vscode.woff",
+          "fontCharacter": "\\f16b"
+        }
       }
     },
     "menus": {
