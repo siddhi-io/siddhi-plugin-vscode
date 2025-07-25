@@ -8427,7 +8427,7 @@ ul.tiles .icon {
 
 .modal-content {
     position: relative;
-    background-color: #222222;
+    background-color: var(--vscode-editor-background);
     border: 1px solid #999;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 0;
@@ -8557,7 +8557,7 @@ ul.tiles .icon {
 }
 
 .modal-content {
-    color: #fefefe;
+    color: var(--vscode-editor-foreground);
 }
 
 .modal-header {

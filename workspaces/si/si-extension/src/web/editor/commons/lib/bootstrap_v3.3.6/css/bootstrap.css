@@ -7203,15 +7203,15 @@ button.close {
 
 .modal-content {
     position: relative;
-    background-color: #fff;
+    background-color: var(--vscode-editor-background);
     -webkit-background-clip: padding-box;
     background-clip: padding-box;
-    border: 1px solid #999;
-    border: 1px solid rgba(0, 0, 0, .2);
+    border: 1px solid var(--vscode-editorWidget-border);
     border-radius: 6px;
     outline: 0;
     -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
     box-shadow: 0 3px 9px rgba(0, 0, 0, .5);
+    color: var(--vscode-editor-foreground);
 }
 
 .modal-backdrop {
@@ -7221,7 +7221,8 @@ button.close {
     bottom: 0;
     left: 0;
     z-index: 1040;
-    background-color: #000;
+    background-color: var(--vscode-editor-background);
+    opacity: 0.5;
 }
 
 .modal-backdrop.fade {
@@ -7236,27 +7237,31 @@ button.close {
 
 .modal-header {
     padding: 15px;
-    border-bottom: 1px solid #e5e5e5;
+    border-bottom: 1px solid var(--vscode-editorWidget-border);
 }
 
 .modal-header .close {
     margin-top: -2px;
+    color: var(--vscode-editor-foreground);
 }
 
 .modal-title {
     margin: 0;
     line-height: 1.42857143;
+    color: var(--vscode-editor-foreground);
 }
 
 .modal-body {
     position: relative;
     padding: 15px;
+    color: var(--vscode-editor-foreground);
 }
 
 .modal-footer {
     padding: 15px;
     text-align: right;
-    border-top: 1px solid #e5e5e5;
+    border-top: 1px solid var(--vscode-editorWidget-border);
+    color: var(--vscode-editor-foreground);
 }
 
 .modal-footer .btn + .btn {

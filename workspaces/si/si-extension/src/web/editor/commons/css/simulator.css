@@ -37,7 +37,7 @@ a:focus {
 }
 
 .nav-tabs > li > a {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--vscode-editor-foreground);
     transition: color 250ms ease;
     padding: 10px 15px;
 }
@@ -73,19 +73,20 @@ a:focus {
 }
 
 .event-simulator-container .tab-content {
-    background-color: #3d3d3d;
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
 }
 
 .nav > li > a:hover,
 .nav > li > a:focus {
-    color: #fff;
-    background: transparent;
+    background-color: var(--vscode-list-hoverBackground);
+    color: var(--vscode-list-hoverForeground, var(--vscode-editor-foreground));
     border-color: transparent;
 }
 
 .tab-content .nav-tabs {
-    background-color: #232323;
-    color: #bdbdbd;
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
     border: 0;
 }
 
@@ -175,9 +176,9 @@ a:focus {
     height: 26px;
     padding: 1px 12px;
     font-weight: 400;
-    background: #2f2f2f none repeat scroll 0 0;
+    background: var(--vscode-editor-background) none repeat scroll 0 0;
     border-color: #525252;
-    color: #eee;
+    color: var(--vscode-editor-foreground);
 }
 
 form[data-form-type="single"] table th label {
@@ -321,7 +322,7 @@ form[data-form-type="single"] table th label {
 }
 
 .table > tbody > tr > td > label, .table > tbody > tr > th > label, .table > tfoot > tr > td > label, .table > tfoot > tr > th > label, .table > thead > tr > td > label, .table > thead > tr > th > label {
-    color: #fefefe;
+    color: var(--vscode-editor-foreground);
     font-weight: 400;
     font-size: 14px;
     width: 100%;
@@ -364,10 +365,10 @@ form[data-form-type="single"] table th label {
 }
 
 .panel-group .panel-title a {
-    background-color: rgba(102, 102, 102, 0.25);
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
     border: none;
-    box-shadow: 0 1px 0 rgba(153, 153, 153, 0.25) inset, 0 -1px 0 rgba(0, 0, 0, 0.25) inset;
-    color: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 1px 0 var(--vscode-widget-border, rgba(153, 153, 153, 0.25)) inset, 0 -1px 0 var(--vscode-widget-shadow, rgba(0, 0, 0, 0.25)) inset;
     display: block;
     padding: 10px 15px;
     text-decoration: none;
@@ -376,7 +377,7 @@ form[data-form-type="single"] table th label {
 }
 
 .panel-group .panel-title a[aria-expanded="true"] {
-    color: #eee;
+    color: var(--vscode-editor-foreground);
 }
 
 .panel-group .panel-title .fw {
@@ -385,8 +386,8 @@ form[data-form-type="single"] table th label {
 }
 
 .panel-group .panel-title a:hover {
-    background-color: rgba(255, 255, 255, 0.25);
-    color: #fff;
+    background-color: var(--vscode-list-hoverBackground);
+    color: var(--vscode-list-hoverForeground, var(--vscode-editor-foreground));
 }
 
 .panel-group .panel, .panel-heading {
@@ -495,7 +496,8 @@ hr {
 
 .feedAdvanceContent {
     padding: 10px;
-    background: #1e1e1e linear-gradient(to right, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 50%, rgba(0, 0, 0, 0.25) 95%, rgba(0, 0, 0, 0.35) 100%) repeat scroll 0 0;
+    background-color: var(--vscode-editor-background);
+    color: var(--vscode-editor-foreground);
 }
 
 .advanceConfigs {
