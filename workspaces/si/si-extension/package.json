@@ -2,7 +2,7 @@
   "name": "streaming-integrator",
   "displayName": "WSO2 Integrator: SI",
   "description": "IntelliSense, Diagnostics and Syntax Highlighting for Siddhi apps",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "publisher": "WSO2",
   "repository": {
     "type": "git",
