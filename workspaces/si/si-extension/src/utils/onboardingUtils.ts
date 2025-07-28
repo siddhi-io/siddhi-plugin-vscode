@@ -14,7 +14,7 @@ import * as fs from "fs";
 import { spawnSync, exec } from "child_process";
 import axios from "axios";
 import { downloadWithProgress, extractWithProgress } from "./fileOperations";
-import { INVALID_SERVER_PATH_MSG, SIDDHI_HOME_CONFIG, VS_CODE_COMMANDS } from "../constants";
+import { INVALID_SERVER_PATH_MSG, JAVA_HOME_CONFIG, SIDDHI_HOME_CONFIG, VS_CODE_COMMANDS } from "../constants";
 import { PathDetailsResponse, SetupDetails, SetPathRequest } from "@wso2/si-core";
 
 export const supportedJavaVersionsForSI: { [key: string]: string } = {
@@ -323,6 +323,11 @@ export async function getSetupDetails(): Promise<SetupDetails> {
     }
     if (javaDetails.status == "valid" && compareVersions(requiredJavaVersion, javaDetails.version as string) == -1) {
         javaDetails.status = "not-valid";
+    }
+
+    if (javaDetails.status === "valid") {
+        const config = vscode.workspace.getConfiguration();
+        await config.update(JAVA_HOME_CONFIG, javaDetails.path, vscode.ConfigurationTarget.Global);
     }
     return {
         siVersionStatus,

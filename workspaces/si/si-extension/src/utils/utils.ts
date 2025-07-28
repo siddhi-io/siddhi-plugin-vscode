@@ -187,23 +187,35 @@ export function getComposerJSFiles(
 
 export function getClassPath(siddhiHome: string) {
     const libPath = path.join(String(siddhiHome), "lib", "*");
-    const pluginsDir = path.join(String(siddhiHome), "wso2", "lib", "plugins");
+    const pluginsDir = path.join(String(siddhiHome), "wso2", "lib", "plugins", "*");
     const languageServerPath = extension.context.asAbsolutePath(path.join('ls', '*'));
     
     let separator = process.platform === "win32" ? ";" : ":";
-    let classPath = languageServerPath + separator + libPath;
-
-    //add all dependencies except pax.logging to classpath
-    fs.readdirSync(pluginsDir).forEach(function (file) {
-        if (file.endsWith(".jar") && !file.includes("org.ops4j.pax")) {
-            var filePath = path.join(pluginsDir, file);
-            classPath = classPath.concat(separator).concat(filePath);
-        }
-    });
+    let classPath = languageServerPath + separator + libPath + separator + pluginsDir; 
 
     return ["-cp", classPath];
 }
 
 export function getSiddhiFileNameWithoutExtension(filePath: string): string {
     return path.basename(filePath, ".siddhi");
+}
+
+
+export function getLog4jConfigFile(platform: string, jarPath: string): string {
+    if (platform === 'win32') {
+        const normalizedPath = jarPath.replace(/\\/g, '/');
+        return 'jar:file:///' + normalizedPath + '!/log4j2.properties';
+    } else {
+        return 'jar:file:' + jarPath + '!/log4j2.properties';
+    }
+}
+
+export function findLSJarPath(jar: string): string {
+    const languageServerPath = extension.context.asAbsolutePath(path.join("ls"));
+    const files = fs.readdirSync(languageServerPath);
+
+    const jarPath = files.find(
+        (file) => file.toLowerCase().endsWith(".jar") && file.toLowerCase().includes(jar)
+    );
+    return path.join(languageServerPath, jarPath!);
 }
