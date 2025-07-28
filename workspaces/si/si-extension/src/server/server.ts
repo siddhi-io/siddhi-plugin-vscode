@@ -11,7 +11,7 @@ import { ServerOptions } from "vscode-languageclient/node";
 import { debug, log } from "../utils/logger";
 import * as path from "path";
 import { getJavaHomeFromConfig } from "../utils/onboardingUtils";
-import { getClassPath } from "../utils/utils";
+import { findLSJarPath, getLog4jConfigFile, getClassPath } from "../utils/utils";
 import * as fs from "fs";
 import { extension } from "../SIExtensionContext";
 const child_process = require("child_process");
@@ -41,7 +41,8 @@ export function getServerOptions(CARBON_HOME: string): ServerOptions {
         `-Dcarbon.home=${CARBON_HOME}`,
         `-Dwso2.runtime.path=${runtimePath}`,
         `-Dwso2.runtime=server`,
-        `-Dlog4j2.configurationFile=jar:file:${findLauncherJar()}!/log4j2.properties`
+        "-Dslf4j.provider=org.apache.logging.slf4j.SLF4JServiceProvider",
+        `-Dlog4j2.configurationFile=${getLog4jConfigFile(process.platform, findLSJarPath("launcher"))}`
     );
 
     let serverOptions: ServerOptions = {
@@ -60,6 +61,11 @@ export function getServerOptions(CARBON_HOME: string): ServerOptions {
 
 export function installJars(carbonHome: string) {
     let javaExecutable: string = path.join(String(getJavaHomeFromConfig()), "bin", "java");
+    
+    if (process.platform === "win32" && !javaExecutable.endsWith(".exe")) {
+        javaExecutable += ".exe";
+    }
+    
     const RUNTIME_PATH = path.join(String(carbonHome), "wso2", "server");
 
     const toolDir = path.join(carbonHome, "bin", "tools");
@@ -77,7 +83,7 @@ export function installJars(carbonHome: string) {
         "-cp",
         classPath,
         "-Dwso2.carbon.tool=install-jars",
-        "-Djdk.util.jar.enableMultiRelease=force", // Changed from 'true' to 'force'
+        "-Djdk.util.jar.enableMultiRelease=force",
         "org.wso2.carbon.tools.CarbonToolExecutor",
         carbonHome,
     ];

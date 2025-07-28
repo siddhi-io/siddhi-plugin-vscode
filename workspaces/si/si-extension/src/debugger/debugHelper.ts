@@ -13,8 +13,7 @@ import { debug, log, showOutputChannel } from "../utils/logger";
 import * as readline from "readline";
 import { activateEventSimulator, deactivateEventSimulator } from "../visualizer/activate";
 import { extension } from "../SIExtensionContext";
-import { getClassPath, getSiddhiFileNameWithoutExtension } from "../utils/utils";
-import * as fs from "fs";
+import { findLSJarPath, getClassPath, getLog4jConfigFile, getSiddhiFileNameWithoutExtension } from "../utils/utils";
 const child_process = require("child_process");
 
 let rl: readline.Interface;
@@ -34,14 +33,24 @@ export async function startSiddhiApp(siddhiHome: string, javaHome: string, progr
         debug("Runtime starting in debug mode.");
     }
 
-    // Add log4j2 configuration to use the properties file inside the specific runner JAR
     args.push(
-        `-Dlog4j2.configurationFile=jar:file:${findRunnerJar()}!/log4j2.properties`
+        "-Dslf4j.provider=org.apache.logging.slf4j.SLF4JServiceProvider",
+        `-Dlog4j2.configurationFile=${getLog4jConfigFile(process.platform, findLSJarPath("runner"))}`
     );
 
     args.push(SIDDHI_APP_RUNNER, program);
 
     let executable: string = path.join(String(javaHome), "bin", "java");
+    
+    if (process.platform === "win32") {
+        if (!executable.endsWith(".exe")) {
+            executable += ".exe";
+        }
+        if (executable.includes(" ")) {
+            executable = `"${executable}"`;
+        }
+    }
+    
     let javaProcess = child_process.spawn(executable, args, {
         stdio: ["pipe", "pipe", "pipe"],
         shell: true,
@@ -136,20 +145,4 @@ function stopProcess(siddhiApp: string) {
         deactivateEventSimulator();
         runtime.kill();
     }
-}
-
-/**
- * Finds the runner JAR file in the specified directory
- * @param folderPath - The path to the folder to search in
- * @returns The full path to the runner JAR file, or null if not found
- */
-function findRunnerJar(): string {
-    const languageServerPath = extension.context.asAbsolutePath(path.join("ls"));
-    const files = fs.readdirSync(languageServerPath);
-
-    // Find the first JAR file that contains "runner" in its name
-    const runnerJar = files.find(
-        (file) => file.toLowerCase().endsWith(".jar") && file.toLowerCase().includes("runner")
-    );
-    return path.join(languageServerPath, runnerJar!);
 }

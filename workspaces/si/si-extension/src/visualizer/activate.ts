@@ -42,6 +42,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand(VS_CODE_COMMANDS.SHOW_SOURCE, async () => {
+            diagramVisualizerWebview?.dispose();
             diagramVisualizerWebview = undefined
             vscode.commands.executeCommand("setContext", "SI.isVisualizerActive", "false");
         })
