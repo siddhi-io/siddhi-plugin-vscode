@@ -359,6 +359,7 @@ define(['log', 'jquery', 'lodash', 'sourceOrSinkAnnotation', 'mapAnnotation', 'p
                         self.configurationData.setIsDesignViewContentChanged(true);
                         // close the form window
                         self.consoleListManager.removeAllConsoles(); 
+                        self.consoleListManager.removeFormConsole(formConsole);
                     }
                 });
 
@@ -366,6 +367,7 @@ define(['log', 'jquery', 'lodash', 'sourceOrSinkAnnotation', 'mapAnnotation', 'p
                 $('#' + formConsole.cid).on('click', '#btn-cancel', function () {
                     // close the form window
                     self.consoleListManager.removeAllConsoles(); 
+                    self.consoleListManager.removeFormConsole(formConsole);
                 });
             }
         };

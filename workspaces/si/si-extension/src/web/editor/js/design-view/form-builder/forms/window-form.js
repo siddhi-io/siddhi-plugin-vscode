@@ -253,14 +253,16 @@ define(['require', 'log', 'jquery', 'lodash', 'attribute', 'constants'],
                     // set the isDesignViewContentChanged to true
                     self.configurationData.setIsDesignViewContentChanged(true);
                     // close the form window
-                    self.consoleListManager.removeAllConsoles(); 
+                    self.consoleListManager.removeAllConsoles();
+                    self.consoleListManager.removeFormConsole(formConsole);
                 }
             });
 
             // 'Cancel' button action
             $('#' + formConsole.cid).on('click', '#btn-cancel', function () {
                 // close the form window
-                self.consoleListManager.removeAllConsoles(); 
+                self.consoleListManager.removeAllConsoles();
+                self.consoleListManager.removeFormConsole(formConsole);
             });
         };
 

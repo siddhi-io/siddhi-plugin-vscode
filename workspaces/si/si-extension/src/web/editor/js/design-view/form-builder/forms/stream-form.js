@@ -292,7 +292,8 @@ define(['require', 'log', 'jquery', 'lodash', 'attribute', 'jsonValidator', 'con
                     // set the isDesignViewContentChanged to true
                     self.configurationData.setIsDesignViewContentChanged(true);
                     // close the form window
-                    self.consoleListManager.removeAllConsoles(); 
+                    self.consoleListManager.removeAllConsoles();
+                    self.consoleListManager.removeFormConsole(formConsole);
                 }
             });
 
@@ -300,6 +301,7 @@ define(['require', 'log', 'jquery', 'lodash', 'attribute', 'jsonValidator', 'con
             $('#' + formConsole.cid).on('click', '#btn-cancel', function () {
                 // close the form window
                 self.consoleListManager.removeAllConsoles(); 
+                self.consoleListManager.removeFormConsole(formConsole);
             });
 
         };

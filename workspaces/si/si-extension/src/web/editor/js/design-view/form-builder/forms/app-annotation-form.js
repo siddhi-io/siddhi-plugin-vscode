@@ -110,6 +110,7 @@ define(['require', 'log', 'jquery', 'lodash'],
                     self.configurationData.setIsDesignViewContentChanged(true);
                     // close the form window
                     self.consoleListManager.removeAllConsoles();
+                    self.consoleListManager.removeFormConsole(formConsole);
                 }
 
             });
@@ -117,6 +118,7 @@ define(['require', 'log', 'jquery', 'lodash'],
             $('#' + formConsole.cid).on('click', '#btn-cancel', function () {
                 // close the form window
                 self.consoleListManager.removeAllConsoles();
+                self.consoleListManager.removeFormConsole(formConsole);
             });
 
         };

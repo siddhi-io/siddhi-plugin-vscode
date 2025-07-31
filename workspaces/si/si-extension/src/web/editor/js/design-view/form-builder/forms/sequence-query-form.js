@@ -453,12 +453,14 @@ define(['require', 'log', 'jquery', 'lodash', 'querySelect', 'queryOrderByValue'
 
                         // close the form window
                         self.consoleListManager.removeAllConsoles(); 
+                        self.consoleListManager.removeFormConsole(formConsole);
                     }
                 })
 
                 $('#' + formConsole.cid).on('click', '#btn-cancel', function () {
                     // close the form window
                     self.consoleListManager.removeAllConsoles(); 
+                    self.consoleListManager.removeFormConsole(formConsole);
                 });
             }
         };

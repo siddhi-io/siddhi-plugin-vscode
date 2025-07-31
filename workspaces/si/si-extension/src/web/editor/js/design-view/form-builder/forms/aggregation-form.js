@@ -573,6 +573,7 @@ define(['require', 'log', 'jquery', 'lodash', 'aggregateByTimePeriod', 'querySel
                         self.configurationData.setIsDesignViewContentChanged(true);
                         // close the form aggregation
                         self.consoleListManager.removeAllConsoles();
+                        self.consoleListManager.removeFormConsole(formConsole);
                     }
                 });
 
@@ -580,6 +581,7 @@ define(['require', 'log', 'jquery', 'lodash', 'aggregateByTimePeriod', 'querySel
                 $('#' + formConsole.cid).on('click', '#btn-cancel', function () {
                     // close the form aggregation
                     self.consoleListManager.removeAllConsoles();
+                    self.consoleListManager.removeFormConsole(formConsole);
                 });
             }
         };
