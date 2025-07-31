@@ -435,15 +435,14 @@ define(['log', 'jquery', 'lodash', 'mapAnnotation', 'payloadOrAttribute', 'jsonV
                         self.configurationData.setIsDesignViewContentChanged(true);
                         // close the form window
                         self.consoleListManager.removeAllConsoles();
-                        if (self.application.browserStorage.get("isWidgetFromTourGuide")) {
-                            self.consoleListManager.removeAllConsoles();
-                        }
+                        self.consoleListManager.removeFormConsole(formConsole);
                     }
                 });
 
                 $('#' + formConsole.cid).on('click', '#btn-cancel', function () {
                     // close the form window
                     self.consoleListManager.removeAllConsoles();
+                    self.consoleListManager.removeFormConsole(formConsole);
                 });
             }
         };

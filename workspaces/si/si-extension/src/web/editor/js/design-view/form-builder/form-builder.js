@@ -77,6 +77,7 @@ define(['require', 'log', 'jquery', 'lodash', 'formUtils', 'streamForm', 'tableF
             $(formConsole).on("close-button-in-form-clicked", function () {
                 // close the form window
                 self.consoleListManager.removeAllConsoles();
+                self.consoleListManager.removeFormConsole(formConsole);
             });
             return formConsole;
         };

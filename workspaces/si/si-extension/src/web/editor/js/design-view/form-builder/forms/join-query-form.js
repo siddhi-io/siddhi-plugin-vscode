@@ -686,13 +686,15 @@ define(['require', 'log', 'jquery', 'lodash', 'querySelect', 'queryWindowOrFunct
 
                         // close the form window
                         self.consoleListManager.removeAllConsoles(); 
+                        self.consoleListManager.removeFormConsole(formConsole);
                     }
                 });
 
                 // 'Cancel' button action
                 $('#' + formConsole.cid).on('click', '#btn-cancel', function () {
                     // close the form
-                    self.consoleListManager.removeAllConsoles(); 
+                    self.consoleListManager.removeAllConsoles();
+                    self.consoleListManager.removeFormConsole(formConsole);
                 });
             }
         };
