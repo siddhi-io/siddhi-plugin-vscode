@@ -92,7 +92,7 @@ jobs:
         # Build all packages
         node common/scripts/install-run-rush.js build --verbose
       env:
-        isPreRelease: ${{ inputs.prerelease == 'true' }}
+        isPreRelease: ${{ inputs.prerelease }}
 
     - name: Package Extension
       run: |
