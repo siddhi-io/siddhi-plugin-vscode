@@ -9,9 +9,6 @@ const PROJECT_ROOT = path.join(__dirname, '..');
 const LS_DIR = path.join(PROJECT_ROOT, 'ls');
 const GITHUB_REPO_URL = 'https://api.github.com/repos/wso2/si-language-server';
 
-const args = process.argv.slice(2);
-const usePrerelease = args.includes('--prerelease') || process.env.isPreRelease === 'true';
-
 const LS_JARS = [
     'io.siddhi.langserver.core',
     'io.siddhi.langserver.launcher',
@@ -289,33 +286,13 @@ function getFileSize(filePath) {
     }
 }
 
-async function getLatestRelease(usePrerelease) {
-    if (usePrerelease) {
-        // Get all releases and find the latest prerelease
-        const releasesResponse = await httpsRequest(`${GITHUB_REPO_URL}/releases`);
-        let releases;
-        try {
-            releases = JSON.parse(releasesResponse.data);
-        } catch (error) {
-            throw new Error('Failed to parse releases information JSON');
-        }
-        // Sort releases by published_at date in descending order and find the latest prerelease
-        const prerelease = releases
-            .filter(release => release.prerelease)
-            .sort((a, b) => new Date(b.published_at) - new Date(a.published_at))[0];
-
-        if (!prerelease) {
-            throw new Error('No prerelease found');
-        }
-        return prerelease;
-    } else {
-        // Get the latest stable release
-        const releaseResponse = await httpsRequest(`${GITHUB_REPO_URL}/releases/latest`);
-        try {
-            return JSON.parse(releaseResponse.data);
-        } catch (error) {
-            throw new Error('Failed to parse release information JSON');
-        }
+async function getLatestRelease() {
+    // Get the latest stable release
+    const releaseResponse = await httpsRequest(`${GITHUB_REPO_URL}/releases/latest`);
+    try {
+        return JSON.parse(releaseResponse.data);
+    } catch (error) {
+        throw new Error('Failed to parse release information JSON');
     }
 }
 
@@ -372,14 +349,14 @@ async function main() {
             process.exit(0);
         }
 
-        console.log(`Downloading WSO2 Integrator: SI language server${usePrerelease ? ' (prerelease)' : ''}...`);
+        console.log(`Downloading WSO2 Integrator: SI language server.`);
 
         if (!fs.existsSync(LS_DIR)) {
             fs.mkdirSync(LS_DIR, { recursive: true });
         }
 
         console.log('Fetching release information...');
-        const releaseData = await getLatestRelease(usePrerelease);
+        const releaseData = await getLatestRelease();
 
         console.log(`Found release: ${releaseData.name || releaseData.tag_name}`);
         console.log(`Release date: ${releaseData.published_at}`);

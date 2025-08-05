@@ -239,7 +239,7 @@
     "copyJSLibs": "copyfiles -f ../si-visualizer/build/*.js resources/jslibs",
     "copyVSIX": "copyfiles *.vsix ./vsix",
     "copyVSIXToRoot": "copyfiles -f ./vsix/* ../../..",
-    "postbuild": "if [ \"$isPreRelease\" = \"true\" ]; then pnpm run download-ls --prerelease; else pnpm run download-ls; fi && pnpm run copyFonts && pnpm run copyJSLibs && pnpm run package && pnpm run copyVSIX",
+    "postbuild": "pnpm run download-ls && pnpm run copyFonts && pnpm run copyJSLibs && pnpm run package && pnpm run copyVSIX",
     "build-tm-grammar": "js-yaml grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.yaml > grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.json"
   },
   "devDependencies": {
