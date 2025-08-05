@@ -31,12 +31,12 @@ jobs:
         uses: dawidd6/action-download-artifact@v2
         with:
           run_id: ${{ github.event.inputs.workflowRunId }}
-          name: VSIX
+          name: streaming-integrator
 
       - name: Unzip
         run: |
-          unzip VSIX.zip
-          rm VSIX.zip
+          unzip streaming-integrator.zip
+          rm streaming-integrator.zip
 
       - name: Use Node.js 20.x
         uses: actions/setup-node@v1
