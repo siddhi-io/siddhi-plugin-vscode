@@ -21,6 +21,96 @@ import { ExtensionInstallerWebview } from "./extension-installer-webview";
 
 let simulatorVisualizerWebview: SimulatorVisualizerWebview | undefined;
 let diagramVisualizerWebview: DiagramVisualizerWebview | undefined;
+let visualizerMetaData: any;
+let latestPublishedDesign: string | undefined;
+let isDesignRefreshInProgress = false;
+let hasPendingDesignRefresh = false;
+
+function isVisualizerTargetDocument(document: vscode.TextDocument): boolean {
+    return (
+        !!diagramVisualizerWebview &&
+        !!extension.fileUri &&
+        document.uri.toString() === extension.fileUri.toString()
+    );
+}
+
+async function getVisualizerMetaData() {
+    if (visualizerMetaData) {
+        return visualizerMetaData;
+    }
+    const metaData = await StateMachine.context().langClient?.getMetaData();
+    if (!metaData || !metaData.content) {
+        vscode.window.showErrorMessage("Failed to retrieve metadata.");
+        return undefined;
+    }
+    visualizerMetaData = processMetaData(metaData.content);
+    return visualizerMetaData;
+}
+
+async function publishDesignForVisualizer(forceUpdate = false): Promise<void> {
+    if (!diagramVisualizerWebview || !extension.fileUri) {
+        return;
+    }
+
+    let document: vscode.TextDocument;
+    const targetUri = extension.fileUri;
+
+    const openDoc = vscode.workspace.textDocuments.find(
+        (doc) => doc.uri.toString() === targetUri.toString()
+    );
+    if (openDoc) {
+        document = openDoc;
+    } else {
+        document = await vscode.workspace.openTextDocument(targetUri);
+    }
+
+    const designModel = await StateMachine.context().langClient?.getDesignModel(encodeToBase64(document.getText()));
+    if (!designModel || !designModel.content) {
+        vscode.window.showErrorMessage("Failed to retrieve design model.");
+        return;
+    }
+
+    const decoded = decodeFromBase64(designModel.content);
+    if (!forceUpdate && latestPublishedDesign === decoded) {
+        return;
+    }
+
+    const metaData = await getVisualizerMetaData();
+    if (!metaData) {
+        return;
+    }
+
+    latestPublishedDesign = decoded;
+    diagramVisualizerWebview.publishMessageToWebview(UI_COMMANDS.SEND_DESIGN, {
+        data: JSON.parse(decoded),
+        metaData,
+    });
+}
+
+async function triggerDesignRefresh(forceUpdate = false): Promise<void> {
+    if (isDesignRefreshInProgress) {
+        hasPendingDesignRefresh = true;
+        return;
+    }
+
+    isDesignRefreshInProgress = true;
+    try {
+        do {
+            hasPendingDesignRefresh = false;
+            await publishDesignForVisualizer(forceUpdate);
+            forceUpdate = false;
+        } while (hasPendingDesignRefresh);
+    } finally {
+        isDesignRefreshInProgress = false;
+    }
+}
+
+function resetVisualizerSyncState() {
+    visualizerMetaData = undefined;
+    latestPublishedDesign = undefined;
+    isDesignRefreshInProgress = false;
+    hasPendingDesignRefresh = false;
+}
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -43,7 +133,8 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(VS_CODE_COMMANDS.SHOW_SOURCE, async () => {
             diagramVisualizerWebview?.dispose();
-            diagramVisualizerWebview = undefined
+            diagramVisualizerWebview = undefined;
+            resetVisualizerSyncState();
             vscode.commands.executeCommand("setContext", "SI.isVisualizerActive", "false");
         })
     );
@@ -56,19 +147,14 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(VS_CODE_COMMANDS.OPEN_WELCOME, () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Welcome });
-        })
-    );
-
-    context.subscriptions.push(
         vscode.commands.registerCommand(VS_CODE_COMMANDS.SHOW_GRAPHICAL_VIEW, async () => {
             const editor = vscode.window.activeTextEditor;
             if (!editor) {
                 return;
             }
+
+            resetVisualizerSyncState();
             extension.fileUri = editor.document.uri;
-            const content: string = editor.document.getText();
             diagramVisualizerWebview = new DiagramVisualizerWebview();
             let panel = diagramVisualizerWebview.getWebview();
             if (!panel) {
@@ -76,28 +162,24 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                 return;
             }
             diagramVisualizerWebview.registerEventListeners();
-
-            const designModel = await StateMachine.context().langClient?.getDesignModel(encodeToBase64(content));
-            if (!designModel || !designModel.content) {
-                vscode.window.showErrorMessage("Failed to retrieve design model.");
-                diagramVisualizerWebview.dispose();
-                return;
-            }
-            const decoded = decodeFromBase64(designModel.content);
+            panel.onDidDispose(() => {
+                diagramVisualizerWebview = undefined;
+                resetVisualizerSyncState();
+            });
             vscode.commands.executeCommand("setContext", "SI.isVisualizerActive", "true");
 
-            const metaData = await StateMachine.context().langClient?.getMetaData();
-            if (!metaData || !metaData.content) {
-                vscode.window.showErrorMessage("Failed to retrieve metadata.");
+            setTimeout(() => {
+                triggerDesignRefresh(true);
+            }, 2000);
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.workspace.onDidSaveTextDocument(async (document) => {
+            if (!isVisualizerTargetDocument(document)) {
                 return;
             }
-            const rawExtensions = processMetaData(metaData.content);
-            setTimeout(() => {
-                diagramVisualizerWebview?.publishMessageToWebview(UI_COMMANDS.SEND_DESIGN, {
-                    data: JSON.parse(decoded),
-                    metaData: rawExtensions,
-                });
-            }, 2000);
+            await triggerDesignRefresh();
         })
     );
 

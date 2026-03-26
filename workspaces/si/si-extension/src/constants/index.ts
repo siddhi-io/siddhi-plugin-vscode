@@ -13,7 +13,6 @@ export const VS_CODE_COMMANDS = {
     SHOW_GRAPHICAL_VIEW: "SI.show.graphical-view",
     CHANGE_SERVER_PATH: "SI.change.server",
     CHANGE_JAVA_HOME: 'SI.change.java',
-    OPEN_WELCOME: "SI.openWelcome",
     EVENT_SIMULATE: "SI.event.simulate",
     EXPORT_APP: "SI.export.app",
     EXPORT_TO_DOCKER: "SI.export.to.docker",

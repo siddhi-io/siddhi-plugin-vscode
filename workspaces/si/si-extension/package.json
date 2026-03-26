@@ -24,6 +24,9 @@
   "activationEvents": [
     "onLanguage:siddhi"
   ],
+  "extensionDependencies": [
+    "wso2.wso2-integrator"
+  ],
   "contributes": {
     "languages": [
       {
@@ -105,11 +108,6 @@
       {
         "command": "SI.change.java",
         "title": "Set Java Home",
-        "category": "SI"
-      },
-      {
-        "command": "SI.openWelcome",
-        "title": "Open SI Welcome",
         "category": "SI"
       },
       {
