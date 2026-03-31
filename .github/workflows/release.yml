@@ -94,20 +94,6 @@ jobs:
       env:
         isPreRelease: ${{ inputs.prerelease }}
 
-    - name: Package Extension
-      run: |
-        cd workspaces/si/si-extension
-        npm run package
-        
-        # Verify VSIX was created
-        if [ ! -f "streaming-integrator-${VERSION}.vsix" ]; then
-          echo "Error: VSIX file not found"
-          ls -la *.vsix || echo "No VSIX files found"
-          exit 1
-        fi
-        
-        echo "Successfully created streaming-integrator-${VERSION}.vsix"
-
     - name: Upload release artifact
       uses: actions/upload-artifact@v4
       with:
