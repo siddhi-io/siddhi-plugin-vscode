@@ -261,7 +261,6 @@
 }
 
 input{
-. form-control input-md;
     font-family: inherit;
     font-size: inherit;
     color: inherit;
@@ -1352,6 +1351,30 @@ a.list-group-item, button.list-group-item {
 .selected-container {
     border-color: #4af;
     box-shadow: 0 0 1px 1px #4af;
+}
+
+.focus-zoom {
+    animation: node-focus-zoom 520ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    transform-origin: center center;
+    will-change: transform;
+}
+
+@keyframes node-focus-zoom {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.07);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .focus-zoom {
+        animation: none;
+    }
 }
 
 .selected-button {

@@ -25,6 +25,19 @@ let visualizerMetaData: any;
 let latestPublishedDesign: string | undefined;
 let isDesignRefreshInProgress = false;
 let hasPendingDesignRefresh = false;
+let pendingFocusTarget: GraphNodeFocusTarget | undefined;
+let clearPendingFocusTimer: NodeJS.Timeout | undefined;
+
+interface GraphNodeFocusTarget {
+    id?: string;
+    type?: string;
+    name?: string;
+}
+
+interface ShowGraphicalViewArgs {
+    fileUri?: vscode.Uri;
+    focusTarget?: GraphNodeFocusTarget;
+}
 
 function isVisualizerTargetDocument(document: vscode.TextDocument): boolean {
     return (
@@ -84,6 +97,7 @@ async function publishDesignForVisualizer(forceUpdate = false): Promise<void> {
     diagramVisualizerWebview.publishMessageToWebview(UI_COMMANDS.SEND_DESIGN, {
         data: JSON.parse(decoded),
         metaData,
+        focusTarget: pendingFocusTarget,
     });
 }
 
@@ -110,6 +124,10 @@ function resetVisualizerSyncState() {
     latestPublishedDesign = undefined;
     isDesignRefreshInProgress = false;
     hasPendingDesignRefresh = false;
+    if (clearPendingFocusTimer) {
+        clearTimeout(clearPendingFocusTimer);
+        clearPendingFocusTimer = undefined;
+    }
 }
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
@@ -147,14 +165,35 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(VS_CODE_COMMANDS.SHOW_GRAPHICAL_VIEW, async () => {
+        vscode.commands.registerCommand(VS_CODE_COMMANDS.SHOW_GRAPHICAL_VIEW, async (args?: ShowGraphicalViewArgs) => {
             const editor = vscode.window.activeTextEditor;
-            if (!editor) {
+            const targetFileUri = args?.fileUri || editor?.document.uri;
+
+            if (!targetFileUri) {
+                return;
+            }
+
+            extension.fileUri = targetFileUri;
+            pendingFocusTarget = args?.focusTarget;
+            if (clearPendingFocusTimer) {
+                clearTimeout(clearPendingFocusTimer);
+                clearPendingFocusTimer = undefined;
+            }
+            if (pendingFocusTarget) {
+                clearPendingFocusTimer = setTimeout(() => {
+                    pendingFocusTarget = undefined;
+                    clearPendingFocusTimer = undefined;
+                }, 3000);
+            }
+
+            const existingPanel = diagramVisualizerWebview?.getWebview();
+            if (existingPanel) {
+                existingPanel.reveal(vscode.ViewColumn.One);
+                await triggerDesignRefresh(true);
                 return;
             }
 
             resetVisualizerSyncState();
-            extension.fileUri = editor.document.uri;
             diagramVisualizerWebview = new DiagramVisualizerWebview();
             let panel = diagramVisualizerWebview.getWebview();
             if (!panel) {
@@ -165,12 +204,16 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
             panel.onDidDispose(() => {
                 diagramVisualizerWebview = undefined;
                 resetVisualizerSyncState();
+                pendingFocusTarget = undefined;
             });
             vscode.commands.executeCommand("setContext", "SI.isVisualizerActive", "true");
 
-            setTimeout(() => {
-                triggerDesignRefresh(true);
-            }, 2000);
+            await triggerDesignRefresh(true);
+            [250, 800, 1600].forEach((delay) => {
+                setTimeout(() => {
+                    void triggerDesignRefresh(true);
+                }, delay);
+            });
         })
     );
 
