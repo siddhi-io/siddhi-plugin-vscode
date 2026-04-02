@@ -23,8 +23,11 @@ export const supportedJavaVersionsForSI: { [key: string]: string } = {
 };
 export const LATEST_SI_VERSION = "4.3.1";
 
-const siDownloadUrls: { [key: string]: string } = {
-    "4.3.1": "https://si-distribution.wso2.com/4.3.1/wso2si-4.3.1.zip"
+const siDownloadUrls: { [key: string]: string[] } = {
+    "4.3.1": [
+        "https://si-distribution.wso2.com/4.3.1/wso2si-4.3.1.zip",
+        "https://github.com/wso2/product-streaming-integrator/releases/download/v4.3.1/wso2si-4.3.1.zip"
+    ]
 };
 
 const CACHED_FOLDER = path.join(os.homedir(), ".wso2-si");
@@ -163,12 +166,33 @@ export async function downloadSI(siVersion: string, isUpdatedPack?: boolean): Pr
         if (!fs.existsSync(siPath)) {
             fs.mkdirSync(siPath, { recursive: true });
         }
-        const siDownloadUrl = isUpdatedPack ? siDownloadUrls[siVersion + "-UPDATED"] : siDownloadUrls[siVersion];
-        const zipName = siDownloadUrl.split("/").pop();
+        const siDownloadUrlList = isUpdatedPack ? siDownloadUrls[siVersion + "-UPDATED"] : siDownloadUrls[siVersion];
+        if (!siDownloadUrlList || siDownloadUrlList.length === 0) {
+            throw new Error(`No download URLs configured for WSO2 Integrator: SI version ${siVersion}.`);
+        }
+
+        const zipName = siDownloadUrlList[0].split("/").pop();
         const siDownloadPath = path.join(siPath, zipName!);
 
         if (!fs.existsSync(siDownloadPath)) {
-            await downloadWithProgress(siDownloadUrl, siDownloadPath, "Downloading WSO2 Integrator: SI");
+            let downloaded = false;
+            const failedAttempts: string[] = [];
+            for (const url of siDownloadUrlList) {
+                try {
+                    await downloadWithProgress(url, siDownloadPath, "Downloading WSO2 Integrator: SI");
+                    downloaded = true;
+                    break;
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : String(error);
+                    failedAttempts.push(`${url} -> ${message}`);
+                    if (fs.existsSync(siDownloadPath)) {
+                        fs.unlinkSync(siDownloadPath);
+                    }
+                }
+            }
+            if (!downloaded) {
+                throw new Error(`All download URLs failed. ${failedAttempts.join(" | ")}`);
+            }
         } else {
             vscode.window.showInformationMessage("WSO2 Integrator: SI already downloaded.");
         }
@@ -182,7 +206,8 @@ export async function downloadSI(siVersion: string, isUpdatedPack?: boolean): Pr
             );
             return downloadSI(siVersion, isUpdatedPack);
         }
-        throw new Error("Failed to download WSO2 Integrator: SI.");
+        const message = error instanceof Error ? error.message : String(error);
+        throw new Error(`Failed to download WSO2 Integrator: SI. ${message}`);
     }
 }
 

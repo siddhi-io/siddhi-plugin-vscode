@@ -108,9 +108,8 @@ export class SiVisualizerRpcManager implements SIVisualizerAPI {
                 break;
               }
         }
-
         const fileUri = vscode.Uri.file(path.join(folderUri.fsPath, fileName + ".siddhi"));
-        const defaultContent = `@App:name("${fileName}")\n@App:description("Description of the plan")\n`;
+        const defaultContent = `@App:name("APP_NAME")\n@App:description("APP_DESCRIPTION")\n\ndefine stream InputStream (attribute1 string,attribute2 int);`;
         try {
             await vscode.workspace.fs.writeFile(fileUri, Buffer.from(defaultContent, "utf8"));
             const doc = await vscode.workspace.openTextDocument(fileUri);
@@ -147,3 +146,4 @@ export class SiVisualizerRpcManager implements SIVisualizerAPI {
         openView(params.type as EVENT_TYPE, params.location as VisualizerLocation);
     }
 }
+
