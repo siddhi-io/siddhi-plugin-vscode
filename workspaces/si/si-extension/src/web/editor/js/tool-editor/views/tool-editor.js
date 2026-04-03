@@ -85,6 +85,156 @@ define(['require', 'jquery', 'backbone', 'lodash', 'log', 'design_view'],
                     var designView = new DesignView(self.options, application, this.jsPlumbInstance);
                     this._designView = designView;
                     designView.renderToolPalette();
+                    var lastAnimatedFocus = { nodeId: '', at: 0 };
+
+                    function findIdInListByName(list, name, nameField) {
+                        if (!list || !name) {
+                            return undefined;
+                        }
+                        for (var i = 0; i < list.length; i++) {
+                            var element = list[i];
+                            if (!element) {
+                                continue;
+                            }
+                            if (element[nameField] === name) {
+                                return element.id;
+                            }
+                        }
+                        return undefined;
+                    }
+
+                    function findQueryIdByName(queryLists, name) {
+                        if (!queryLists || !name) {
+                            return undefined;
+                        }
+
+                        var queryTypes = ['WINDOW_FILTER_PROJECTION', 'PATTERN', 'SEQUENCE', 'JOIN'];
+                        for (var i = 0; i < queryTypes.length; i++) {
+                            var list = queryLists[queryTypes[i]];
+                            if (!list) {
+                                continue;
+                            }
+
+                            for (var j = 0; j < list.length; j++) {
+                                var query = list[j];
+                                if (!query) {
+                                    continue;
+                                }
+
+                                if (query.queryName === name || query.id === name) {
+                                    return query.id;
+                                }
+                            }
+                        }
+
+                        return undefined;
+                    }
+
+                    function resolveTargetNodeId(configuration, focusTarget) {
+                        if (!configuration || !configuration.siddhiAppConfig || !focusTarget) {
+                            return undefined;
+                        }
+
+                        if (focusTarget.id && document.getElementById(focusTarget.id)) {
+                            return focusTarget.id;
+                        }
+
+                        var config = configuration.siddhiAppConfig;
+                        var targetType = (focusTarget.type || '').toUpperCase();
+                        var targetName = focusTarget.name;
+
+                        switch (targetType) {
+                            case 'STREAM':
+                                return findIdInListByName(config.streamList, targetName, 'name');
+                            case 'TABLE':
+                                return findIdInListByName(config.tableList, targetName, 'name');
+                            case 'WINDOW':
+                                return findIdInListByName(config.windowList, targetName, 'name');
+                            case 'TRIGGER':
+                                return findIdInListByName(config.triggerList, targetName, 'name');
+                            case 'AGGREGATION':
+                                return findIdInListByName(config.aggregationList, targetName, 'name');
+                            case 'FUNCTION':
+                                return findIdInListByName(config.functionList, targetName, 'name');
+                            case 'SOURCE':
+                                return findIdInListByName(config.sourceList, targetName, 'type');
+                            case 'SINK':
+                                return findIdInListByName(config.sinkList, targetName, 'type');
+                            case 'QUERY':
+                                return findQueryIdByName(config.queryLists, targetName);
+                            case 'PARTITION':
+                                return findIdInListByName(config.partitionList, targetName, 'id');
+                            default:
+                                return targetName;
+                        }
+                    }
+
+                    function applyNodeFocus(configuration, focusTarget, retriesLeft) {
+                        var targetNodeId = resolveTargetNodeId(configuration, focusTarget);
+                        if (!targetNodeId) {
+                            return;
+                        }
+
+                        var targetElement = document.getElementById(targetNodeId);
+                        if (!targetElement) {
+                            var domSuffix = '_element_' + targetNodeId;
+                            var candidates = self._$parent_el.find('[id]');
+                            for (var i = 0; i < candidates.length; i++) {
+                                var candidate = candidates[i];
+                                if (candidate && candidate.id && candidate.id.endsWith(domSuffix)) {
+                                    targetElement = candidate;
+                                    break;
+                                }
+                            }
+                        }
+                        var $target = targetElement ? $(targetElement) : $();
+                        if ($target.length === 0) {
+                            if ((retriesLeft || 0) > 0) {
+                                setTimeout(function () {
+                                    applyNodeFocus(configuration, focusTarget, (retriesLeft || 0) - 1);
+                                }, 120);
+                            }
+                            return;
+                        }
+
+                        self._$parent_el.find('.selected-container, .focused-container')
+                            .removeClass('selected-container focused-container');
+
+                        $target.addClass('selected-container');
+                        var animatedNodeId = targetElement && targetElement.id ? targetElement.id : '';
+                        var now = Date.now();
+                        var shouldAnimate = !(lastAnimatedFocus.nodeId === animatedNodeId && (now - lastAnimatedFocus.at) < 2200);
+                        if (shouldAnimate) {
+                            self._$parent_el.find('.focus-zoom').removeClass('focus-zoom');
+                            if ($target[0]) {
+                                void $target[0].offsetWidth;
+                            }
+                            $target.addClass('focus-zoom');
+                            setTimeout(function () {
+                                $target.removeClass('focus-zoom');
+                            }, 420);
+                            lastAnimatedFocus = { nodeId: animatedNodeId, at: now };
+                        }
+
+                        if ($target[0] && typeof $target[0].focus === 'function') {
+                            $target[0].focus();
+                        }
+
+                        var gridContainer = self._$parent_el.find(_.get(self.options, 'design_view.grid_container'));
+                        if (gridContainer.length === 0) {
+                            return;
+                        }
+
+                        var containerHeight = gridContainer.height() || 0;
+                        var containerWidth = gridContainer.width() || 0;
+                        var offsetTop = $target.position().top;
+                        var offsetLeft = $target.position().left;
+                        var centerTop = Math.max(0, offsetTop - (containerHeight / 2) + ($target.outerHeight() || 0) / 2);
+                        var centerLeft = Math.max(0, offsetLeft - (containerWidth / 2) + ($target.outerWidth() || 0) / 2);
+
+                        gridContainer.scrollTop(centerTop);
+                        gridContainer.scrollLeft(centerLeft);
+                    }
 
                     loadingScreen.show();
                     designContainer.hide(); // Hide design container initially
@@ -102,10 +252,11 @@ define(['require', 'jquery', 'backbone', 'lodash', 'log', 'design_view'],
                                 designContainer.show();
                                 designView.setRawExtensions(message.payload.metaData);
                                 designView.renderDesignGrid(self.JSONObject);
+                                applyNodeFocus(self.JSONObject, message.payload.focusTarget, 6);
                                 loadingScreen.hide();
                                 self.trigger("view-switch", { view: 'design' });
                             }, 100);
-                        } 
+                        }
                     });
 
                     toggleViewButton.keydown(function (key) {

@@ -21,6 +21,114 @@ import { ExtensionInstallerWebview } from "./extension-installer-webview";
 
 let simulatorVisualizerWebview: SimulatorVisualizerWebview | undefined;
 let diagramVisualizerWebview: DiagramVisualizerWebview | undefined;
+let visualizerMetaData: any;
+let latestPublishedDesign: string | undefined;
+let isDesignRefreshInProgress = false;
+let hasPendingDesignRefresh = false;
+let pendingFocusTarget: GraphNodeFocusTarget | undefined;
+let clearPendingFocusTimer: NodeJS.Timeout | undefined;
+
+interface GraphNodeFocusTarget {
+    id?: string;
+    type?: string;
+    name?: string;
+}
+
+interface ShowGraphicalViewArgs {
+    fileUri?: vscode.Uri;
+    focusTarget?: GraphNodeFocusTarget;
+}
+
+function isVisualizerTargetDocument(document: vscode.TextDocument): boolean {
+    return (
+        !!diagramVisualizerWebview &&
+        !!extension.fileUri &&
+        document.uri.toString() === extension.fileUri.toString()
+    );
+}
+
+async function getVisualizerMetaData() {
+    if (visualizerMetaData) {
+        return visualizerMetaData;
+    }
+    const metaData = await StateMachine.context().langClient?.getMetaData();
+    if (!metaData || !metaData.content) {
+        vscode.window.showErrorMessage("Failed to retrieve metadata.");
+        return undefined;
+    }
+    visualizerMetaData = processMetaData(metaData.content);
+    return visualizerMetaData;
+}
+
+async function publishDesignForVisualizer(forceUpdate = false): Promise<void> {
+    if (!diagramVisualizerWebview || !extension.fileUri) {
+        return;
+    }
+
+    let document: vscode.TextDocument;
+    const targetUri = extension.fileUri;
+
+    const openDoc = vscode.workspace.textDocuments.find(
+        (doc) => doc.uri.toString() === targetUri.toString()
+    );
+    if (openDoc) {
+        document = openDoc;
+    } else {
+        document = await vscode.workspace.openTextDocument(targetUri);
+    }
+
+    const designModel = await StateMachine.context().langClient?.getDesignModel(encodeToBase64(document.getText()));
+    if (!designModel || !designModel.content) {
+        vscode.window.showErrorMessage("Failed to retrieve design model.");
+        return;
+    }
+
+    const decoded = decodeFromBase64(designModel.content);
+    if (!forceUpdate && latestPublishedDesign === decoded) {
+        return;
+    }
+
+    const metaData = await getVisualizerMetaData();
+    if (!metaData) {
+        return;
+    }
+
+    latestPublishedDesign = decoded;
+    diagramVisualizerWebview.publishMessageToWebview(UI_COMMANDS.SEND_DESIGN, {
+        data: JSON.parse(decoded),
+        metaData,
+        focusTarget: pendingFocusTarget,
+    });
+}
+
+async function triggerDesignRefresh(forceUpdate = false): Promise<void> {
+    if (isDesignRefreshInProgress) {
+        hasPendingDesignRefresh = true;
+        return;
+    }
+
+    isDesignRefreshInProgress = true;
+    try {
+        do {
+            hasPendingDesignRefresh = false;
+            await publishDesignForVisualizer(forceUpdate);
+            forceUpdate = false;
+        } while (hasPendingDesignRefresh);
+    } finally {
+        isDesignRefreshInProgress = false;
+    }
+}
+
+function resetVisualizerSyncState() {
+    visualizerMetaData = undefined;
+    latestPublishedDesign = undefined;
+    isDesignRefreshInProgress = false;
+    hasPendingDesignRefresh = false;
+    if (clearPendingFocusTimer) {
+        clearTimeout(clearPendingFocusTimer);
+        clearPendingFocusTimer = undefined;
+    }
+}
 
 export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
@@ -43,7 +151,8 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand(VS_CODE_COMMANDS.SHOW_SOURCE, async () => {
             diagramVisualizerWebview?.dispose();
-            diagramVisualizerWebview = undefined
+            diagramVisualizerWebview = undefined;
+            resetVisualizerSyncState();
             vscode.commands.executeCommand("setContext", "SI.isVisualizerActive", "false");
         })
     );
@@ -56,19 +165,35 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(VS_CODE_COMMANDS.OPEN_WELCOME, () => {
-            openView(EVENT_TYPE.OPEN_VIEW, { view: MACHINE_VIEW.Welcome });
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(VS_CODE_COMMANDS.SHOW_GRAPHICAL_VIEW, async () => {
+        vscode.commands.registerCommand(VS_CODE_COMMANDS.SHOW_GRAPHICAL_VIEW, async (args?: ShowGraphicalViewArgs) => {
             const editor = vscode.window.activeTextEditor;
-            if (!editor) {
+            const targetFileUri = args?.fileUri || editor?.document.uri;
+
+            if (!targetFileUri) {
                 return;
             }
-            extension.fileUri = editor.document.uri;
-            const content: string = editor.document.getText();
+
+            extension.fileUri = targetFileUri;
+            pendingFocusTarget = args?.focusTarget;
+            if (clearPendingFocusTimer) {
+                clearTimeout(clearPendingFocusTimer);
+                clearPendingFocusTimer = undefined;
+            }
+            if (pendingFocusTarget) {
+                clearPendingFocusTimer = setTimeout(() => {
+                    pendingFocusTarget = undefined;
+                    clearPendingFocusTimer = undefined;
+                }, 3000);
+            }
+
+            const existingPanel = diagramVisualizerWebview?.getWebview();
+            if (existingPanel) {
+                existingPanel.reveal(vscode.ViewColumn.One);
+                await triggerDesignRefresh(true);
+                return;
+            }
+
+            resetVisualizerSyncState();
             diagramVisualizerWebview = new DiagramVisualizerWebview();
             let panel = diagramVisualizerWebview.getWebview();
             if (!panel) {
@@ -76,28 +201,28 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
                 return;
             }
             diagramVisualizerWebview.registerEventListeners();
-
-            const designModel = await StateMachine.context().langClient?.getDesignModel(encodeToBase64(content));
-            if (!designModel || !designModel.content) {
-                vscode.window.showErrorMessage("Failed to retrieve design model.");
-                diagramVisualizerWebview.dispose();
-                return;
-            }
-            const decoded = decodeFromBase64(designModel.content);
+            panel.onDidDispose(() => {
+                diagramVisualizerWebview = undefined;
+                resetVisualizerSyncState();
+                pendingFocusTarget = undefined;
+            });
             vscode.commands.executeCommand("setContext", "SI.isVisualizerActive", "true");
 
-            const metaData = await StateMachine.context().langClient?.getMetaData();
-            if (!metaData || !metaData.content) {
-                vscode.window.showErrorMessage("Failed to retrieve metadata.");
+            await triggerDesignRefresh(true);
+            [250, 800, 1600].forEach((delay) => {
+                setTimeout(() => {
+                    void triggerDesignRefresh(true);
+                }, delay);
+            });
+        })
+    );
+
+    context.subscriptions.push(
+        vscode.workspace.onDidSaveTextDocument(async (document) => {
+            if (!isVisualizerTargetDocument(document)) {
                 return;
             }
-            const rawExtensions = processMetaData(metaData.content);
-            setTimeout(() => {
-                diagramVisualizerWebview?.publishMessageToWebview(UI_COMMANDS.SEND_DESIGN, {
-                    data: JSON.parse(decoded),
-                    metaData: rawExtensions,
-                });
-            }, 2000);
+            await triggerDesignRefresh();
         })
     );
 

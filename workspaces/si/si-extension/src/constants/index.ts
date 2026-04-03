@@ -13,11 +13,14 @@ export const VS_CODE_COMMANDS = {
     SHOW_GRAPHICAL_VIEW: "SI.show.graphical-view",
     CHANGE_SERVER_PATH: "SI.change.server",
     CHANGE_JAVA_HOME: 'SI.change.java',
-    OPEN_WELCOME: "SI.openWelcome",
     EVENT_SIMULATE: "SI.event.simulate",
     EXPORT_APP: "SI.export.app",
     EXPORT_TO_DOCKER: "SI.export.to.docker",
-    EXTENSION_INSTALLER: "SI.extension.installer"
+    EXTENSION_INSTALLER: "SI.extension.installer",
+    PROJECT_EXPLORER_REFRESH: "SI.projectExplorer.refresh",
+    PROJECT_EXPLORER_OPEN_FILE: "SI.projectExplorer.openFile",
+    PROJECT_EXPLORER_OPEN_GRAPHICAL_FOCUSED: "SI.projectExplorer.openGraphicalFocused",
+    PROJECT_EXPLORER_REVEAL_FILE: "SI.projectExplorer.revealFile",
 };
 
 export const UI_COMMANDS = {
@@ -89,5 +92,7 @@ export const INVALID_SERVER_PATH_MSG = "Invalid WSO2 Integrator: SI path or Unsu
 
 export const LANGUAGE_CLIENT_ID = "streaming-integrator-vscode";
 export const LANGUAGE_CLIENT_NAME = "SI_Language_Server_Client";
+
+export const PROJECT_EXPLORER_VIEW_ID = "siProjectExplorer";
 
 export const SERVER_CONFIG_KEY = "siServerConnections";

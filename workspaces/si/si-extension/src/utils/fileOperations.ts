@@ -22,53 +22,79 @@ export function getFileName(filePath: string): string {
 
 async function downloadFile(url: string, filePath: string, progressCallback?: (downloadProgress: DownloadProgressData) => void) {
     const writer = fs.createWriteStream(filePath);
-    let totalBytes = 0;
     try {
         const response = await axios.get(url, {
             responseType: 'stream',
             headers: {
-                "User-Agent": "Mozilla/5.0"
-            },
-            onDownloadProgress: (progressEvent) => {
-                totalBytes = progressEvent.total!;
-                const formatSize = (sizeInBytes: number) => {
-                    const sizeInKB = sizeInBytes / 1024;
-                    if (sizeInKB < 1024) {
-                        return `${Math.floor(sizeInKB)} KB`;
-                    } else {
-                        return `${Math.floor(sizeInKB / 1024)} MB`;
-                    }
-                };
-                const progress: DownloadProgressData = {
-                    percentage: Math.round((progressEvent.loaded * 100) / totalBytes),
-                    downloadedAmount: formatSize(progressEvent.loaded),
-                    downloadSize: formatSize(totalBytes)
-                };
-                if (progressCallback) {
-                    progressCallback(progress);
-                }
-                // Notify the visualizer
-                RPCLayer._messenger.sendNotification(
-                    onDownloadProgress,
-                    { type: 'webview', webviewType: VisualizerWebview.viewType },
-                    progress
-                );
+                // "User-Agent": "Mozilla/5.0",
+                "User-Agent": "WSO2-SI-Extension/1.0",
             }
         });
-        response.data.pipe(writer);
+
+        const totalBytes = parseInt(response.headers['content-length'] || '0', 10);
+        let loadedBytes = 0;
+
+        const formatSize = (sizeInBytes: number) => {
+            const sizeInKB = sizeInBytes / 1024;
+            if (sizeInKB < 1024) {
+                return `${Math.floor(sizeInKB)} KB`;
+            } else {
+                return `${Math.floor(sizeInKB / 1024)} MB`;
+            }
+        };
+
+        response.data.on('data', (chunk: Buffer) => {
+            loadedBytes += chunk.length;
+            const progress: DownloadProgressData = {
+                percentage: totalBytes > 0 ? Math.round((loadedBytes * 100) / totalBytes) : 0,
+                downloadedAmount: formatSize(loadedBytes),
+                downloadSize: formatSize(totalBytes)
+            };
+            if (progressCallback) {
+                progressCallback(progress);
+            }
+            RPCLayer._messenger.sendNotification(
+                onDownloadProgress,
+                { type: 'webview', webviewType: VisualizerWebview.viewType },
+                progress
+            );
+        });
         await new Promise<void>((resolve, reject) => {
-            writer.on('finish', () => {
-                writer.close();
-                resolve();
+            let settled = false;
+
+            const rejectOnce = (error: Error) => {
+                if (!settled) {
+                    settled = true;
+                    reject(error);
+                }
+            };
+
+            response.data.on('error', (error: Error) => {
+                rejectOnce(error);
             });
 
-            writer.on('error', (error) => {
-                reject(error);
+            writer.on('finish', () => {
+                if (!settled) {
+                    settled = true;
+                    writer.close();
+                    resolve();
+                }
             });
+
+            writer.on('error', (error: Error) => {
+                rejectOnce(error);
+            });
+
+            response.data.pipe(writer);
         });
     } catch (error) {
-        vscode.window.showErrorMessage(`Error while downloading the file: ${error}`);
-        throw error;
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+        }
+
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        vscode.window.showErrorMessage(`Error while downloading the file: ${errorMessage}`);
+        throw new Error(errorMessage);
     }
 }
 

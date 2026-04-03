@@ -24,7 +24,43 @@
   "activationEvents": [
     "onLanguage:siddhi"
   ],
+  "extensionDependencies": [
+    "wso2.wso2-integrator"
+  ],
   "contributes": {
+    "views": {
+      "wso2-integrator": [
+        {
+          "id": "siProjectExplorer",
+          "name": "WSO2 Integrator: SI",
+          "icon": "resources/images/icons/si-icon.svg",
+          "contextualTitle": "WSO2 Integrator: SI",
+          "when": "resourceLangId == siddhi || SI.project.loading == true || SI.project.error == true || SI.project.empty == false"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "siProjectExplorer",
+        "contents": "Loading Siddhi project structure...",
+        "when": "workspaceFolderCount > 0 && SI.project.loading == true"
+      },
+      {
+        "view": "siProjectExplorer",
+        "contents": "Some Siddhi files could not be analyzed. [Retry](command:SI.projectExplorer.refresh)",
+        "when": "workspaceFolderCount > 0 && SI.project.error == true"
+      },
+      {
+        "view": "siProjectExplorer",
+        "contents": "No Siddhi applications found in this workspace.\n[Create a Siddhi App](command:workbench.action.files.newUntitledFile)",
+        "when": "workspaceFolderCount > 0 && SI.project.empty == true && SI.project.loading != true"
+      },
+      {
+        "view": "siProjectExplorer",
+        "contents": "Open a folder containing .siddhi files to get started.\n[Open Folder](command:vscode.openFolder)",
+        "when": "workspaceFolderCount == 0"
+      }
+    ],
     "languages": [
       {
         "id": "siddhi",
@@ -108,11 +144,6 @@
         "category": "SI"
       },
       {
-        "command": "SI.openWelcome",
-        "title": "Open SI Welcome",
-        "category": "SI"
-      },
-      {
         "command": "SI.export.to.docker",
         "title": "Export Siddhi Apps to Docker",
         "category": "SI"
@@ -120,6 +151,23 @@
       {
         "command": "SI.extension.installer",
         "title": "Extension Installer",
+        "category": "SI"
+      },
+      {
+        "command": "SI.projectExplorer.refresh",
+        "title": "Refresh Project Explorer",
+        "icon": "$(refresh)",
+        "category": "SI"
+      },
+      {
+        "command": "SI.projectExplorer.openFile",
+        "title": "Open Siddhi File",
+        "category": "SI"
+      },
+      {
+        "command": "SI.projectExplorer.revealFile",
+        "title": "Reveal in Explorer",
+        "icon": "$(folder-opened)",
         "category": "SI"
       }
     ],
@@ -149,6 +197,33 @@
         {
           "command": "SI.event.simulate",
           "when": "resourceLangId == siddhi && SI.isRunning === 'true'"
+        },
+        {
+          "command": "SI.projectExplorer.openFile",
+          "when": "false"
+        },
+        {
+          "command": "SI.projectExplorer.revealFile",
+          "when": "false"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "SI.projectExplorer.refresh",
+          "when": "view == siProjectExplorer",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "SI.projectExplorer.revealFile",
+          "when": "view == siProjectExplorer && viewItem == siddhiApp",
+          "group": "2_navigation@1"
+        },
+        {
+          "command": "SI.projectExplorer.refresh",
+          "when": "view == siProjectExplorer && viewItem == errorNode",
+          "group": "0_recovery@1"
         }
       ],
       "editor/title/run": [
