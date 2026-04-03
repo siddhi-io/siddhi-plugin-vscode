@@ -28,6 +28,29 @@ interface MachineContext extends VisualizerLocation {
     langClient: ExtendedLanguageClient | null;
 }
 
+let suppressNextWebviewReveal = false;
+
+async function focusOpenedSiddhiEditor(): Promise<void> {
+    const activeEditor = vscode.window.activeTextEditor;
+    if (activeEditor && activeEditor.document.languageId === "siddhi") {
+        await vscode.window.showTextDocument(activeEditor.document, { preview: false, preserveFocus: false });
+        return;
+    }
+
+    const visibleSiddhiEditor = vscode.window.visibleTextEditors.find(
+        (editor) => editor.document.languageId === "siddhi"
+    );
+    if (visibleSiddhiEditor) {
+        await vscode.window.showTextDocument(visibleSiddhiEditor.document, { preview: false, preserveFocus: false });
+        return;
+    }
+
+    const openSiddhiDocument = vscode.workspace.textDocuments.find((document) => document.languageId === "siddhi");
+    if (openSiddhiDocument) {
+        await vscode.window.showTextDocument(openSiddhiDocument, { preview: false, preserveFocus: false });
+    }
+}
+
 const stateMachine = createMachine<MachineContext>(
     {
         /** @xstate-layout N4IgpgJg5mDOIC5SwJYDoUDsUBcUEMAbFALzAGIIB7TMDTANyoGs6BjACzDeYFFGUAJxoBbMJhwBlMDgCuABwDaABgC6iUPKqo8NDSAAeiAEwBmAIxoArMoDsADju2AnABZlx28tMAaEAE9EV2NLW1dnZwdg2ytjK1MAXwS-VHpcAmIySho6LCZWNE5uPgFhTDEJaTklc3UkEC0dFD16owQQyxsHJzcPL18AxHtjNGcANmU3F3tTCNdzWySU9Cx0olIKMEFhQTR5QnwcADMqQRFCrh5+BiFRcSkZBRU6zW10ltA24xDrO0dbFzuTzePyBdpxNC2cyTVw2Sb2SJjJYgVKEWAASWwOGytHo+ToqIxWIQeSobEOzUwz2e+ka70w+jaY2MoMQ5nMEPsYyhrlMxgRVnMM2RhMxuHIWx2ewOx1O51FxNJ5N0VLUNPqdJVjMQsVZCHMplsI2U3LGsMNVisznsi2SKPQgjA+Ag-jQNzAAHcADJUZ1YKA43KMFgEh1Ol1ulCen1+zBQEnB5WU6lqWlvLWtIKuWyQoUxcKmCZQ4xjPUchZocxWMbmZz8rnKE1WEVh52u90egCq8ggh0ggbxIbQqUdbcjnu7vZwkATTCTNBTLwa6cp2oQrnsVjQxnGm4bE2U7lcerrW4iEVM9nm-MmxhbaFHEY7ACVw-5yAB5AAKvAAcgB9AA1dFeAAdXVV4mg+QwsxzKEbSsAsiw5UtBn1QtLDMXljGCQ0Nzie9H3bKMPVfNtyGfXgvy9ABBABhXggJA8DUw1FdoLaVxs1zBCkLsFCyxLVw0DGatayhRtwi4wi33HUi33IX8aOAgBxGiABVeAg5coIZTN124+D82cQt+JLMtlFraxulsQ0XEtEsZLHF8FIAMXRL1GN4AARdF1O0zVV30ri4LzRCTOQ8y0PZMYxhEsTxmcSzPFMZs7RHWSO14CB0jjcgfL8-9vI-X8tNYyD6TXcJnEhbx2WGa1wiNMsYsratjEbZxzFE9xbWWNBxBuMoKgeao5JjHK8uoXFSQKVJBtucp7iqBRxt9Sb4yVCkFzVcqdMq-Thhzc1a0mOYTXsPVXBrUZz3zeJggRe8FuG5bHnkOSyJdCjeFcyjJAACX-P9gOfEqAFk-38vbAo4kwLF+GzAT6EE0KsI1boiMIrC5dGzSSO1MCoCA4H0VA010tcAFpULBKmz3PRmmaNe9VjwdYyApg7PiCFk0c5aqAVMPDIjvdL0DRMUcC5jMeYQHH7GsRCxmcdHhc3Dw9XsTpG0srl5mu740v6oiZaCuWQlMNALDiOxha6q8Zi1y80GqyJlHRg1JkScWH0ykiJv9M24YQM04q69wJli7N4lptkSxzWtYjGQteWUTcnKfEjJz7CBg70uWw9GcxI5NM0YkLCyTW3STescDrvEz4jPS+sEKtlmD2hum2untoUNwGMEDTGRXrsmA1EN5IV7CbuTstyqB87XIuI5NMuY8r6Lus6I17G1hZDxZ32ctgfAACNCEgJf9O+ZRXdsUSR+rQ8IisMsmrQbWcMFPDsxNZ7Sh3EqO9a+ctLQ5n5F1DwsIuSeGcHqVKd9dbJRVnyVBAChpANGqtDsgc4ygM7hMLckDoTf1gS4K6hpXbnkcA9B+JkMGLRGitD6Lk2wELaKQuKZorzjF3unOsV0JiY3GCPEeFgcYEwSEAA */
@@ -132,6 +155,7 @@ const stateMachine = createMachine<MachineContext>(
                         on: {
                             REFRESH_ENVIRONMENT: {
                                 target: "#si.initialize",
+                                actions: "focusSiddhiAfterEnvironmentSetup",
                             },
                             OPEN_VIEW: {
                                 target: "#si.ready.viewLoading",
@@ -180,6 +204,12 @@ const stateMachine = createMachine<MachineContext>(
                         });
                     } else {
                         const webview = VisualizerWebview.currentPanel!.getWebview();
+                        if (suppressNextWebviewReveal) {
+                            suppressNextWebviewReveal = false;
+                            resolve(true);
+                            return;
+                        }
+
                         webview?.reveal(vscode.ViewColumn.Active);
 
                         const start = Date.now();
@@ -208,6 +238,13 @@ const stateMachine = createMachine<MachineContext>(
 
                     resolve(true);
                 });
+            },
+        },
+        actions: {
+            focusSiddhiAfterEnvironmentSetup: () => {
+                suppressNextWebviewReveal = false;
+                VisualizerWebview.currentPanel?.dispose();
+                void focusOpenedSiddhiEditor();
             },
         },
     }
