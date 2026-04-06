@@ -18,6 +18,7 @@ import { MACHINE_VIEW, EVENT_TYPE } from "@wso2/si-core";
 import { ExportResponse } from "@wso2/si-core";
 import * as path from "path";
 import { ExtensionInstallerWebview } from "./extension-installer-webview";
+import versionsConfig from "../config/versions.json";
 
 let simulatorVisualizerWebview: SimulatorVisualizerWebview | undefined;
 let diagramVisualizerWebview: DiagramVisualizerWebview | undefined;
@@ -252,7 +253,7 @@ export function activateVisualizer(context: vscode.ExtensionContext) {
 
             const imageName = await vscode.window.showInputBox({
                 prompt: "Enter Docker image name",
-                value: "docker.wso2.com/wso2si:4.3.0.0",
+                value: versionsConfig.defaultDockerImage,
                 ignoreFocusOut: true,
             });
             if (!imageName) return vscode.window.showErrorMessage("Docker image name is required.");

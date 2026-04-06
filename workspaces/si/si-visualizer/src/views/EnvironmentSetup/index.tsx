@@ -93,7 +93,6 @@ export const EnvironmentSetup = () => {
     const [isDownloadUpdatedPack, setIsDownloadUpdatedPack] = useState<boolean>(false);
     const [isLicenseAccepted, setIsLicenseAccepted] = useState<boolean>(false);
     const [showLicense, setShowLicense] = useState<boolean>(false);
-    const SI_LATEST_VERSION = "4.3.0";
     
     useEffect(() => {
         const fetchSIVersionAndSetup = async () => {
@@ -211,7 +210,7 @@ export const EnvironmentSetup = () => {
         if (isSIDownloading) {
             return <DownloadComponent title="WSO2 Integrator: SI" description="Fetching the SI runtime required to run SI." progress={siProgress} />;
         }
-        if (siStatus === "not-valid" && siPathDetails?.version === SI_LATEST_VERSION) {
+        if (siStatus === "not-valid" && siPathDetails?.version === recommendedVersions.siVersion) {
             return (
                 <RuntimeStatus
                     type="SI"

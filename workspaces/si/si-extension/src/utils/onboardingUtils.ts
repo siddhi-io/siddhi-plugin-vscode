@@ -16,19 +16,16 @@ import axios from "axios";
 import { downloadWithProgress, extractWithProgress } from "./fileOperations";
 import { INVALID_SERVER_PATH_MSG, JAVA_HOME_CONFIG, SIDDHI_HOME_CONFIG, VS_CODE_COMMANDS } from "../constants";
 import { PathDetailsResponse, SetupDetails, SetPathRequest } from "@wso2/si-core";
+import versionsConfig from "../config/versions.json";
 
-export const supportedJavaVersionsForSI: { [key: string]: string } = {
-    "4.3.1": "21",
-
-};
-export const LATEST_SI_VERSION = "4.3.1";
-
-const siDownloadUrls: { [key: string]: string[] } = {
-    "4.3.1": [
-        "https://si-distribution.wso2.com/4.3.1/wso2si-4.3.1.zip",
-        "https://github.com/wso2/product-streaming-integrator/releases/download/v4.3.1/wso2si-4.3.1.zip"
-    ]
-};
+export const supportedJavaVersionsForSI: { [key: string]: string } = {};
+const siDownloadUrls: { [key: string]: string[] } = {};
+for (const version of Object.keys(versionsConfig.supportedVersions)) {
+    const config = (versionsConfig.supportedVersions as { [key: string]: { javaVersion: string; downloadUrls: string[] } })[version];
+    supportedJavaVersionsForSI[version] = config.javaVersion;
+    siDownloadUrls[version] = config.downloadUrls;
+}
+export const LATEST_SI_VERSION = versionsConfig.latestSIVersion;
 
 const CACHED_FOLDER = path.join(os.homedir(), ".wso2-si");
 
