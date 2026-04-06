@@ -13,7 +13,9 @@
     "moduleResolution": "node",           
     "noUnusedParameters": false,               
     "rootDir": "src",
-    "sourceMap": true
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
   "exclude": [
     "./resources"
