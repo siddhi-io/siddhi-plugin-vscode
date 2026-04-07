@@ -32,10 +32,10 @@
       "wso2-integrator": [
         {
           "id": "siProjectExplorer",
-          "name": "WSO2 Integrator: SI",
+          "name": "Integrations",
           "icon": "resources/images/icons/si-icon.svg",
           "contextualTitle": "WSO2 Integrator: SI",
-          "when": "resourceLangId == siddhi || SI.project.loading == true || SI.project.error == true || SI.project.empty == false"
+          "when": "resourceLangId == siddhi || SI.project.loading == true || SI.project.error == true || SI.project.hasSiddhiFiles == true"
         }
       ]
     },

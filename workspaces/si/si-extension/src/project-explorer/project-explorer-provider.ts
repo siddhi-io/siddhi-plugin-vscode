@@ -26,6 +26,8 @@ const PROJECT_CONTEXT_KEYS = {
     EMPTY: "SI.project.empty",
     LOADING: "SI.project.loading",
     ERROR: "SI.project.error",
+    HAS_CONTENT: "SI.project.hasContent",
+    HAS_SIDDHI_FILES: "SI.project.hasSiddhiFiles",
 };
 
 // Category display configuration
@@ -97,6 +99,7 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
     private _isRefreshing = false;
     private _pendingRefresh = false;
     private _lastLoadHadErrors = false;
+    private _hasSiddhiFiles = false;
 
     getTreeItem(element: ProjectExplorerEntry): vscode.TreeItem {
         return element;
@@ -186,8 +189,20 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
     }
 
     private async loadProjectStructure(): Promise<void> {
-        const langClient = StateMachine.context().langClient;
         this._lastLoadHadErrors = false;
+        const workspaceSiddhiFiles = await vscode.workspace.findFiles("**/*.siddhi");
+        const activeSiddhiFile = this.getActiveSiddhiFile();
+        const siddhiFiles = workspaceSiddhiFiles.length === 0 && activeSiddhiFile
+            ? [activeSiddhiFile]
+            : workspaceSiddhiFiles;
+        this._hasSiddhiFiles = siddhiFiles.length > 0;
+
+        if (!this._hasSiddhiFiles) {
+            this._data = [];
+            return;
+        }
+
+        const langClient = StateMachine.context().langClient;
 
         if (!langClient) {
             this._data = [
@@ -198,12 +213,6 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
                     "statusNode",
                 ),
             ];
-            return;
-        }
-
-        const siddhiFiles = await vscode.workspace.findFiles("**/*.siddhi");
-        if (siddhiFiles.length === 0) {
-            this._data = [];
             return;
         }
 
@@ -243,6 +252,19 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
         }
 
         this._data = entries;
+    }
+
+    private getActiveSiddhiFile(): vscode.Uri | undefined {
+        const activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor || activeEditor.document.languageId !== "siddhi") {
+            return undefined;
+        }
+
+        if (activeEditor.document.uri.scheme !== "file") {
+            return undefined;
+        }
+
+        return activeEditor.document.uri;
     }
 
     private createAppEntry(
@@ -579,8 +601,11 @@ export class ProjectExplorerEntryProvider implements vscode.TreeDataProvider<Pro
     private async updateProjectContexts(): Promise<void> {
         const isLoadingOnly = this._data.some((node) => node.contextValue === "statusNode");
         const isEmpty = !isLoadingOnly && this._data.length === 0;
+        const hasContent = !isLoadingOnly && this._data.length > 0;
         await this.setProjectContext(PROJECT_CONTEXT_KEYS.EMPTY, isEmpty);
         await this.setProjectContext(PROJECT_CONTEXT_KEYS.ERROR, this._lastLoadHadErrors);
+        await this.setProjectContext(PROJECT_CONTEXT_KEYS.HAS_CONTENT, hasContent);
+        await this.setProjectContext(PROJECT_CONTEXT_KEYS.HAS_SIDDHI_FILES, this._hasSiddhiFiles);
     }
 
     private async setProjectContext(key: string, value: boolean): Promise<void> {
