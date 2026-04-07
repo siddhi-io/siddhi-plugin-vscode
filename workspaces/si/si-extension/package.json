@@ -298,7 +298,7 @@
   },
   "main": "./dist/extension.js",
   "scripts": {
-    "clean": "rimraf ./dist",
+    "clean": "rimraf ./dist ./vsix ./*.vsix",
     "compile": "tsc -p .",
     "watch": "tsc -p . -w",
     "package": "if [ \"$isPreRelease\" = \"true\" ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",
