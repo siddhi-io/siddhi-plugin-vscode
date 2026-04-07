@@ -2,7 +2,7 @@
   "name": "streaming-integrator",
   "displayName": "WSO2 Integrator: SI",
   "description": "An extension which provides a development environment for designing, developing, debugging, and testing streaming integration solutions.",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "WSO2",
   "repository": {
     "type": "git",
@@ -298,7 +298,7 @@
   },
   "main": "./dist/extension.js",
   "scripts": {
-    "clean": "rimraf ./dist",
+    "clean": "rimraf ./dist ./vsix ./*.vsix",
     "compile": "tsc -p .",
     "watch": "tsc -p . -w",
     "package": "if [ \"$isPreRelease\" = \"true\" ]; then vsce package --no-dependencies --pre-release; else vsce package --no-dependencies; fi",

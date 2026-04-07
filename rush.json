@@ -237,7 +237,6 @@
      * The list of shell commands to run before the Rush build command starts
      */
     "preRushBuild": [
-      "npm run init-submodules",
       "cd workspaces/si/si-extension && pnpm run download-ls",
     ],
     /**
