@@ -3,10 +3,13 @@ name: Publish SI Extension to VSCode Marketplace and OpenVSX
 on:
   workflow_dispatch:
     inputs:
+      tag:
+        description: 'Release tag (e.g., v0.1.0)'
+        required: true
       isPreRelease:
         description: Indicates if the release is a pre-release
         required: true
-        type: boolean 
+        type: boolean
         default: false
       vscode:
         description: Publish to VSCode marketplace
@@ -18,48 +21,41 @@ on:
         type: boolean
         required: true
         default: false
-      workflowRunId:
-        required: true
 
 jobs:
   publish:
     name: Publish SI extension to marketplaces
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifact
-        id: download-artifact
-        uses: dawidd6/action-download-artifact@v2
-        with:
-          run_id: ${{ github.event.inputs.workflowRunId }}
-          name: streaming-integrator
+      - name: Download VSIX from GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release download "${{ inputs.tag }}" --repo "${{ github.repository }}" --pattern "*.vsix"
 
-      - name: Use Node.js 20.x
-        uses: actions/setup-node@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 20.x
+          node-version: 22.x
 
-      - run: | 
-          npm install -g vsce
+      - run: |
+          npm install -g @vscode/vsce
           npm install -g ovsx
 
-      - name: Get version
+      - name: Get VSIX info
         id: vsix
-        run: | 
-          file=$(ls streaming-integrator-[0-9]*.[0-9]*.[0-9]*.vsix)
-          fileName=${file##*-}
-          version=${fileName%.*}
+        run: |
+          file=$(ls streaming-integrator-*.vsix)
           echo "vsixName=$file" >> $GITHUB_OUTPUT
-          echo "version=$version" >> $GITHUB_OUTPUT
-          if [ "${{ github.event.inputs.isPreRelease }}" == "true" ]; then
+          if [ "${{ inputs.isPreRelease }}" == "true" ]; then
             echo "releaseMode=--pre-release" >> $GITHUB_OUTPUT
           else
-            echo "releaseMode= " >> $GITHUB_OUTPUT
-          fi  
+            echo "releaseMode=" >> $GITHUB_OUTPUT
+          fi
 
       - name: Publish to VSCode marketplace
-        if: ${{ github.event.inputs.vscode == 'true' }}
+        if: ${{ inputs.vscode }}
         run: vsce publish -p ${{ secrets.VSCE_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}
 
       - name: Publish to OpenVSX marketplace
-        if: ${{ github.event.inputs.openVSX == 'true' && github.event.inputs.isPreRelease == 'false' }}
-        run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }} ${{ steps.vsix.outputs.releaseMode }}
+        if: ${{ inputs.openVSX && !inputs.isPreRelease }}
+        run: ovsx publish -p ${{ secrets.OPENVSX_TOKEN }} --packagePath ${{ steps.vsix.outputs.vsixName }}

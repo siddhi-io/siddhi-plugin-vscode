@@ -1,13 +1,27 @@
 {
-    "latestSIVersion": "4.3.1",
-    "defaultDockerImage": "docker.wso2.com/wso2si:4.3.1.0",
-    "supportedVersions": {
-        "4.3.1": {
-            "javaVersion": "21",
-            "downloadUrls": [
-                "https://si-distribution.wso2.com/4.3.1/wso2si-4.3.1.zip",
-                "https://github.com/wso2/product-streaming-integrator/releases/download/v4.3.1/wso2si-4.3.1.zip"
-            ]
-        }
+  "latestSIVersion": "4.4.0-alpha",
+  "defaultDockerImage": "docker.wso2.com/wso2si:4.4.0-alpha.0",
+  "supportedVersions": {
+    "4.4.0-alpha": {
+      "javaVersion": "21",
+      "downloadUrls": [
+        "https://si-distribution.wso2.com/4.4.0-alpha/wso2si-4.4.0-alpha.zip",
+        "https://github.com/wso2/product-streaming-integrator/releases/download/v4.4.0-alpha/wso2si-4.4.0-alpha.zip"
+      ]
+    },
+    "4.3.1": {
+      "javaVersion": "11",
+      "downloadUrls": [
+        "https://si-distribution.wso2.com/4.3.1/wso2si-4.3.1.zip",
+        "https://github.com/wso2/product-streaming-integrator/releases/download/v4.3.1/wso2si-4.3.1.zip"
+      ]
+    },
+    "4.3.0": {
+      "javaVersion": "11",
+      "downloadUrls": [
+        "https://si-distribution.wso2.com/4.3.0/wso2si-4.3.0.zip",
+        "https://github.com/wso2/product-streaming-integrator/releases/download/v4.3.0/wso2si-4.3.0.zip"
+      ]
     }
+  }
 }
