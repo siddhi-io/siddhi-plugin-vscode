@@ -45,7 +45,8 @@ jobs:
         IFS='.' read -r major minor patch <<< "$version"
 
         if [ "${{ inputs.prerelease }}" = "true" ]; then
-          timestamp=$(date -u +%Y%m%d%H%M)
+          # Use epoch minutes as patch version (fits within 0-2147483647 limit)
+          timestamp=$(($(date -u +%s) / 60))
 
           if [ -n "${{ inputs.prereleaseVersion }}" ]; then
             # Use the override version (e.g., "0.99" for major bump to 1.0.0)
