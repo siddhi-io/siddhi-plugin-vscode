@@ -38,7 +38,16 @@ jobs:
         version=$(node -p "require('./package.json').version")
         echo "VERSION=$version" >> $GITHUB_ENV
         echo "version=$version" >> $GITHUB_OUTPUT
-        echo "Release version: $version"
+
+        if [ "${{ inputs.prerelease }}" = "true" ]; then
+          short_sha=$(git rev-parse --short HEAD)
+          release_tag="v${version}-pre.${short_sha}"
+        else
+          release_tag="v${version}"
+        fi
+        echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
+        echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
+        echo "Release version: $version (tag: $release_tag)"
 
     - name: Build Release Artifacts
       run: |
@@ -63,9 +72,9 @@ jobs:
           release_flags="$release_flags --prerelease"
         fi
 
-        gh release create "v${{ env.VERSION }}" \
+        gh release create "${{ env.RELEASE_TAG }}" \
           --repo="$GITHUB_REPOSITORY" \
-          --title="WSO2 Integrator: SI Extension ${{ env.VERSION }}" \
+          --title="WSO2 Integrator: SI Extension ${{ env.RELEASE_TAG }}" \
           --target="${GITHUB_REF}" \
           $release_flags \
           streaming-integrator-${{ env.VERSION }}.vsix
@@ -105,5 +114,5 @@ jobs:
 
         Bumps the version to **${next_version}** after the **${VERSION}** release.
 
-        **Release**: https://github.com/${{ github.repository }}/releases/tag/v${VERSION}
+        **Release**: https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }}
         "
