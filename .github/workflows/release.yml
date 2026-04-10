@@ -71,6 +71,7 @@ jobs:
           streaming-integrator-${{ env.VERSION }}.vsix
 
     - name: Bump to Next Patch Version and Create PR
+      if: ${{ inputs.prerelease == false }}
       env:
         GITHUB_TOKEN: ${{ secrets.WSO2_INTEGRATION_BOT_TOKEN }}
       run: |
