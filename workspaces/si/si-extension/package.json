@@ -2,7 +2,7 @@
   "name": "streaming-integrator",
   "displayName": "WSO2 Integrator: SI",
   "description": "An extension which provides a development environment for designing, developing, debugging, and testing streaming integration solutions.",
-  "version": "0.1.2",
+  "version": "0.1.1",
   "publisher": "WSO2",
   "repository": {
     "type": "git",
