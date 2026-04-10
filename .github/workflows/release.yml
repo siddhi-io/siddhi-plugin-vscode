@@ -7,6 +7,10 @@ on:
         type: boolean
         description: 'Create as prerelease'
         default: false
+      prereleaseVersion:
+        type: string
+        description: 'Override prerelease base version (e.g., 0.99 for major bump to 1.0.0). Format: major.minor'
+        required: false
 
 jobs:
   release:
@@ -36,18 +40,39 @@ jobs:
       run: |
         cd workspaces/si/si-extension
         version=$(node -p "require('./package.json').version")
-        echo "VERSION=$version" >> $GITHUB_ENV
-        echo "version=$version" >> $GITHUB_OUTPUT
+        echo "STABLE_VERSION=$version" >> $GITHUB_ENV
+
+        IFS='.' read -r major minor patch <<< "$version"
 
         if [ "${{ inputs.prerelease }}" = "true" ]; then
-          short_sha=$(git rev-parse --short HEAD)
-          release_tag="v${version}-pre.${short_sha}"
+          timestamp=$(date -u +%Y%m%d%H%M)
+
+          if [ -n "${{ inputs.prereleaseVersion }}" ]; then
+            # Use the override version (e.g., "0.99" for major bump to 1.0.0)
+            build_version="${{ inputs.prereleaseVersion }}.$timestamp"
+          else
+            # Pre-releases use odd minor (current minor - 1) with timestamp patch
+            pre_minor=$((minor - 1))
+            build_version="$major.$pre_minor.$timestamp"
+          fi
+
+          release_tag="v${build_version}"
         else
+          build_version="$version"
           release_tag="v${version}"
         fi
+
+        echo "VERSION=$build_version" >> $GITHUB_ENV
+        echo "version=$build_version" >> $GITHUB_OUTPUT
         echo "RELEASE_TAG=$release_tag" >> $GITHUB_ENV
         echo "release_tag=$release_tag" >> $GITHUB_OUTPUT
-        echo "Release version: $version (tag: $release_tag)"
+        echo "Release version: $build_version (tag: $release_tag)"
+
+    - name: Set build version in package.json
+      if: ${{ inputs.prerelease }}
+      run: |
+        cd workspaces/si/si-extension
+        npm version "${{ env.VERSION }}" --no-git-tag-version
 
     - name: Build Release Artifacts
       run: |
@@ -87,9 +112,9 @@ jobs:
         git config --global user.name ${{ secrets.WSO2_INTEGRATION_BOT_USERNAME }}
         git config --global user.email ${{ secrets.WSO2_INTEGRATION_BOT_EMAIL }}
 
-        # Calculate next patch version
-        IFS='.' read -r major minor patch <<< "${VERSION}"
-        next_version="$major.$minor.$((patch + 1))"
+        # Calculate next stable version (bump minor by 2 to next even minor)
+        IFS='.' read -r major minor patch <<< "${STABLE_VERSION}"
+        next_version="$major.$((minor + 2)).0"
 
         # Create version bump branch
         branch_name="version-bump/${next_version}"
