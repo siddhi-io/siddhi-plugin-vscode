@@ -230,7 +230,7 @@ function getSIVersion(siPath: string): string | null {
         return null;
     }
     const siVersionContent = fs.readFileSync(siVersionFile, "utf8");
-    const versionMatch = siVersionContent.match(/v(\d+\.\d+\.\d+)/);
+    const versionMatch = siVersionContent.match(/v(\d+\.\d+\.\d+(?:-[a-zA-Z0-9]+)*)/);
     return versionMatch ? versionMatch[1] : null;
 }
 
