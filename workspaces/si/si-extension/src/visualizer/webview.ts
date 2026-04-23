@@ -9,7 +9,6 @@
 
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as os from 'os';
 import { getComposerJSFiles } from '../utils/utils';
 import { RPCLayer } from '../RPCLayer';
 import { extension } from '../SIExtensionContext';
@@ -42,7 +41,8 @@ export class VisualizerWebview {
                 enableScripts: true,
                 retainContextWhenHidden: true,
                 localResourceRoots: [
-                    vscode.Uri.file(os.homedir())
+                    vscode.Uri.file(path.join(extension.context.extensionPath, 'resources')),
+                    vscode.Uri.file(path.join(extension.context.extensionPath, 'src', 'web'))
                 ]
             }
         );
