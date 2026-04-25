@@ -91,7 +91,6 @@ export function installJars(carbonHome: string) {
     // Spawn the Java process
     const javaProcess = child_process.spawn(javaExecutable, args, {
         stdio: ["pipe", "pipe", "pipe"],
-        shell: true,
         env: {
             ...process.env,
             CARBON_HOME: carbonHome,

@@ -41,19 +41,13 @@ export async function startSiddhiApp(siddhiHome: string, javaHome: string, progr
     args.push(SIDDHI_APP_RUNNER, program);
 
     let executable: string = path.join(String(javaHome), "bin", "java");
-    
-    if (process.platform === "win32") {
-        if (!executable.endsWith(".exe")) {
-            executable += ".exe";
-        }
-        if (executable.includes(" ")) {
-            executable = `"${executable}"`;
-        }
+
+    if (process.platform === "win32" && !executable.endsWith(".exe")) {
+        executable += ".exe";
     }
-    
+
     let javaProcess = child_process.spawn(executable, args, {
         stdio: ["pipe", "pipe", "pipe"],
-        shell: true,
         env: {
             ...process.env,
             CARBON_HOME: siddhiHome,
