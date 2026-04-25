@@ -46,8 +46,13 @@ export async function activateDebugger(context: vscode.ExtensionContext) {
                 return;
             }
             const editor = vscode.window.activeTextEditor;
-            const fileName = getSiddhiFileNameWithoutExtension(editor?.document.uri.fsPath!);
-            extension.fileUri = editor?.document.uri!;
+            const activeFileUri = editor?.document.uri ?? extension.fileUri;
+            if (!activeFileUri) {
+                vscode.window.showErrorMessage("No Siddhi file is open");
+                return;
+            }
+            const fileName = getSiddhiFileNameWithoutExtension(activeFileUri.fsPath);
+            extension.fileUri = activeFileUri;
 
             const launchJsonPath = path.join(workspaceFolder.uri.fsPath, ".vscode", "launch.json");
             let config: vscode.DebugConfiguration | undefined = undefined;
@@ -68,13 +73,13 @@ export async function activateDebugger(context: vscode.ExtensionContext) {
                     request: "launch",
                     noDebug: true,
                     internalConsoleOptions: "neverOpen",
-                    program: "${file}",
+                    program: activeFileUri.fsPath,
                 };
             } else {
                 config.name = `${fileName}`;
                 config.noDebug = true;
                 config.internalConsoleOptions = "neverOpen";
-                config.program = "${file}";
+                config.program = activeFileUri.fsPath;
             }
 
             try {
