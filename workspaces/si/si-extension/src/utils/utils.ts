@@ -11,6 +11,7 @@ import * as vscode from "vscode";
 import { StreamAttributesResponse, StreamResponse } from "@wso2/si-core";
 import * as path from "path";
 import * as fs from "fs";
+import { pathToFileURL } from "url";
 import { extension } from "../SIExtensionContext";
 
 type Result = {
@@ -202,12 +203,8 @@ export function getSiddhiFileNameWithoutExtension(filePath: string): string {
 
 
 export function getLog4jConfigFile(platform: string, jarPath: string): string {
-    if (platform === 'win32') {
-        const normalizedPath = jarPath.replace(/\\/g, '/');
-        return 'jar:file:///' + normalizedPath + '!/log4j2.properties';
-    } else {
-        return 'jar:file:' + jarPath + '!/log4j2.properties';
-    }
+    const fileUrl = pathToFileURL(jarPath).toString();
+    return 'jar:' + fileUrl + '!/log4j2.properties';
 }
 
 export function findLSJarPath(jar: string): string {

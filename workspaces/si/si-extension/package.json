@@ -230,7 +230,7 @@
         {
           "command": "SI.build-and-run",
           "group": "navigation@1",
-          "when": "resourceLangId == siddhi && SI.isRunning !== 'true'",
+          "when": "(resourceLangId == siddhi || SI.isVisualizerActive === 'true') && SI.isRunning !== 'true'",
           "title": "Build and Run Project"
         }
       ],
