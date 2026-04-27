@@ -16,6 +16,7 @@ import { VS_CODE_COMMANDS } from "../constants";
 import { DebuggerConfig } from "./config";
 import { Subject } from "await-notify";
 import { debug } from "../utils/logger";
+import { extension } from "../SIExtensionContext";
 
 interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
     env?: any;
@@ -73,7 +74,15 @@ export class SiDebugAdapter extends LoggingDebugSession {
                         DebuggerConfig.setVmArgs(args?.vmArgs ? args?.vmArgs : []);
                         vscode.commands.executeCommand("setContext", "SI.isRunning", "true");
 
-                        startSiddhiApp(serverPath, javaHome!, args!.program!)
+                        const program = args?.program ?? extension.fileUri?.fsPath;
+                        if (!program) {
+                            const message = `No Siddhi file found to run`;
+                            vscode.window.showErrorMessage(message);
+                            this.sendError(response, 1, message);
+                            return;
+                        }
+
+                        startSiddhiApp(serverPath, javaHome!, program)
                             .then(async () => {
                                 this.sendResponse(response);
                             })
