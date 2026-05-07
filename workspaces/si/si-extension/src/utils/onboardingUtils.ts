@@ -284,9 +284,12 @@ export function getJavaHomeFromConfig(): string | undefined {
     let javaHome = vscode.workspace.getConfiguration().get("siddhi.javaHome") as string;
     if (javaHome) {
         return javaHome;
-    } else {
-        return process.env.JAVA_HOME;
+    } 
+    const envJavaHome = process.env.JAVA_HOME;
+    if (envJavaHome && verifyJavaHomePath(envJavaHome)) {
+        return envJavaHome;
     }
+    return undefined;
 }
 
 function getCurrentUpdateVersion(siPath: string): string {
