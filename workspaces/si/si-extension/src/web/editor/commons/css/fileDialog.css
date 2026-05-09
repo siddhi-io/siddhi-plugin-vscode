@@ -93,7 +93,8 @@ hr.style1 {
 }
 
 .file-dialog {
-    width: 745px;
+    width: 90%;
+    max-width: 745px;
 }
 
 .file-dialog-title{
