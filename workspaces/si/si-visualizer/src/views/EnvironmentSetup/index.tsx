@@ -340,7 +340,6 @@ export const EnvironmentSetup = () => {
             </TitlePanel>
             <>
                 <StepContainer>
-                    {renderContinue()}
                     <hr style={{ flexGrow: 1, margin: '0 10px', borderColor: 'var(--vscode-editorIndentGuide-background)' }} />
                     {renderJava()}
                     {renderSI()}
@@ -385,6 +384,7 @@ export const EnvironmentSetup = () => {
                                 )}
                             </React.Fragment>
                         </FormGroup>}
+                    {renderContinue()}
                 </StepContainer>
             </>
             {error && <ErrorMessage>{error}</ErrorMessage>}
