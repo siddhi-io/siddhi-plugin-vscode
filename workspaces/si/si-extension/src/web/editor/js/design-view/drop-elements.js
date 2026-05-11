@@ -666,11 +666,8 @@ define(['require', 'log', 'lodash', 'jquery', 'partition', 'stream', 'query', 'f
             /*
              connection --> The connection anchor point is appended to the element
              */
-            var connection1 = $('<div class="connectorInTrigger">').attr('id', i + "-in").addClass('connection');
             var connection2 = $('<div class="connectorOutTrigger">').attr('id', i + "-out").addClass('connection');
 
-
-            finalElement.append(connection1);
             finalElement.append(connection2);
 
             finalElement.css({
@@ -686,11 +683,6 @@ define(['require', 'log', 'lodash', 'jquery', 'partition', 'stream', 'query', 'f
                     finalElement.attr('data-x', e.e.clientX);
                     finalElement.attr('data-y', e.e.clientY);
                 }
-            });
-
-            self.jsPlumbInstance.makeTarget(connection1, {
-                deleteEndpointsOnDetach: true,
-                anchor: 'Left'
             });
 
             self.jsPlumbInstance.makeSource(connection2, {

@@ -297,7 +297,7 @@ td {
     -webkit-background-clip: text;
 }
 
-.connectorInStream, .connectorInTable, .connectorInWindow, .connectorInTrigger, .connectorInAggregation,
+.connectorInStream, .connectorInTable, .connectorInWindow, .connectorInAggregation,
 .connectorInQuery, .connectorInPatternQuery, .connectorInSequenceQuery, .connectorInJoinQuery, .connectorInSink,
 .connectorInSource {
     float: left;
