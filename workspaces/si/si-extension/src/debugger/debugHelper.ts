@@ -21,10 +21,39 @@ const pendingRequests = new Map<number, { resolve: (result: any) => void; reject
 let nextRequestId = 1;
 
 const SIDDHI_APP_RUNNER = "io.siddhi.langserver.runner.SiddhiAppLSRunner";
+const JAVA_VERSION_BASED_ARGS = [
+    "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED",
+    "--add-opens=java.base/java.lang=ALL-UNNAMED",
+    "--add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED",
+    "--add-opens=java.base/java.net=ALL-UNNAMED",
+    "--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED",
+];
+
+function getJavaMajorVersion(javaExecutable: string): number | null {
+    const result = child_process.spawnSync(javaExecutable, ["-version"], { encoding: "utf8" });
+    if (result.error || result.status !== 0) {
+        return null;
+    }
+
+    const output = `${result.stdout || ""}\n${result.stderr || ""}`;
+    const versionMatch = output.match(/version\s+"([^"]+)"/i);
+    if (!versionMatch) {
+        return null;
+    }
+
+    const version = versionMatch[1];
+    const major = version.startsWith("1.") ? parseInt(version.split(".")[1], 10) : parseInt(version.split(".")[0], 10);
+    return Number.isNaN(major) ? null : major;
+}
 
 export async function startSiddhiApp(siddhiHome: string, javaHome: string, program: string) {
     showOutputChannel();
     const RUNTIME_PATH = path.join(String(siddhiHome), "wso2", "server");
+    let executable: string = path.join(String(javaHome), "bin", "java");
+
+    if (process.platform === "win32" && !executable.endsWith(".exe")) {
+        executable += ".exe";
+    }
 
     let args: string[] = [...getClassPath(siddhiHome)];
 
@@ -33,18 +62,17 @@ export async function startSiddhiApp(siddhiHome: string, javaHome: string, progr
         debug("Runtime starting in debug mode.");
     }
 
+    const javaMajorVersion = getJavaMajorVersion(executable);
+    if (javaMajorVersion !== null && javaMajorVersion > 11) {
+        args.push(...JAVA_VERSION_BASED_ARGS);
+    }
+
     args.push(
         "-Dslf4j.provider=org.apache.logging.slf4j.SLF4JServiceProvider",
         `-Dlog4j2.configurationFile=${getLog4jConfigFile(process.platform, findLSJarPath("runner"))}`
     );
 
     args.push(SIDDHI_APP_RUNNER, program);
-
-    let executable: string = path.join(String(javaHome), "bin", "java");
-
-    if (process.platform === "win32" && !executable.endsWith(".exe")) {
-        executable += ".exe";
-    }
 
     let javaProcess = child_process.spawn(executable, args, {
         stdio: ["pipe", "pipe", "pipe"],
