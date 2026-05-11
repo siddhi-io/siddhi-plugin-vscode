@@ -80,6 +80,12 @@ define(['jquery', 'log', './constants', './simulator-rest-client', 'lodash',
                     self.renameSingleEventConfigTabs();
                 });
 
+            // Suppress anchor focus on mouse down to avoid browser auto-scroll when switching sub-tabs.
+            self.$singleEventConfigs.on('mousedown', 'ul#single-event-config-tab > li > a',
+                function (e) {
+                    e.preventDefault();
+                });
+
             // is isNull checkbox is checked disable txt input, else enable text input
             self.$singleEventConfigTabContent.on('click', 'input[data-input="null"]', function () {
                 var $element = $(this);
@@ -406,13 +412,17 @@ define(['jquery', 'log', './constants', './simulator-rest-client', 'lodash',
 
         // create a list item for the single event form tabs
         self.createListItem = function (nextTab, singleEventConfigCount) {
+            // tabindex="-1" prevents the <a> from receiving keyboard/click focus,
+            // which avoids the browser's auto-scroll-into-view from shifting
+            // ancestor scroll containers (and pushing the top Single/Feed tab bar
+            // out of view) when a sub-tab is clicked.
             var listItem =
                 '<li class="active" role="presentation" data-uuid="{{dynamicId}}">' +
-                '   <a href="#event-content-parent-{{dynamicId}}" data-toggle="tab"' +
-                '   aria-controls="event-configs" role = "tab">' +
+                '   <a href="javascript:void(0)" data-target="#event-content-parent-{{dynamicId}}" data-toggle="tab"' +
+                '   aria-controls="event-configs" role = "tab" tabindex="-1">' +
                 '       S {{nextTab}}' +
                 '       <button type="button" class="close" name="delete" data-form-type="single"' +
-                '       aria-label="Close">' +
+                '       aria-label="Close" tabindex="-1">' +
                 '            <i class="fw fw-cancel"></i>' +
                 '       </button>' +
                 '   </a>' +
@@ -478,7 +488,8 @@ define(['jquery', 'log', './constants', './simulator-rest-client', 'lodash',
         //remove the tab from the single event tabs list and remove its tab content
         self.removeSingleEventForm = function (ctx) {
             var simulationName = $(ctx).parents("a").text();
-            var x = $(ctx).parents("a").attr("href");
+            var $tabLink = $(ctx).parents("a");
+            var x = $tabLink.attr("data-target") || $tabLink.attr("href");
             var $current = $('#single-event-config-tab-content ' + x);
             if ("S 1" == simulationName.trim()) {
                 $(ctx)
