@@ -184,19 +184,39 @@
       "commandPalette": [
         {
           "command": "SI.show.source",
-          "when": "SI.isVisualizerActive === 'true'"
+          "when": "(!WI.isWiRuntime || (WI.isWiRuntime && config.integrator.selectedProfile == 'WSO2 Integrator: SI')) && SI.isVisualizerActive == 'true'"
         },
         {
           "command": "SI.show.graphical-view",
-          "when": "resourceLangId == siddhi"
+          "when": "(!WI.isWiRuntime || (WI.isWiRuntime && config.integrator.selectedProfile == 'WSO2 Integrator: SI')) && resourceLangId == siddhi"
         },
         {
           "command": "SI.build-and-run",
-          "when": "resourceLangId == siddhi"
+          "when": "(!WI.isWiRuntime || (WI.isWiRuntime && config.integrator.selectedProfile == 'WSO2 Integrator: SI')) && resourceLangId == siddhi"
         },
         {
           "command": "SI.event.simulate",
-          "when": "resourceLangId == siddhi && SI.isRunning === 'true'"
+          "when": "(!WI.isWiRuntime || (WI.isWiRuntime && config.integrator.selectedProfile == 'WSO2 Integrator: SI')) && resourceLangId == siddhi && SI.isRunning == 'true'"
+        },
+        {
+          "command": "SI.change.server",
+          "when": "!WI.isWiRuntime || (WI.isWiRuntime && config.integrator.selectedProfile == 'WSO2 Integrator: SI')"
+        },
+        {
+          "command": "SI.change.java",
+          "when": "!WI.isWiRuntime || (WI.isWiRuntime && config.integrator.selectedProfile == 'WSO2 Integrator: SI')"
+        },
+        {
+          "command": "SI.export.to.docker",
+          "when": "!WI.isWiRuntime || (WI.isWiRuntime && config.integrator.selectedProfile == 'WSO2 Integrator: SI')"
+        },
+        {
+          "command": "SI.extension.installer",
+          "when": "!WI.isWiRuntime || (WI.isWiRuntime && config.integrator.selectedProfile == 'WSO2 Integrator: SI')"
+        },
+        {
+          "command": "SI.projectExplorer.refresh",
+          "when": "!WI.isWiRuntime || (WI.isWiRuntime && config.integrator.selectedProfile == 'WSO2 Integrator: SI')"
         },
         {
           "command": "SI.projectExplorer.openFile",
