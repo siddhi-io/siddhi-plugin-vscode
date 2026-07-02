@@ -1,6 +1,6 @@
 # Siddhi Extension for Visual Studio Code
 
-> ❗ **IMPORTANT**: This extension has been deprecated in favor of the [WSO2 Streaming Integrator](https://marketplace.visualstudio.com/items?itemName=WSO2.streaming-integrator) extension. Please install the WSO2 Streaming Integrator extension instead.**
+> ❗ **IMPORTANT**: This extension has been deprecated in favor of the [WSO2 Streaming Integrator](https://marketplace.visualstudio.com/items?itemName=WSO2.streaming-integrator) extension. Please install the WSO2 Streaming Integrator extension instead.
 
 A VSCode extension which provides rich Siddhi development capabilities, such as IntelliSence, diagnostics and syntax highlighting. This extension supports [siddhi distribution](https://github.com/siddhi-io/distribution) *version (>=5.1.2)*.
 
