@@ -1,8 +1,8 @@
 {
   "name": "siddhi",
-  "displayName": "Siddhi",
+  "displayName": "Siddhi [Deprecated]",
   "description": "IntelliSense, Diagnostics and Syntax Highlighting for Siddhi apps",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "WSO2",
   "repository": {
     "type": "git",
