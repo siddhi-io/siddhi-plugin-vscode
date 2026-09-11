@@ -31,7 +31,7 @@ async function downloadFile(url: string, filePath: string, progressCallback?: (d
             }
         });
 
-        const totalBytes = parseInt(response.headers['content-length'] || '0', 10);
+        const totalBytes = parseInt(String(response.headers['content-length'] || '0'), 10);
         let loadedBytes = 0;
 
         const formatSize = (sizeInBytes: number) => {
