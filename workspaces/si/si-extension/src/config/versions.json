@@ -1,26 +1,49 @@
 {
-  "latestSIVersion": "4.4.0",
-  "defaultDockerImage": "docker.wso2.com/wso2si:4.4.0.0",
+  "latestSIVersion": "4.4.1",
+  "defaultDockerImage": "docker.wso2.com/wso2si:4.4.1.0",
   "supportedVersions": {
+    "4.4.1": {
+      "java": {
+        "minimumJavaVersion": 17,
+        "recommendedJavaVersion": 25,
+        "testedJavaVersion": 25
+      },
+      "downloadUrls": [
+        "https://si-distribution.wso2.com/4.4.1/wso2si-4.4.1.zip",
+        "https://github.com/wso2/product-integrator-si/releases/download/v4.4.1/wso2si-4.4.1.zip"
+      ]
+    },
     "4.4.0": {
-      "javaVersion": "21",
+      "java": {
+        "minimumJavaVersion": 11,
+        "recommendedJavaVersion": 21,
+        "testedJavaVersion": 25
+      },
       "downloadUrls": [
         "https://si-distribution.wso2.com/4.4.0/wso2si-4.4.0.zip",
-        "https://github.com/wso2/product-streaming-integrator/releases/download/v4.4.0/wso2si-4.4.0.zip"
+        "https://github.com/wso2/product-integrator-si/releases/download/v4.4.0/wso2si-4.4.0.zip"
       ]
     },
     "4.3.1": {
-      "javaVersion": "11",
+      "java": {
+        "minimumJavaVersion": 11,
+        "recommendedJavaVersion": 21,
+        "testedJavaVersion": 21
+      },
       "downloadUrls": [
         "https://si-distribution.wso2.com/4.3.1/wso2si-4.3.1.zip",
-        "https://github.com/wso2/product-streaming-integrator/releases/download/v4.3.1/wso2si-4.3.1.zip"
+        "https://github.com/wso2/product-integrator-si/releases/download/v4.3.1/wso2si-4.3.1.zip"
       ]
     },
     "4.3.0": {
-      "javaVersion": "11",
+      "java": {
+        "minimumJavaVersion": 11,
+        "recommendedJavaVersion": 11,
+        "testedJavaVersion": 11
+      },
       "downloadUrls": [
         "https://si-distribution.wso2.com/4.3.0/wso2si-4.3.0.zip",
-        "https://github.com/wso2/product-streaming-integrator/releases/download/v4.3.0/wso2si-4.3.0.zip"
+        "https://github.com/wso2/product-integrator-si/releases/download/v4.3.0/wso2si-4.3.0.zip"
       ]
     }
   }

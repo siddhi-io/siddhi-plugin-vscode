@@ -253,7 +253,7 @@ const stateMachine = createMachine<MachineContext>(
 async function checkIfEnvironmentSetup() {
     let setupDetails = await getSetupDetails();
     return {
-        isEnvironmentSetup: setupDetails.siDetails.status === "valid" && setupDetails.javaDetails.status === "valid",
+        isEnvironmentSetup: setupDetails.siDetails.status !== "not-valid" && setupDetails.javaDetails.status !== "not-valid",
     };
 }
 

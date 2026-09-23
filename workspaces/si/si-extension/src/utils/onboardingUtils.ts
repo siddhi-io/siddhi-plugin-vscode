@@ -17,12 +17,25 @@ import { downloadWithProgress, extractWithProgress } from "./fileOperations";
 import { INVALID_SERVER_PATH_MSG, JAVA_HOME_CONFIG, SIDDHI_HOME_CONFIG, VS_CODE_COMMANDS } from "../constants";
 import { PathDetailsResponse, SetupDetails, SetPathRequest } from "@wso2/si-core";
 import versionsConfig from "../config/versions.json";
+import {
+    CompatibilityStatus,
+    evaluateJavaCompatibility,
+    getJavaMajorVersion,
+    getRuntimeCompatibility,
+    JavaCompatibilityProfile,
+    RuntimeCompatibilityProfiles,
+} from "./runtimeCompatibility";
 
-export const supportedJavaVersionsForSI: { [key: string]: string } = {};
+interface RuntimeVersionConfig {
+    java: JavaCompatibilityProfile;
+    downloadUrls: string[];
+}
+
+const runtimeCompatibilityProfiles: RuntimeCompatibilityProfiles = {};
 const siDownloadUrls: { [key: string]: string[] } = {};
 for (const version of Object.keys(versionsConfig.supportedVersions)) {
-    const config = (versionsConfig.supportedVersions as { [key: string]: { javaVersion: string; downloadUrls: string[] } })[version];
-    supportedJavaVersionsForSI[version] = config.javaVersion;
+    const config = (versionsConfig.supportedVersions as { [key: string]: RuntimeVersionConfig })[version];
+    runtimeCompatibilityProfiles[version] = config.java;
     siDownloadUrls[version] = config.downloadUrls;
 }
 export const LATEST_SI_VERSION = versionsConfig.latestSIVersion;
@@ -63,7 +76,7 @@ export function verifySIPath(folderPath: string): string | null {
 
     if (siHomePath) {
         const siVersion = getSIVersion(siHomePath);
-        if (siVersion && isSupportedSIVersion(siVersion)) {
+        if (siVersion) {
             return siHomePath;
         }
     }
@@ -84,7 +97,7 @@ export async function downloadJavaFromSI(siVersion: string): Promise<string> {
         };
     }
 
-    const javaVersion = supportedJavaVersionsForSI[siVersion];
+    const javaVersion = runtimeCompatibilityProfiles[siVersion]?.recommendedJavaVersion;
     const javaPath = path.join(CACHED_FOLDER, "java");
     const osType = os.type();
 
@@ -222,10 +235,6 @@ function isWso2IntegratorRuntime(): boolean {
     return process.env.WSO2_INTEGRATOR_RUNTIME === 'true';
 }
 
-function isSupportedSIVersion(version: string): boolean {
-    return Object.keys(supportedJavaVersionsForSI).includes(version);
-}
-
 function getJavaVersion(javaBinPath: string): string | null {
     const javaExecutableName = process.platform === "win32" ? "java.exe" : "java";
     const javaExecutable = path.join(javaBinPath, javaExecutableName);
@@ -342,29 +351,36 @@ function getLatestSIPathFromCache(siVersion: string): { path: string; version: s
 
 export async function getSetupDetails(): Promise<SetupDetails> {
     let serverPath = getServerPathFromConfig();
-    let siVersionStatus: "valid" | "not-valid" = "not-valid";
+    let siVersionStatus: CompatibilityStatus | "not-valid" = "not-valid";
     let siVersion: string | null = null;
     let javaDetails: PathDetailsResponse = await checkJava();
     let siDetails: PathDetailsResponse = { status: "not-valid", path: serverPath };
     let recommendedVersions: { siVersion: string; javaVersion: string } | undefined = {
         siVersion: LATEST_SI_VERSION,
-        javaVersion: supportedJavaVersionsForSI[LATEST_SI_VERSION],
+        javaVersion: runtimeCompatibilityProfiles[LATEST_SI_VERSION].recommendedJavaVersion.toString(),
     };
-    let requiredJavaVersion: string | undefined = supportedJavaVersionsForSI[LATEST_SI_VERSION];
 
     if (serverPath) {
         siVersion = getSIVersion(serverPath);
         if (siVersion) {
-            siVersionStatus = "valid";
-            siDetails = { ...siDetails, version: siVersion, status: "valid" };
-            requiredJavaVersion = supportedJavaVersionsForSI[siVersion] || requiredJavaVersion;
+            const runtimeCompatibility = getRuntimeCompatibility(siVersion, runtimeCompatibilityProfiles);
+            siVersionStatus = runtimeCompatibility.status;
+            siDetails = { ...siDetails, version: siVersion, ...runtimeCompatibility };
         }
     }
-    if (javaDetails.status == "valid" && compareVersions(requiredJavaVersion, javaDetails.version as string) == -1) {
-        javaDetails.status = "not-valid";
+    if (javaDetails.status === "valid") {
+        const javaVersion = getJavaMajorVersion(javaDetails.version);
+        if (javaVersion) {
+            javaDetails = {
+                ...javaDetails,
+                ...evaluateJavaCompatibility(siVersion || LATEST_SI_VERSION, javaVersion, runtimeCompatibilityProfiles),
+            };
+        } else {
+            javaDetails = { ...javaDetails, status: "not-valid", message: "Unable to determine the Java version." };
+        }
     }
 
-    if (javaDetails.status === "valid") {
+    if (isUsableStatus(javaDetails.status)) {
         const config = vscode.workspace.getConfiguration();
         await config.update(JAVA_HOME_CONFIG, javaDetails.path, vscode.ConfigurationTarget.Global);
     }
@@ -372,9 +388,13 @@ export async function getSetupDetails(): Promise<SetupDetails> {
         siVersionStatus,
         javaDetails,
         siDetails,
-        showDownloadButtons: javaDetails.status !== "valid" || siVersionStatus !== "valid",
+        showDownloadButtons: !isUsableStatus(javaDetails.status) || !isUsableStatus(siVersionStatus),
         recommendedVersions,
     };
+}
+
+function isUsableStatus(status: PathDetailsResponse["status"]): boolean {
+    return status !== "not-valid";
 }
 
 function checkJava(): Promise<PathDetailsResponse> {
@@ -416,25 +436,42 @@ export async function setPathsInConfiguration(request: SetPathRequest): Promise<
         const validJavaHome = verifyJavaHomePath(request.path);
         if (validJavaHome) {
             const javaVersion = getJavaVersion(path.join(validJavaHome, "bin"));
-            if (compareVersions(supportedJavaVersionsForSI[LATEST_SI_VERSION], javaVersion as string) != -1) {
-                response = { status: "valid", path: validJavaHome };
+            const javaMajorVersion = getJavaMajorVersion(javaVersion);
+            if (javaMajorVersion) {
+                const configuredSIVersion = getServerPathFromConfig()
+                    ? getSIVersion(getServerPathFromConfig()!)
+                    : null;
+                response = {
+                    path: validJavaHome,
+                    version: javaVersion || undefined,
+                    ...evaluateJavaCompatibility(
+                        configuredSIVersion || LATEST_SI_VERSION,
+                        javaMajorVersion,
+                        runtimeCompatibilityProfiles,
+                    ),
+                };
             } else {
-                response = { status: "not-valid", path: validJavaHome };
+                response = { status: "not-valid", path: validJavaHome, message: "Unable to determine the Java version." };
             }
         }
-        if (response.status !== "not-valid") {
+        if (isUsableStatus(response.status)) {
             config.update("javaHome", validJavaHome, vscode.ConfigurationTarget.Global);
         } else {
             vscode.window.showErrorMessage(
-                "Invalid Java Home path or Unsupported version. Please set a valid Java Home path. "
+                response.message || "Invalid Java Home path. Please set a valid Java Home path."
             );
         }
     } else if (request.type === "SI") {
         const validServerPath = verifySIPath(request.path);
         if (validServerPath) {
-            response = { status: "valid", path: validServerPath };
+            const siVersion = getSIVersion(validServerPath)!;
+            response = {
+                path: validServerPath,
+                version: siVersion,
+                ...getRuntimeCompatibility(siVersion, runtimeCompatibilityProfiles),
+            };
         }
-        if (response.status !== "not-valid") {
+        if (isUsableStatus(response.status)) {
             config.update("home", validServerPath, vscode.ConfigurationTarget.Global);
         } else {
             vscode.window.showErrorMessage(INVALID_SERVER_PATH_MSG);
