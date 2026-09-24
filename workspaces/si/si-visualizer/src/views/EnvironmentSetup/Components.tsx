@@ -64,7 +64,7 @@ const RUNTIME_CONFIG = {
 
 interface RuntimeStatusProps {
     type: 'JAVA' | 'SI';
-    pathDetails: { status: 'valid' | 'valid-not-updated' | 'not-valid'; version?: string; path?: string };
+    pathDetails: { status: 'valid' | 'valid-with-warning' | 'valid-not-updated' | 'not-valid'; version?: string; path?: string; message?: string };
     recommendedVersion: string;
     showInlineDownloadButton: boolean;
     handleDownload: () => void;
@@ -77,7 +77,7 @@ interface DownloadComponentProps {
     progress: number;
 }
 interface ButtonWithDescriptionProps {
-    description: string;
+    description?: string;
     buttonText: string;
     buttonDisabled?: boolean;
     onClick: () => void;
@@ -121,6 +121,14 @@ const RuntimeStatus: React.FC<RuntimeStatusProps> = ({
                     showDownload: true,
                     showVersion: false,
                 };
+            case 'valid-with-warning':
+                return {
+                    isValid: true,
+                    title: `${config.name} is setup with a compatibility warning.`,
+                    description: pathDetails.message || `${config.name} is configured with an untested version combination.`,
+                    showDownload: false,
+                    showVersion: false,
+                };
             case 'not-valid':
                 return {
                     isValid: false,
@@ -137,22 +145,28 @@ const RuntimeStatus: React.FC<RuntimeStatusProps> = ({
     if (!content) return null;
 
     const { isValid, title, description, showDownload, showVersion } = content;
+    const isCompatibilityWarning = pathDetails?.status === 'valid-with-warning';
+    const statusColor = isCompatibilityWarning
+        ? VSCodeColors.ERROR
+        : isValid && (pathDetails?.status === 'valid' || pathDetails?.status === 'valid-not-updated')
+            ? VSCodeColors.PRIMARY
+            : undefined;
 
     return (
         <SpaceBetweenRow>
             <Row>
                 <IconContainer>
-                    {getIcon(isValid, false, { cursor: 'default' })}
+                    {getIcon(isValid, false, { cursor: 'default', color: statusColor })}
                 </IconContainer>
                 <Column>
-                    <StepTitle color={isValid && (pathDetails?.status === 'valid' || pathDetails?.status === 'valid-not-updated') ? VSCodeColors.PRIMARY : undefined}>
+                    <StepTitle color={statusColor}>
                         {title}
                     </StepTitle>
-                    <StepDescription color={isValid && (pathDetails?.status === 'valid' || pathDetails?.status === 'valid-not-updated') ? VSCodeColors.PRIMARY : undefined}>
+                    <StepDescription color={statusColor}>
                         {description}
                     </StepDescription>
                     {pathDetails?.path && (
-                        <StepDescription color={isValid && (pathDetails?.status === 'valid' || pathDetails?.status === 'valid-not-updated') ? VSCodeColors.PRIMARY : undefined}>
+                        <StepDescription color={statusColor}>
                             {config.pathLabel}: {pathDetails.path}
                         </StepDescription>
                     )}
@@ -196,7 +210,7 @@ const DownloadComponent: React.FC<DownloadComponentProps> = ({ title, descriptio
 
 const ButtonWithDescription: React.FC<ButtonWithDescriptionProps> = ({ description, buttonText, buttonDisabled = false, onClick, appearance = "primary" }) => (
     <>
-        <StepDescription>{description}</StepDescription>
+        {description && <StepDescription>{description}</StepDescription>}
         <Column>
             <Button appearance={appearance} disabled={buttonDisabled} onClick={onClick}>
                 {buttonText}

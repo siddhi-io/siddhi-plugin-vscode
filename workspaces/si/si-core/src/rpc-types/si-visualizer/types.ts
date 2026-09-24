@@ -42,12 +42,13 @@ export interface OpenViewRequest {
 
 export interface PathDetailsResponse {
     path?: string;
-    status: "valid" | "not-valid" | "valid-not-updated";
+    status: "valid" | "valid-with-warning" | "not-valid" | "valid-not-updated";
     version?: string;
+    message?: string;
 }
 
 export interface SetupDetails {
-    siVersionStatus?: "valid" | "not-valid" | "valid-not-updated";
+    siVersionStatus?: "valid" | "valid-with-warning" | "not-valid" | "valid-not-updated";
     siVersion?: string;
     siDetails: PathDetailsResponse;
     javaDetails: PathDetailsResponse;

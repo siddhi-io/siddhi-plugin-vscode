@@ -240,6 +240,9 @@ importers:
       '@vscode/vsce':
         specifier: ~3.4.2
         version: 3.4.2
+      '@wso2/si-visualizer':
+        specifier: workspace:*
+        version: link:../si-visualizer
       glob:
         specifier: ^7.1.6
         version: 7.2.3

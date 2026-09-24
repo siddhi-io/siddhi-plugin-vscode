@@ -308,6 +308,7 @@
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "lint": "eslint src --ext ts",
     "test": "pnpm run pretest && node ./out/test/runTest.js",
+    "test:compatibility": "rm -rf .test-dist && tsc src/utils/runtimeCompatibility.ts --target es2022 --module commonjs --outDir .test-dist && node --test test/runtimeCompatibility.test.js",
     "download-ls": "node scripts/download-ls.js",
     "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
     "copyFonts": "copyfiles -f ./node_modules/@wso2/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
@@ -318,6 +319,7 @@
     "build-tm-grammar": "js-yaml grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.yaml > grammar/siddhi-grammar/syntaxes/siddhi.tmLanguage.json"
   },
   "devDependencies": {
+    "@wso2/si-visualizer": "workspace:*",
     "@types/mocha": "^2.2.42",
     "@types/node": "^12.0.12",
     "@types/vscode": "^1.59.0",

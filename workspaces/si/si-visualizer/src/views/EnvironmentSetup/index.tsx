@@ -96,7 +96,7 @@ export const EnvironmentSetup = () => {
     
     useEffect(() => {
         const fetchSIVersionAndSetup = async () => {
-            const { recommendedVersions, javaDetails, siDetails, siVersionStatus, showDownloadButtons } = await rpcClient.getSiVisualizerRpcClient().getSetupDetails();
+            const { recommendedVersions, javaDetails, siDetails, showDownloadButtons } = await rpcClient.getSiVisualizerRpcClient().getSetupDetails();
             setRecommendedVersions(recommendedVersions);
             setJavaPathDetails(javaDetails);
             setPathDetails(siDetails);
@@ -265,12 +265,9 @@ export const EnvironmentSetup = () => {
             />
         }
         if (canContinue) {
-            const javaDescription = "Warning: The recommended Java version for the runtime has not been used. While you can continue, please note that the application may not function as expected without the proper version."
-            const siDescription = "Warning: The runtime version configured in the developer environment does not match with the runtime version configured for the application. While you can continue, please note that the application may not function as expected without the proper version."
             return <ButtonWithDescription 
                 onClick={refreshProject}
                 buttonText="Continue Anyway"
-                description={siStatus !== "valid" ? siDescription : javaDescription}
                 appearance="secondary"
             />
         }
@@ -350,7 +347,7 @@ export const EnvironmentSetup = () => {
                                     <>
                                         <Row>
                                             <StepDescription>
-                                                Java {recommendedVersions.javaVersion} is required. Select Java Home path if you have already installed.
+                                                Java {recommendedVersions.javaVersion} is recommended. Select Java Home path if you have already installed a compatible version.
                                             </StepDescription>
                                         </Row>
                                         <Row>
