@@ -13,11 +13,35 @@ export interface CompatibilityResult {
     message?: string;
 }
 
+function getNumericVersion(version: string): string | undefined {
+    return version.match(/\d+(?:\.\d+)*/)?.[0];
+}
+
+function findProfile(
+    siVersion: string,
+    profiles: RuntimeCompatibilityProfiles,
+): JavaCompatibilityProfile | undefined {
+    const numericVersion = getNumericVersion(siVersion);
+    return profiles[siVersion] ?? (numericVersion ? profiles[numericVersion] : undefined);
+}
+
+export function compareVersions(v1: string, v2: string): number {
+    const parts1 = (getNumericVersion(v1) ?? "0").split(".").map((part) => parseInt(part, 10));
+    const parts2 = (getNumericVersion(v2) ?? "0").split(".").map((part) => parseInt(part, 10));
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+        const diff = (parts1[i] ?? 0) - (parts2[i] ?? 0);
+        if (diff !== 0) {
+            return diff > 0 ? 1 : -1;
+        }
+    }
+    return 0;
+}
+
 export function getRuntimeCompatibility(
     siVersion: string,
     profiles: RuntimeCompatibilityProfiles,
 ): CompatibilityResult {
-    if (profiles[siVersion]) {
+    if (findProfile(siVersion, profiles)) {
         return { status: "valid" };
     }
 
@@ -32,7 +56,7 @@ export function evaluateJavaCompatibility(
     javaVersion: number,
     profiles: RuntimeCompatibilityProfiles,
 ): CompatibilityResult {
-    const profile = profiles[siVersion];
+    const profile = findProfile(siVersion, profiles);
     if (!profile) {
         return getRuntimeCompatibility(siVersion, profiles);
     }

@@ -18,6 +18,7 @@ import { INVALID_SERVER_PATH_MSG, JAVA_HOME_CONFIG, SIDDHI_HOME_CONFIG, VS_CODE_
 import { PathDetailsResponse, SetupDetails, SetPathRequest } from "@wso2/si-core";
 import versionsConfig from "../config/versions.json";
 import {
+    compareVersions,
     CompatibilityStatus,
     evaluateJavaCompatibility,
     getJavaMajorVersion,
@@ -181,23 +182,23 @@ export async function downloadSI(siVersion: string, isUpdatedPack?: boolean): Pr
             throw new Error(`No download URLs configured for WSO2 Integrator: SI version ${siVersion}.`);
         }
 
-        const zipName = siDownloadUrlList[0].split("/").pop();
+        let url: string;
+        if (isPatchVersionApplicable()) {
+            url = siDownloadUrlList[0];
+        } else {
+            if (siDownloadUrlList.length < 2) {
+                throw new Error(`Insufficient download URLs configured for WSO2 Integrator: SI version ${siVersion}.`);
+            }
+            url = siDownloadUrlList[1];
+        }
+
+        const zipName = url.split("/").pop();
         const siDownloadPath = path.join(siPath, zipName!);
 
         if (fs.existsSync(siDownloadPath)) {
             vscode.window.showInformationMessage("WSO2 Integrator: SI already downloaded.");
             console.log("Path exists, skipping download.");
         } else {
-            let url: string;
-            if (isPatchVersionApplicable()) {
-                url = siDownloadUrlList[0];
-            } else {
-                if (siDownloadUrlList.length < 2) {
-                    throw new Error(`Insufficient download URLs configured for WSO2 Integrator: SI version ${siVersion}.`);
-                }
-                url = siDownloadUrlList[1];
-            }
-
             try {
                 await downloadWithProgress(url, siDownloadPath, "Downloading WSO2 Integrator: SI");
             } catch (error) {
@@ -255,43 +256,6 @@ function getSIVersion(siPath: string): string | null {
     const siVersionContent = fs.readFileSync(siVersionFile, "utf8");
     const versionMatch = siVersionContent.match(/v(\d+\.\d+\.\d+(?:-[a-zA-Z0-9]+)*)/);
     return versionMatch ? versionMatch[1] : null;
-}
-
-// /**
-//  * Compares two version strings and returns a number indicating their relative order.
-//  *
-//  * The version strings should be in the format "x.y.z" where x, y, and z are numeric parts.
-//  * If the version strings contain non-numeric parts, they will be ignored.
-//  *
-//  * @param v1 - The first version string to compare.
-//  * @param v2 - The second version string to compare.
-//  * @returns A number indicating the relative order of the versions:
-//  *          - 1 if v1 is greater than v2
-//  *          - -1 if v1 is less than v2
-//  *          - 0 if v1 is equal to v2
-//  */
-export function compareVersions(v1: string, v2: string): number {
-    // Extract only the numeric parts of the version string
-    const getVersionNumbers = (str: string): string => {
-        const match = str.match(/(\d+(\.\d+)*)/);
-        return match ? match[0] : "0";
-    };
-
-    const version1 = getVersionNumbers(v1);
-    const version2 = getVersionNumbers(v2);
-
-    const parts1 = version1.split(".").map((part) => parseInt(part, 10));
-    const parts2 = version2.split(".").map((part) => parseInt(part, 10));
-    const part1 = parts1[0] || 0;
-    const part2 = parts2[0] || 0;
-
-    if (part1 > part2) {
-        return 1;
-    }
-    if (part1 < part2) {
-        return -1;
-    }
-    return 0;
 }
 
 export function getServerPathFromConfig(): string | undefined {
