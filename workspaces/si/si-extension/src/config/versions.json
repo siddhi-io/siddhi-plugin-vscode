@@ -9,8 +9,8 @@
         "testedJavaVersion": 25
       },
       "downloadUrls": [
-        "https://si-distribution.wso2.com/4.4.1/wso2si-4.4.1.zip",
-        "https://github.com/wso2/product-integrator-si/releases/download/v4.4.1/wso2si-4.4.1.zip"
+        "https://github.com/wso2/product-integrator-si/releases/download/v4.4.1-beta/wso2si-4.4.1-beta.zip",
+        "https://github.com/wso2/product-integrator-si/releases/download/v4.4.1-beta/wso2si-4.4.1-beta.zip"
       ]
     },
     "4.4.0": {

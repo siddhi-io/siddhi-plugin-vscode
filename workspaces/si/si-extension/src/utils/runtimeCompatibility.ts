@@ -13,11 +13,56 @@ export interface CompatibilityResult {
     message?: string;
 }
 
+function getNumericVersion(version: string): string | undefined {
+    return version.match(/\d+(?:\.\d+)*/)?.[0];
+}
+
+function findProfile(
+    siVersion: string,
+    profiles: RuntimeCompatibilityProfiles,
+): JavaCompatibilityProfile | undefined {
+    const numericVersion = getNumericVersion(siVersion);
+    return profiles[siVersion] ?? (numericVersion ? profiles[numericVersion] : undefined);
+}
+
+export function compareVersions(v1: string, v2: string): number {
+    const parts1 = (getNumericVersion(v1) ?? "0").split(".").map((part) => parseInt(part, 10));
+    const parts2 = (getNumericVersion(v2) ?? "0").split(".").map((part) => parseInt(part, 10));
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+        const diff = (parts1[i] ?? 0) - (parts2[i] ?? 0);
+        if (diff !== 0) {
+            return diff > 0 ? 1 : -1;
+        }
+    }
+    return 0;
+}
+
+export interface CachedSIPack {
+    path: string;
+    version: string;
+    updateLevel: string;
+}
+
+export function getReleaseVersionFromUrl(url: string): string | undefined {
+    return url.match(/wso2si-([^/]+)\.zip$/)?.[1];
+}
+
+export function selectCachedSIPack(packs: CachedSIPack[], releaseVersion: string): CachedSIPack | undefined {
+    const exactMatches = packs.filter((pack) => pack.version === releaseVersion);
+    const candidates = exactMatches.length > 0
+        ? exactMatches
+        : packs.filter((pack) => compareVersions(pack.version, releaseVersion) === 0);
+    return candidates.reduce<CachedSIPack | undefined>(
+        (best, pack) => (!best || compareVersions(pack.updateLevel, best.updateLevel) > 0 ? pack : best),
+        undefined,
+    );
+}
+
 export function getRuntimeCompatibility(
     siVersion: string,
     profiles: RuntimeCompatibilityProfiles,
 ): CompatibilityResult {
-    if (profiles[siVersion]) {
+    if (findProfile(siVersion, profiles)) {
         return { status: "valid" };
     }
 
@@ -32,7 +77,7 @@ export function evaluateJavaCompatibility(
     javaVersion: number,
     profiles: RuntimeCompatibilityProfiles,
 ): CompatibilityResult {
-    const profile = profiles[siVersion];
+    const profile = findProfile(siVersion, profiles);
     if (!profile) {
         return getRuntimeCompatibility(siVersion, profiles);
     }

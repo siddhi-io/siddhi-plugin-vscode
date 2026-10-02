@@ -18,12 +18,15 @@ import { INVALID_SERVER_PATH_MSG, JAVA_HOME_CONFIG, SIDDHI_HOME_CONFIG, VS_CODE_
 import { PathDetailsResponse, SetupDetails, SetPathRequest } from "@wso2/si-core";
 import versionsConfig from "../config/versions.json";
 import {
+    CachedSIPack,
     CompatibilityStatus,
     evaluateJavaCompatibility,
     getJavaMajorVersion,
+    getReleaseVersionFromUrl,
     getRuntimeCompatibility,
     JavaCompatibilityProfile,
     RuntimeCompatibilityProfiles,
+    selectCachedSIPack,
 } from "./runtimeCompatibility";
 
 interface RuntimeVersionConfig {
@@ -181,23 +184,23 @@ export async function downloadSI(siVersion: string, isUpdatedPack?: boolean): Pr
             throw new Error(`No download URLs configured for WSO2 Integrator: SI version ${siVersion}.`);
         }
 
-        const zipName = siDownloadUrlList[0].split("/").pop();
+        let url: string;
+        if (isPatchVersionApplicable()) {
+            url = siDownloadUrlList[0];
+        } else {
+            if (siDownloadUrlList.length < 2) {
+                throw new Error(`Insufficient download URLs configured for WSO2 Integrator: SI version ${siVersion}.`);
+            }
+            url = siDownloadUrlList[1];
+        }
+
+        const zipName = url.split("/").pop();
         const siDownloadPath = path.join(siPath, zipName!);
 
         if (fs.existsSync(siDownloadPath)) {
             vscode.window.showInformationMessage("WSO2 Integrator: SI already downloaded.");
             console.log("Path exists, skipping download.");
         } else {
-            let url: string;
-            if (isPatchVersionApplicable()) {
-                url = siDownloadUrlList[0];
-            } else {
-                if (siDownloadUrlList.length < 2) {
-                    throw new Error(`Insufficient download URLs configured for WSO2 Integrator: SI version ${siVersion}.`);
-                }
-                url = siDownloadUrlList[1];
-            }
-
             try {
                 await downloadWithProgress(url, siDownloadPath, "Downloading WSO2 Integrator: SI");
             } catch (error) {
@@ -210,7 +213,7 @@ export async function downloadSI(siVersion: string, isUpdatedPack?: boolean): Pr
         }
         await extractWithProgress(siDownloadPath, siPath, "Extracting WSO2 Integrator: SI");
 
-        return getLatestSIPathFromCache(siVersion)?.path!;
+        return getLatestSIPathFromCache(getReleaseVersionFromUrl(url) ?? siVersion)?.path!;
     } catch (error) {
         if ((error as Error).message?.includes("Error while extracting the archive")) {
             vscode.window.showWarningMessage(
@@ -257,43 +260,6 @@ function getSIVersion(siPath: string): string | null {
     return versionMatch ? versionMatch[1] : null;
 }
 
-// /**
-//  * Compares two version strings and returns a number indicating their relative order.
-//  *
-//  * The version strings should be in the format "x.y.z" where x, y, and z are numeric parts.
-//  * If the version strings contain non-numeric parts, they will be ignored.
-//  *
-//  * @param v1 - The first version string to compare.
-//  * @param v2 - The second version string to compare.
-//  * @returns A number indicating the relative order of the versions:
-//  *          - 1 if v1 is greater than v2
-//  *          - -1 if v1 is less than v2
-//  *          - 0 if v1 is equal to v2
-//  */
-export function compareVersions(v1: string, v2: string): number {
-    // Extract only the numeric parts of the version string
-    const getVersionNumbers = (str: string): string => {
-        const match = str.match(/(\d+(\.\d+)*)/);
-        return match ? match[0] : "0";
-    };
-
-    const version1 = getVersionNumbers(v1);
-    const version2 = getVersionNumbers(v2);
-
-    const parts1 = version1.split(".").map((part) => parseInt(part, 10));
-    const parts2 = version2.split(".").map((part) => parseInt(part, 10));
-    const part1 = parts1[0] || 0;
-    const part2 = parts2[0] || 0;
-
-    if (part1 > part2) {
-        return 1;
-    }
-    if (part1 < part2) {
-        return -1;
-    }
-    return 0;
-}
-
 export function getServerPathFromConfig(): string | undefined {
     let siddhiHome = vscode.workspace.getConfiguration().get(SIDDHI_HOME_CONFIG) as string;
     if (siddhiHome) {
@@ -325,28 +291,23 @@ function getCurrentUpdateVersion(siPath: string): string {
     return "0";
 }
 
-function getLatestSIPathFromCache(siVersion: string): { path: string; version: string } | null {
+function getLatestSIPathFromCache(releaseVersion: string): { path: string; version: string } | null {
     const siCachePath = path.join(CACHED_FOLDER, "streaming-integrator");
-    if (fs.existsSync(siCachePath)) {
-        const siFolders = fs.readdirSync(siCachePath, { withFileTypes: true });
-        let highestUpdateVersion = "0";
-        let latestSIPath = "";
-        for (const folder of siFolders) {
-            if (folder.isDirectory()) {
-                const siHomePath = path.join(siCachePath, folder.name);
-                const siRuntimeVersion = getSIVersion(siHomePath);
-                if (siRuntimeVersion && compareVersions(siVersion, siRuntimeVersion) === 0) {
-                    const updateVersion = getCurrentUpdateVersion(siHomePath);
-                    if (compareVersions(updateVersion, highestUpdateVersion) >= 0) {
-                        highestUpdateVersion = updateVersion;
-                        latestSIPath = siHomePath;
-                    }
-                }
+    if (!fs.existsSync(siCachePath)) {
+        return null;
+    }
+    const packs: CachedSIPack[] = [];
+    for (const folder of fs.readdirSync(siCachePath, { withFileTypes: true })) {
+        if (folder.isDirectory()) {
+            const siHomePath = path.join(siCachePath, folder.name);
+            const version = getSIVersion(siHomePath);
+            if (version) {
+                packs.push({ path: siHomePath, version, updateLevel: getCurrentUpdateVersion(siHomePath) });
             }
         }
-        return latestSIPath ? { path: latestSIPath, version: highestUpdateVersion } : null;
     }
-    return null;
+    const pack = selectCachedSIPack(packs, releaseVersion);
+    return pack ? { path: pack.path, version: pack.updateLevel } : null;
 }
 
 export async function getSetupDetails(): Promise<SetupDetails> {
