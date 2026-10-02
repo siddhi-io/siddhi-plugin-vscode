@@ -4,7 +4,9 @@ const test = require("node:test");
 const {
     compareVersions,
     evaluateJavaCompatibility,
+    getReleaseVersionFromUrl,
     getRuntimeCompatibility,
+    selectCachedSIPack,
 } = require("../.test-dist/runtimeCompatibility");
 
 const profiles = {
@@ -87,4 +89,42 @@ test("compares every numeric part of a version and ignores pre-release suffixes"
     assert.equal(compareVersions("4.4.1", "4.4.0"), 1);
     assert.equal(compareVersions("4.3.1", "4.4.0"), -1);
     assert.equal(compareVersions("12", "3"), 1);
+});
+
+test("reads the SI release version from a download URL", () => {
+    assert.equal(
+        getReleaseVersionFromUrl("https://github.com/wso2/product-integrator-si/releases/download/v4.4.1-beta/wso2si-4.4.1-beta.zip"),
+        "4.4.1-beta",
+    );
+    assert.equal(getReleaseVersionFromUrl("https://si-distribution.wso2.com/4.4.1/wso2si-4.4.1.zip"), "4.4.1");
+    assert.equal(getReleaseVersionFromUrl("https://example.com/pack.zip"), undefined);
+});
+
+test("selects the downloaded release when beta and GA packs are cached together", () => {
+    const packs = [
+        { path: "/cache/wso2si-4.4.0", version: "4.4.0", updateLevel: "0" },
+        { path: "/cache/wso2si-4.4.1", version: "4.4.1", updateLevel: "0" },
+        { path: "/cache/wso2si-4.4.1-beta", version: "4.4.1-beta", updateLevel: "0" },
+    ];
+    for (const order of [packs, [...packs].reverse()]) {
+        assert.equal(selectCachedSIPack(order, "4.4.1")?.path, "/cache/wso2si-4.4.1");
+        assert.equal(selectCachedSIPack(order, "4.4.1-beta")?.path, "/cache/wso2si-4.4.1-beta");
+    }
+});
+
+test("selects the highest update level of the matching release", () => {
+    const packs = [
+        { path: "/cache/a", version: "4.4.1", updateLevel: "3" },
+        { path: "/cache/b", version: "4.4.1", updateLevel: "12" },
+    ];
+    assert.equal(selectCachedSIPack(packs, "4.4.1")?.path, "/cache/b");
+});
+
+test("falls back to the numeric version when no cached pack matches the release exactly", () => {
+    const packs = [
+        { path: "/cache/wso2si-4.4.0", version: "4.4.0", updateLevel: "0" },
+        { path: "/cache/wso2si-4.4.1-SNAPSHOT", version: "4.4.1-SNAPSHOT", updateLevel: "0" },
+    ];
+    assert.equal(selectCachedSIPack(packs, "4.4.1")?.path, "/cache/wso2si-4.4.1-SNAPSHOT");
+    assert.equal(selectCachedSIPack(packs, "4.5.0"), undefined);
 });

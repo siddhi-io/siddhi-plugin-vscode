@@ -18,13 +18,15 @@ import { INVALID_SERVER_PATH_MSG, JAVA_HOME_CONFIG, SIDDHI_HOME_CONFIG, VS_CODE_
 import { PathDetailsResponse, SetupDetails, SetPathRequest } from "@wso2/si-core";
 import versionsConfig from "../config/versions.json";
 import {
-    compareVersions,
+    CachedSIPack,
     CompatibilityStatus,
     evaluateJavaCompatibility,
     getJavaMajorVersion,
+    getReleaseVersionFromUrl,
     getRuntimeCompatibility,
     JavaCompatibilityProfile,
     RuntimeCompatibilityProfiles,
+    selectCachedSIPack,
 } from "./runtimeCompatibility";
 
 interface RuntimeVersionConfig {
@@ -211,7 +213,7 @@ export async function downloadSI(siVersion: string, isUpdatedPack?: boolean): Pr
         }
         await extractWithProgress(siDownloadPath, siPath, "Extracting WSO2 Integrator: SI");
 
-        return getLatestSIPathFromCache(siVersion)?.path!;
+        return getLatestSIPathFromCache(getReleaseVersionFromUrl(url) ?? siVersion)?.path!;
     } catch (error) {
         if ((error as Error).message?.includes("Error while extracting the archive")) {
             vscode.window.showWarningMessage(
@@ -289,28 +291,23 @@ function getCurrentUpdateVersion(siPath: string): string {
     return "0";
 }
 
-function getLatestSIPathFromCache(siVersion: string): { path: string; version: string } | null {
+function getLatestSIPathFromCache(releaseVersion: string): { path: string; version: string } | null {
     const siCachePath = path.join(CACHED_FOLDER, "streaming-integrator");
-    if (fs.existsSync(siCachePath)) {
-        const siFolders = fs.readdirSync(siCachePath, { withFileTypes: true });
-        let highestUpdateVersion = "0";
-        let latestSIPath = "";
-        for (const folder of siFolders) {
-            if (folder.isDirectory()) {
-                const siHomePath = path.join(siCachePath, folder.name);
-                const siRuntimeVersion = getSIVersion(siHomePath);
-                if (siRuntimeVersion && compareVersions(siVersion, siRuntimeVersion) === 0) {
-                    const updateVersion = getCurrentUpdateVersion(siHomePath);
-                    if (compareVersions(updateVersion, highestUpdateVersion) >= 0) {
-                        highestUpdateVersion = updateVersion;
-                        latestSIPath = siHomePath;
-                    }
-                }
+    if (!fs.existsSync(siCachePath)) {
+        return null;
+    }
+    const packs: CachedSIPack[] = [];
+    for (const folder of fs.readdirSync(siCachePath, { withFileTypes: true })) {
+        if (folder.isDirectory()) {
+            const siHomePath = path.join(siCachePath, folder.name);
+            const version = getSIVersion(siHomePath);
+            if (version) {
+                packs.push({ path: siHomePath, version, updateLevel: getCurrentUpdateVersion(siHomePath) });
             }
         }
-        return latestSIPath ? { path: latestSIPath, version: highestUpdateVersion } : null;
     }
-    return null;
+    const pack = selectCachedSIPack(packs, releaseVersion);
+    return pack ? { path: pack.path, version: pack.updateLevel } : null;
 }
 
 export async function getSetupDetails(): Promise<SetupDetails> {

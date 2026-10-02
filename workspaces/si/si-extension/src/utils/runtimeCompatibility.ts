@@ -37,6 +37,27 @@ export function compareVersions(v1: string, v2: string): number {
     return 0;
 }
 
+export interface CachedSIPack {
+    path: string;
+    version: string;
+    updateLevel: string;
+}
+
+export function getReleaseVersionFromUrl(url: string): string | undefined {
+    return url.match(/wso2si-([^/]+)\.zip$/)?.[1];
+}
+
+export function selectCachedSIPack(packs: CachedSIPack[], releaseVersion: string): CachedSIPack | undefined {
+    const exactMatches = packs.filter((pack) => pack.version === releaseVersion);
+    const candidates = exactMatches.length > 0
+        ? exactMatches
+        : packs.filter((pack) => compareVersions(pack.version, releaseVersion) === 0);
+    return candidates.reduce<CachedSIPack | undefined>(
+        (best, pack) => (!best || compareVersions(pack.updateLevel, best.updateLevel) > 0 ? pack : best),
+        undefined,
+    );
+}
+
 export function getRuntimeCompatibility(
     siVersion: string,
     profiles: RuntimeCompatibilityProfiles,
