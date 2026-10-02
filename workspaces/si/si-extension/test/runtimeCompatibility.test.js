@@ -61,11 +61,9 @@ test("sets SI 4.4.1 and Java 25 as the bundled defaults", () => {
     assert.equal(manifest.supportedVersions["4.4.1"].java.recommendedJavaVersion, 25);
 });
 
-test("uses the canonical SI GitHub release URL convention", () => {
-    assert.equal(
-        manifest.supportedVersions["4.4.1"].downloadUrls[1],
-        "https://github.com/wso2/product-integrator-si/releases/download/v4.4.1-beta/wso2si-4.4.1-beta.zip",
-    );
+test("downloads the SI 4.4.1 beta pack from every configured source", () => {
+    const betaUrl = "https://github.com/wso2/product-integrator-si/releases/download/v4.4.1-beta/wso2si-4.4.1-beta.zip";
+    assert.deepEqual(manifest.supportedVersions["4.4.1"].downloadUrls, [betaUrl, betaUrl]);
 });
 
 test("accepts an unknown future SI runtime with a compatibility warning", () => {
