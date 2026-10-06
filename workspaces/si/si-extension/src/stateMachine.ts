@@ -178,12 +178,14 @@ const stateMachine = createMachine<MachineContext>(
                     statusBarItem.text = "$(sync~spin) Initializing WSO2 Integrator: SI Language Server...";
                     statusBarItem.show();
                     try {
-                        siExtensionInstance.init().catch((exception) => {
+                        try {
+                            await siExtensionInstance.init();
+                        } catch (exception) {
                             return reject(
                                 "Failed to activate Siddhi extension. " +
-                                    (exception.message ? exception.message : exception)
+                                    (exception instanceof Error ? exception.message : exception)
                             );
-                        });
+                        }
                         resolve(siExtensionInstance.langClient);
                         debug("LS is ready " + new Date().toLocaleTimeString());
                     } catch (error) {
