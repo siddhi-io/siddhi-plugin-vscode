@@ -11,8 +11,11 @@ import * as vscode from "vscode";
 import { StreamAttributesResponse, StreamResponse } from "@wso2/si-core";
 import * as path from "path";
 import * as fs from "fs";
+import * as crypto from "crypto";
 import { pathToFileURL } from "url";
 import { extension } from "../SIExtensionContext";
+import { syncKafkaClientJar } from "./nestedJars";
+import { buildRuntimeClassPath } from "./runtimeClassPath";
 
 type Result = {
     [key: string]: any;
@@ -186,15 +189,22 @@ export function getComposerJSFiles(
     ];
 }
 
-export function getClassPath(siddhiHome: string) {
-    const libPath = path.join(String(siddhiHome), "lib", "*");
-    const pluginsDir = path.join(String(siddhiHome), "wso2", "lib", "plugins", "*");
-    const languageServerPath = extension.context.asAbsolutePath(path.join('ls', '*'));
-    
-    let separator = process.platform === "win32" ? ";" : ":";
-    let classPath = languageServerPath + separator + libPath + separator + pluginsDir; 
+export function getKafkaClientCacheDir(siddhiHome: string): string {
+    const siHomeHash = crypto.createHash("sha1").update(path.resolve(String(siddhiHome))).digest("hex").slice(0, 12);
+    return path.join(extension.context.globalStorageUri.fsPath, "kafka-client", siHomeHash);
+}
 
-    return ["-cp", classPath];
+export function getClassPath(siddhiHome: string, kafkaClientJars: string[] = []) {
+    const languageServerPath = extension.context.asAbsolutePath(path.join('ls', '*'));
+    return buildRuntimeClassPath(siddhiHome, languageServerPath, kafkaClientJars);
+}
+
+export async function prepareClassPath(siddhiHome: string) {
+    const kafkaClientJars = await syncKafkaClientJar(
+        path.join(String(siddhiHome), "lib"),
+        getKafkaClientCacheDir(siddhiHome)
+    );
+    return getClassPath(siddhiHome, kafkaClientJars);
 }
 
 export function getSiddhiFileNameWithoutExtension(filePath: string): string {

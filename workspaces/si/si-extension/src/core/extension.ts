@@ -34,11 +34,11 @@ export class SIExtension {
                 return Promise.reject(INVALID_SERVER_PATH_MSG);
             }
   
-            installJars(siHome)
+            await installJars(siHome);
             this.langClient = new ExtendedLanguageClient(
                 LANGUAGE_CLIENT_ID,
                 LANGUAGE_CLIENT_NAME,
-                getServerOptions(siHome),
+                await getServerOptions(siHome),
                 this.clientOptions
             );
             this.langClient.setTrace(Trace.Verbose);
