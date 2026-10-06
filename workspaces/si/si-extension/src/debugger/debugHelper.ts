@@ -28,9 +28,9 @@ const JAVA_VERSION_BASED_ARGS = [
     "--add-opens=java.base/java.net=ALL-UNNAMED",
     "--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED",
 ];
-const JAVA_24_ARGS = ["--sun-misc-unsafe-memory-access=allow", "--enable-native-access=ALL-UNNAMED"];
+export const JAVA_24_ARGS = ["--sun-misc-unsafe-memory-access=allow", "--enable-native-access=ALL-UNNAMED"];
 
-function getJavaMajorVersion(javaExecutable: string): number | null {
+export function getJavaMajorVersion(javaExecutable: string): number | null {
     const result = child_process.spawnSync(javaExecutable, ["-version"], { encoding: "utf8" });
     if (result.error || result.status !== 0) {
         return null;

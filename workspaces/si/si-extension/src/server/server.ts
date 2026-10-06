@@ -14,6 +14,7 @@ import { getJavaHomeFromConfig } from "../utils/onboardingUtils";
 import { findLSJarPath, getLog4jConfigFile, prepareClassPath } from "../utils/utils";
 import * as fs from "fs";
 import { extension } from "../SIExtensionContext";
+import { getJavaMajorVersion, JAVA_24_ARGS } from "../debugger/debugHelper";
 const child_process = require("child_process");
 
 const main: string = "io.siddhi.langserver.launcher.StdioLauncher";
@@ -31,6 +32,11 @@ export async function getServerOptions(CARBON_HOME: string): Promise<ServerOptio
     if (process.env.LSDEBUG === "true") {
         args.push("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y,");
         debug("Language Server is starting in debug mode.");
+    }
+
+    const javaMajorVersion = getJavaMajorVersion(executable);
+    if (javaMajorVersion !== null && javaMajorVersion >= 24) {
+        args.push(...JAVA_24_ARGS);
     }
 
     args.push(
