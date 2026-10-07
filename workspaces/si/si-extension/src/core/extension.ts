@@ -38,7 +38,7 @@ export class SIExtension {
             this.langClient = new ExtendedLanguageClient(
                 LANGUAGE_CLIENT_ID,
                 LANGUAGE_CLIENT_NAME,
-                await getServerOptions(siHome),
+                getServerOptions(siHome),
                 this.clientOptions
             );
             this.langClient.setTrace(Trace.Verbose);

@@ -11,7 +11,7 @@ import { ServerOptions } from "vscode-languageclient/node";
 import { debug, log } from "../utils/logger";
 import * as path from "path";
 import { getJavaHomeFromConfig } from "../utils/onboardingUtils";
-import { findLSJarPath, getLog4jConfigFile, prepareClassPath } from "../utils/utils";
+import { findLSJarPath, getLog4jConfigFile, getClassPath } from "../utils/utils";
 import * as fs from "fs";
 import { extension } from "../SIExtensionContext";
 import { getJavaMajorVersion, JAVA_24_ARGS } from "../debugger/debugHelper";
@@ -19,7 +19,7 @@ const child_process = require("child_process");
 
 const main: string = "io.siddhi.langserver.launcher.StdioLauncher";
 
-export async function getServerOptions(CARBON_HOME: string): Promise<ServerOptions> {
+export function getServerOptions(CARBON_HOME: string): ServerOptions {
     debug(`Using Siddhi distribution at ${CARBON_HOME} for Language server.`);
 
     const runtimePath = path.join(String(CARBON_HOME), "wso2", "server");
@@ -27,7 +27,7 @@ export async function getServerOptions(CARBON_HOME: string): Promise<ServerOptio
     const trustStorePath = path.join(String(CARBON_HOME), "resources", "security", "client-truststore.jks");
 
     let executable: string = path.join(String(getJavaHomeFromConfig()), "bin", "java");
-    let args: string[] = [...(await prepareClassPath(CARBON_HOME))];
+    let args: string[] = [...getClassPath(CARBON_HOME)];
 
     if (process.env.LSDEBUG === "true") {
         args.push("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y,");
