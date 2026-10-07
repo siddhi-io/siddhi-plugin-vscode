@@ -11,14 +11,15 @@ import { ServerOptions } from "vscode-languageclient/node";
 import { debug, log } from "../utils/logger";
 import * as path from "path";
 import { getJavaHomeFromConfig } from "../utils/onboardingUtils";
-import { findLSJarPath, getLog4jConfigFile, getClassPath } from "../utils/utils";
+import { findLSJarPath, getLog4jConfigFile, prepareClassPath } from "../utils/utils";
 import * as fs from "fs";
 import { extension } from "../SIExtensionContext";
+import { getJavaMajorVersion, JAVA_24_ARGS } from "../debugger/debugHelper";
 const child_process = require("child_process");
 
 const main: string = "io.siddhi.langserver.launcher.StdioLauncher";
 
-export function getServerOptions(CARBON_HOME: string): ServerOptions {
+export async function getServerOptions(CARBON_HOME: string): Promise<ServerOptions> {
     debug(`Using Siddhi distribution at ${CARBON_HOME} for Language server.`);
 
     const runtimePath = path.join(String(CARBON_HOME), "wso2", "server");
@@ -26,11 +27,16 @@ export function getServerOptions(CARBON_HOME: string): ServerOptions {
     const trustStorePath = path.join(String(CARBON_HOME), "resources", "security", "client-truststore.jks");
 
     let executable: string = path.join(String(getJavaHomeFromConfig()), "bin", "java");
-    let args: string[] = [...getClassPath(CARBON_HOME)];
+    let args: string[] = [...(await prepareClassPath(CARBON_HOME))];
 
     if (process.env.LSDEBUG === "true") {
         args.push("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y,");
         debug("Language Server is starting in debug mode.");
+    }
+
+    const javaMajorVersion = getJavaMajorVersion(executable);
+    if (javaMajorVersion !== null && javaMajorVersion >= 24) {
+        args.push(...JAVA_24_ARGS);
     }
 
     args.push(
@@ -59,7 +65,7 @@ export function getServerOptions(CARBON_HOME: string): ServerOptions {
     return serverOptions;
 }
 
-export function installJars(carbonHome: string) {
+export function installJars(carbonHome: string): Promise<void> {
     let javaExecutable: string = path.join(String(getJavaHomeFromConfig()), "bin", "java");
     
     if (process.platform === "win32" && !javaExecutable.endsWith(".exe")) {
@@ -108,9 +114,15 @@ export function installJars(carbonHome: string) {
         debug(`Error while installing jars: ${data}`);
     });
 
-    // Handle process exit
-    javaProcess.on("close", (code) => {
-        debug(`Installing jars completed.`);
+    return new Promise((resolve) => {
+        javaProcess.on("error", (error) => {
+            debug(`Error while installing jars: ${error}`);
+            resolve();
+        });
+        javaProcess.on("close", (code) => {
+            debug(`Installing jars completed.`);
+            resolve();
+        });
     });
 }
 

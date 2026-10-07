@@ -13,7 +13,7 @@ import { debug, log, showOutputChannel } from "../utils/logger";
 import * as readline from "readline";
 import { activateEventSimulator, deactivateEventSimulator } from "../visualizer/activate";
 import { extension } from "../SIExtensionContext";
-import { findLSJarPath, getClassPath, getLog4jConfigFile, getSiddhiFileNameWithoutExtension } from "../utils/utils";
+import { findLSJarPath, getLog4jConfigFile, getSiddhiFileNameWithoutExtension, prepareClassPath } from "../utils/utils";
 const child_process = require("child_process");
 
 let rl: readline.Interface;
@@ -28,8 +28,9 @@ const JAVA_VERSION_BASED_ARGS = [
     "--add-opens=java.base/java.net=ALL-UNNAMED",
     "--add-opens=java.rmi/sun.rmi.transport=ALL-UNNAMED",
 ];
+export const JAVA_24_ARGS = ["--sun-misc-unsafe-memory-access=allow", "--enable-native-access=ALL-UNNAMED"];
 
-function getJavaMajorVersion(javaExecutable: string): number | null {
+export function getJavaMajorVersion(javaExecutable: string): number | null {
     const result = child_process.spawnSync(javaExecutable, ["-version"], { encoding: "utf8" });
     if (result.error || result.status !== 0) {
         return null;
@@ -55,7 +56,7 @@ export async function startSiddhiApp(siddhiHome: string, javaHome: string, progr
         executable += ".exe";
     }
 
-    let args: string[] = [...getClassPath(siddhiHome)];
+    let args: string[] = [...(await prepareClassPath(siddhiHome))];
 
     if (process.env.RUNTIME_DEBUG === "true") {
         args.push("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y,");
@@ -65,6 +66,9 @@ export async function startSiddhiApp(siddhiHome: string, javaHome: string, progr
     const javaMajorVersion = getJavaMajorVersion(executable);
     if (javaMajorVersion !== null && javaMajorVersion > 11) {
         args.push(...JAVA_VERSION_BASED_ARGS);
+    }
+    if (javaMajorVersion !== null && javaMajorVersion >= 24) {
+        args.push(...JAVA_24_ARGS);
     }
 
     args.push(
