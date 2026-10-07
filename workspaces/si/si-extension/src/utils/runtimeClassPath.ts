@@ -16,8 +16,8 @@ export function buildRuntimeClassPath(
 ): string[] {
     const entries = [
         languageServerPath,
-        path.join(String(siddhiHome), ".jars", "*"),
         path.join(String(siddhiHome), "lib", "*"),
+        path.join(String(siddhiHome), ".jars", "*"),
         path.join(String(siddhiHome), "wso2", "lib", "plugins", "*"),
     ];
     return ["-cp", entries.join(delimiter)];
