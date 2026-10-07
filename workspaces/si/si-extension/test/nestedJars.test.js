@@ -164,6 +164,27 @@ test("replaces the cached client when the wrapper changes", async () => {
     assert.equal(fs.readFileSync(target, "utf8"), "new");
 });
 
+test("serializes concurrent extraction into the same cache directory", async () => {
+    const { libDir, cacheDir } = setUpDirs();
+    makeWrapper(libDir, "kafka_clients_3.9.2_1.0.0.jar", {
+        "kafka-clients-3.9.2.jar": "kafka",
+    });
+    const expected = path.join(cacheDir, "kafka_clients_3.9.2_1.0.0__kafka-clients-3.9.2.jar");
+    const originalNow = Date.now;
+    Date.now = () => 42;
+
+    try {
+        const results = await Promise.all([
+            syncKafkaClientJar(libDir, cacheDir),
+            syncKafkaClientJar(libDir, cacheDir),
+        ]);
+        assert.deepEqual(results, [[expected], [expected]]);
+        assert.equal(fs.readFileSync(expected, "utf8"), "kafka");
+    } finally {
+        Date.now = originalNow;
+    }
+});
+
 test("removes stale cache files when the wrapper disappears", async () => {
     const { libDir, cacheDir } = setUpDirs();
     const wrapper = path.join(libDir, "kafka_clients_3.9.2_1.0.0.jar");

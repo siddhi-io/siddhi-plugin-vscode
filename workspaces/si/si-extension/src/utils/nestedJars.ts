@@ -20,6 +20,7 @@ const KAFKA_CLIENT_ENTRY_PATTERN = /^kafka-clients-.*\.jar$/i;
 const CACHE_SEPARATOR = "__";
 const CACHE_METADATA = ".kafka-client-source.json";
 const pipeline = promisify(pipelineCallback);
+const cacheDirLocks = new Map<string, Promise<void>>();
 
 type CacheMetadata = {
     wrapperName: string;
@@ -35,7 +36,31 @@ export function parseManifestHeader(manifest: string, name: string): string | un
     return header?.substring(prefix.length).trim();
 }
 
-export async function syncKafkaClientJar(libDir: string, cacheDir: string): Promise<string[]> {
+async function withCacheDirLock<T>(cacheDir: string, operation: () => Promise<T>): Promise<T> {
+    const key = path.resolve(cacheDir);
+    const previous = cacheDirLocks.get(key);
+    let release!: () => void;
+    const current = new Promise<void>((resolve) => {
+        release = resolve;
+    });
+    cacheDirLocks.set(key, current);
+
+    try {
+        await previous;
+        return await operation();
+    } finally {
+        release();
+        if (cacheDirLocks.get(key) === current) {
+            cacheDirLocks.delete(key);
+        }
+    }
+}
+
+export function syncKafkaClientJar(libDir: string, cacheDir: string): Promise<string[]> {
+    return withCacheDirLock(cacheDir, () => syncKafkaClientJarUnlocked(libDir, cacheDir));
+}
+
+async function syncKafkaClientJarUnlocked(libDir: string, cacheDir: string): Promise<string[]> {
     await fs.promises.mkdir(cacheDir, { recursive: true });
 
     const wrappers = (await fs.promises.readdir(libDir))
