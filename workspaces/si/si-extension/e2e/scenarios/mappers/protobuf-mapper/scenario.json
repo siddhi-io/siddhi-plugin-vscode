@@ -1,0 +1,15 @@
+{
+  "description": "Strings, doubles and longs survive a protobuf encode and decode round trip using well-known message classes",
+  "requires": [],
+  "extensions": ["kafka"],
+  "ports": [8219],
+  "apps": ["app.siddhi"],
+  "steps": [
+    { "type": "http-post", "url": "http://localhost:8219/ProtobufMapper/TextInputStream", "body": { "event": { "value": "protobuf-text-{{runId}}" } } },
+    { "type": "http-post", "url": "http://localhost:8219/ProtobufMapper/DoubleInputStream", "body": { "event": { "value": 1234.5625 } } },
+    { "type": "http-post", "url": "http://localhost:8219/ProtobufMapper/LongInputStream", "body": { "event": { "value": 123456789012 } } },
+    { "type": "expect-log", "name": "string round trip", "pattern": "\\[protobuf-mapper\\] text : Event\\{.*data=\\[protobuf-text-{{runId}}\\]" },
+    { "type": "expect-log", "name": "double round trip", "pattern": "\\[protobuf-mapper\\] double : Event\\{.*data=\\[1234\\.5625\\]" },
+    { "type": "expect-log", "name": "long round trip", "pattern": "\\[protobuf-mapper\\] long : Event\\{.*data=\\[123456789012\\]" }
+  ]
+}
