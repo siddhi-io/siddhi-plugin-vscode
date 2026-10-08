@@ -87,12 +87,19 @@ function validateStep(raw: any, where: string, apps: string[], id: string, requi
     if (raw.type === "expect-kafka-topic" && Array.isArray(raw.contains) && raw.contains.length === 0) {
         throw problem(id, `${where} (${raw.type}) contains must not be empty`);
     }
+    const isSql = raw.type === "sql" || raw.type === "expect-sql";
     if (raw.service !== undefined) {
+        if (!isSql) {
+            throw problem(id, `${where} (${raw.type}) does not take a 'service'`);
+        }
         if (!(SERVICE_NAMES as readonly string[]).includes(raw.service)) {
             throw problem(id, `${where} has unknown service '${raw.service}'`);
         }
-        if (!requires.includes(raw.service)) {
-            throw problem(id, `${where} uses service '${raw.service}' but requires does not list it`);
+    }
+    if (isSql) {
+        const service = raw.service ?? "mysql";
+        if (!requires.includes(service)) {
+            throw problem(id, `${where} uses service '${service}' but requires does not list it`);
         }
     }
     if (raw.pattern !== undefined) {

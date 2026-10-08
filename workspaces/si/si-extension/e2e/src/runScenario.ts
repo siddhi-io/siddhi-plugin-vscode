@@ -31,7 +31,7 @@ export interface ScenarioEnvironment {
 
 export function extensionSkipReason(extensions: string[], failed: Record<string, string>): string | undefined {
     const reasons = extensions
-        .filter((extension) => extension in failed)
+        .filter((extension) => Object.hasOwn(failed, extension))
         .map((extension) => `extension '${extension}' could not be installed: ${failed[extension]}`);
     return reasons.length > 0 ? reasons.join("; ") : undefined;
 }

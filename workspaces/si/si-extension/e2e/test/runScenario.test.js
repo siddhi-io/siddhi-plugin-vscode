@@ -28,3 +28,7 @@ test("extensionSkipReason names every affected extension with its message", () =
         "extension 'prometheus' could not be installed: a; extension 'tcp' could not be installed: b"
     );
 });
+
+test("extensionSkipReason ignores inherited object keys", () => {
+    assert.equal(extensionSkipReason(["constructor", "toString"], {}), undefined);
+});

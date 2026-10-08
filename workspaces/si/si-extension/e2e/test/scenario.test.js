@@ -133,3 +133,26 @@ test("validateScenario rejects an unknown sql service and a service that is not 
         /uses service 'postgres' but requires does not list it/
     );
 });
+
+test("validateScenario restricts service to sql steps and checks the default mysql against requires", () => {
+    const dir = makeRoot([["a", "b", valid()]]) + "/a/b";
+    const expectStep = { type: "expect-log", pattern: "x" };
+    assert.throws(
+        () =>
+            validateScenario(
+                { ...valid(), requires: ["postgres"], steps: [{ type: "expect-log", pattern: "x", service: "postgres" }] },
+                "b",
+                dir
+            ),
+        /\(expect-log\) does not take a 'service'/
+    );
+    assert.throws(
+        () =>
+            validateScenario(
+                { ...valid(), requires: ["postgres"], steps: [{ type: "sql", statement: "SELECT 1" }, expectStep] },
+                "b",
+                dir
+            ),
+        /uses service 'mysql' but requires does not list it/
+    );
+});
