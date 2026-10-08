@@ -1,0 +1,13 @@
+{
+  "description": "Events round-trip through HTTP with the text mapper (custom payload and regex) keeping exact field values",
+  "requires": [],
+  "extensions": [],
+  "ports": [8215, 8216],
+  "apps": ["app.siddhi"],
+  "steps": [
+    { "type": "http-post", "url": "http://localhost:8215/TextMapper/TriggerStream", "body": { "symbol": "AAPL-{{runId}}", "price": 150.25, "volume": 9876543210, "active": true } },
+    { "type": "http-post", "url": "http://localhost:8215/TextMapper/TriggerStream", "body": { "symbol": "IBM-{{runId}}", "price": 101.75, "volume": 42, "active": false } },
+    { "type": "expect-log", "name": "AAPL survives the text round trip", "pattern": "\\[text-mapper\\] : Event\\{.*data=\\[text, AAPL-{{runId}}, 150\\.25, 9876543210, true\\]" },
+    { "type": "expect-log", "name": "IBM survives the text round trip", "pattern": "\\[text-mapper\\] : Event\\{.*data=\\[text, IBM-{{runId}}, 101\\.75, 42, false\\]" }
+  ]
+}
