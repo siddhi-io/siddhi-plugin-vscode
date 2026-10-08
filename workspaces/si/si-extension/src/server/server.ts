@@ -115,12 +115,25 @@ export function installJars(carbonHome: string): Promise<void> {
     });
 
     return new Promise((resolve) => {
+        let settled = false;
         javaProcess.on("error", (error) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
             debug(`Failed to start install-jars process: ${error}`);
             resolve();
         });
-        javaProcess.on("close", (code) => {
-            debug(code === 0 ? "Installing jars completed." : `Installing jars failed with exit code ${code}.`);
+        javaProcess.on("close", (code, signal) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
+            if (code === 0) {
+                debug("Installing jars completed.");
+            } else {
+                debug(`Installing jars failed with ${signal ? `signal ${signal}` : `exit code ${code}`}.`);
+            }
             resolve();
         });
     });
