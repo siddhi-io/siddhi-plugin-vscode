@@ -1,0 +1,17 @@
+{
+  "description": "HTTP events are persisted to MySQL through the rdbms store and upserted by primary key",
+  "requires": ["mysql"],
+  "extensions": ["rdbms-mysql"],
+  "ports": [8202],
+  "apps": ["app.siddhi"],
+  "steps": [
+    { "type": "http-post", "url": "http://localhost:8202/MySqlStore/InventoryStream", "body": { "itemId": "i1-{{runId}}", "itemName": "Widget", "quantity": 100, "price": 9.99 } },
+    { "type": "http-post", "url": "http://localhost:8202/MySqlStore/InventoryStream", "body": { "itemId": "i2-{{runId}}", "itemName": "Gadget", "quantity": 50, "price": 24.99 } },
+    { "type": "http-post", "url": "http://localhost:8202/MySqlStore/InventoryStream", "body": { "itemId": "i3-{{runId}}", "itemName": "Doohickey", "quantity": 200, "price": 4.99 } },
+    { "type": "expect-log", "name": "first event logged", "pattern": "\\[mysql-store\\] : Event\\{.*data=\\[i1-{{runId}}, Widget, 100, 9\\.99\\]" },
+    { "type": "expect-sql", "name": "three rows persisted", "statement": "SELECT COUNT(*) FROM InventoryTable WHERE itemId LIKE '%-{{runId}}'", "equals": "3" },
+    { "type": "http-post", "url": "http://localhost:8202/MySqlStore/InventoryStream", "body": { "itemId": "i1-{{runId}}", "itemName": "Widget Deluxe", "quantity": 150, "price": 12.99 } },
+    { "type": "expect-sql", "name": "upsert changed the quantity", "statement": "SELECT quantity FROM InventoryTable WHERE itemId = 'i1-{{runId}}'", "equals": "150" },
+    { "type": "expect-sql", "name": "upsert did not add a row", "statement": "SELECT COUNT(*) FROM InventoryTable WHERE itemId LIKE '%-{{runId}}'", "equals": "3" }
+  ]
+}

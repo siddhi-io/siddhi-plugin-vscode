@@ -1,0 +1,22 @@
+@App:name('LsConnectionLeak')
+@App:description('CDC polling source used to detect language server connection-pool leaks')
+
+@source(type='cdc',
+        url='jdbc:mysql://localhost:3307/si_test_db?useSSL=false&allowPublicKeyRetrieval=true',
+        mode='polling',
+        jdbc.driver.name='com.mysql.cj.jdbc.Driver',
+        polling.column='row_version',
+        polling.interval='2',
+        username='sitest',
+        password='sitest123',
+        table.name='cdc_test_table',
+        @map(type='keyvalue'))
+define stream CdcPollingStream (item_id string, item_name string, quantity int, row_version long);
+
+@sink(type='log', prefix='[ls-connection-leak]')
+define stream CdcLogStream (item_id string, item_name string, quantity int, row_version long);
+
+@info(name='cdc-to-log')
+from CdcPollingStream
+select item_id, item_name, quantity, row_version
+insert into CdcLogStream;

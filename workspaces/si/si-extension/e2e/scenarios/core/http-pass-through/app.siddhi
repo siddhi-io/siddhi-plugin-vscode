@@ -1,0 +1,15 @@
+@App:name('HttpPassThrough')
+@App:description('HTTP JSON source to log sink pass-through')
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8201/HttpPassThrough/InputStream',
+        @map(type='json'))
+define stream InputStream (symbol string, price double, volume long);
+
+@sink(type='log', prefix='[http-pass-through]')
+define stream OutputStream (symbol string, price double, volume long);
+
+@info(name='passthrough')
+from InputStream
+select symbol, price, volume
+insert into OutputStream;
