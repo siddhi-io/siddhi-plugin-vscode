@@ -1,0 +1,68 @@
+@App:name('ProtobufMapper')
+@App:description('HTTP events are protobuf-encoded onto in-memory topics and decoded back with well-known message classes')
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8219/ProtobufMapper/TextInputStream',
+        @map(type='json'))
+define stream TextInputStream (value string);
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8219/ProtobufMapper/DoubleInputStream',
+        @map(type='json'))
+define stream DoubleInputStream (value double);
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8219/ProtobufMapper/LongInputStream',
+        @map(type='json'))
+define stream LongInputStream (value long);
+
+@sink(type='inMemory', topic='e2e-protobuf-text',
+      @map(type='protobuf', class='com.google.protobuf.StringValue'))
+define stream TextSinkStream (value string);
+
+@sink(type='inMemory', topic='e2e-protobuf-double',
+      @map(type='protobuf', class='com.google.protobuf.DoubleValue'))
+define stream DoubleSinkStream (value double);
+
+@sink(type='inMemory', topic='e2e-protobuf-long',
+      @map(type='protobuf', class='com.google.protobuf.Int64Value'))
+define stream LongSinkStream (value long);
+
+@source(type='inMemory', topic='e2e-protobuf-text',
+        @map(type='protobuf', class='com.google.protobuf.StringValue'))
+define stream TextSourceStream (value string);
+
+@source(type='inMemory', topic='e2e-protobuf-double',
+        @map(type='protobuf', class='com.google.protobuf.DoubleValue'))
+define stream DoubleSourceStream (value double);
+
+@source(type='inMemory', topic='e2e-protobuf-long',
+        @map(type='protobuf', class='com.google.protobuf.Int64Value'))
+define stream LongSourceStream (value long);
+
+@sink(type='log', prefix='[protobuf-mapper] text')
+define stream TextLogStream (value string);
+
+@sink(type='log', prefix='[protobuf-mapper] double')
+define stream DoubleLogStream (value double);
+
+@sink(type='log', prefix='[protobuf-mapper] long')
+define stream LongLogStream (value long);
+
+@info(name='encode-text')
+from TextInputStream select value insert into TextSinkStream;
+
+@info(name='encode-double')
+from DoubleInputStream select value insert into DoubleSinkStream;
+
+@info(name='encode-long')
+from LongInputStream select value insert into LongSinkStream;
+
+@info(name='decode-text')
+from TextSourceStream select value insert into TextLogStream;
+
+@info(name='decode-double')
+from DoubleSourceStream select value insert into DoubleLogStream;
+
+@info(name='decode-long')
+from LongSourceStream select value insert into LongLogStream;

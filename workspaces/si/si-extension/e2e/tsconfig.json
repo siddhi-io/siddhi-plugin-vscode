@@ -1,0 +1,1 @@
+{"compilerOptions": {"target": "es2022", "module": "commonjs", "lib": ["es2022", "dom"], "types": ["node"], "typeRoots": ["../node_modules/@types"], "rootDir": "..", "outDir": "../.e2e-dist", "strict": true, "esModuleInterop": true, "resolveJsonModule": true, "skipLibCheck": true}, "include": ["src/**/*.ts"]}

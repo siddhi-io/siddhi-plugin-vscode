@@ -1,0 +1,16 @@
+@App:name('WebsocketPassThroughClient')
+@App:description('HTTP trigger relayed to a websocket server through a websocket sink')
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8212/WebsocketPassThroughClient/TriggerStream',
+        @map(type='json'))
+define stream TriggerStream (symbol string, price double, volume long);
+
+@sink(type='websocket', url='ws://localhost:8204/channel',
+      @map(type='json'))
+define stream WsOutStream (symbol string, price double, volume long);
+
+@info(name='relay')
+from TriggerStream
+select symbol, price, volume
+insert into WsOutStream;

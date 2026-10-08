@@ -1,0 +1,14 @@
+@App:name('WebsocketPassThroughServer')
+@App:description('Websocket server source receiving events into a log sink')
+
+@source(type='websocket-server', host='localhost', port='8204',
+        @map(type='json'))
+define stream WsInStream (symbol string, price double, volume long);
+
+@sink(type='log', prefix='[websocket-pass-through]')
+define stream ReceivedStream (symbol string, price double, volume long);
+
+@info(name='receive')
+from WsInStream
+select symbol, price, volume
+insert into ReceivedStream;

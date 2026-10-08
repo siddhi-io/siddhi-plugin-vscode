@@ -1,0 +1,25 @@
+{
+  "description": "Kafka JSON events are logged, and only those above the threshold reach the output topic",
+  "requires": ["kafka"],
+  "extensions": ["kafka"],
+  "ports": [],
+  "apps": ["app.siddhi"],
+  "setup": [
+    { "type": "kafka-create-topic", "topic": "e2e-kafka-json-in" },
+    { "type": "kafka-create-topic", "topic": "e2e-kafka-json-out" }
+  ],
+  "steps": [
+    { "type": "wait", "ms": 4000 },
+    { "type": "kafka-produce", "topic": "e2e-kafka-json-in", "messages": [
+      "{\"event\":{\"name\":\"chocolate-{{runId}}\",\"amount\":50.0}}",
+      "{\"event\":{\"name\":\"toffee-{{runId}}\",\"amount\":5.0}}",
+      "{\"event\":{\"name\":\"cake-{{runId}}\",\"amount\":200.0}}"
+    ] },
+    { "type": "expect-log", "name": "chocolate consumed", "pattern": "\\[kafka-json-pass-through\\] : Event\\{.*data=\\[chocolate-{{runId}}, 50\\.0\\]" },
+    { "type": "expect-log", "name": "toffee consumed", "pattern": "\\[kafka-json-pass-through\\] : Event\\{.*data=\\[toffee-{{runId}}, 5\\.0\\]" },
+    { "type": "expect-log", "name": "cake consumed", "pattern": "\\[kafka-json-pass-through\\] : Event\\{.*data=\\[cake-{{runId}}, 200\\.0\\]" },
+    { "type": "expect-kafka-topic", "name": "output topic has the high amounts only", "topic": "e2e-kafka-json-out", "contains": ["chocolate-{{runId}}", "cake-{{runId}}"], "notContains": ["toffee-{{runId}}"] },
+    { "type": "kafka-produce", "topic": "e2e-kafka-json-in", "messages": ["{\"event\":{\"name\":\"brownie-{{runId}}\",\"amount\":75.0}}"] },
+    { "type": "expect-log", "name": "brownie processed in real time", "pattern": "\\[kafka-json-pass-through\\] : Event\\{.*data=\\[brownie-{{runId}}, 75\\.0\\]" }
+  ]
+}

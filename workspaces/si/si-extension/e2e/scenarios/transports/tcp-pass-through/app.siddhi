@@ -1,0 +1,28 @@
+@App:name('TcpPassThrough')
+@App:description('HTTP trigger relayed over a TCP sink and TCP source on localhost')
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8211/TcpPassThrough/TriggerStream',
+        @map(type='json'))
+define stream TriggerStream (symbol string, price double, volume long);
+
+@sink(type='tcp', url='tcp://localhost:9892/TcpChannel', sync='false',
+      @map(type='binary'))
+define stream TcpOutStream (symbol string, price double, volume long);
+
+@source(type='tcp', context='TcpChannel',
+        @map(type='binary'))
+define stream TcpInStream (symbol string, price double, volume long);
+
+@sink(type='log', prefix='[tcp-pass-through]')
+define stream ReceivedStream (symbol string, price double, volume long);
+
+@info(name='relay')
+from TriggerStream
+select symbol, price, volume
+insert into TcpOutStream;
+
+@info(name='receive')
+from TcpInStream
+select symbol, price, volume
+insert into ReceivedStream;

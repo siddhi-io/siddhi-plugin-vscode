@@ -1,0 +1,32 @@
+@App:name('MySqlStore')
+@App:description('HTTP events are logged and upserted into a MySQL table through the rdbms store')
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8202/MySqlStore/InventoryStream',
+        @map(type='json'))
+define stream InventoryStream (itemId string, itemName string, quantity int, price double);
+
+@sink(type='log', prefix='[mysql-store]')
+define stream InventoryLogStream (itemId string, itemName string, quantity int, price double);
+
+@store(type='rdbms',
+       jdbc.url='jdbc:mysql://localhost:3307/si_test_db?useSSL=false&allowPublicKeyRetrieval=true',
+       username='sitest',
+       password='sitest123',
+       jdbc.driver.name='com.mysql.cj.jdbc.Driver',
+       pool.properties='maximumPoolSize:5,idleTimeout:60000')
+@PrimaryKey('itemId')
+define table InventoryTable (itemId string, itemName string, quantity int, price double);
+
+@info(name='log-events')
+from InventoryStream
+select itemId, itemName, quantity, price
+insert into InventoryLogStream;
+
+@info(name='to-mysql')
+from InventoryStream
+select itemId, itemName, quantity, price
+update or insert into InventoryTable
+    set InventoryTable.itemName = itemName, InventoryTable.quantity = quantity,
+        InventoryTable.price = price
+    on InventoryTable.itemId == itemId;

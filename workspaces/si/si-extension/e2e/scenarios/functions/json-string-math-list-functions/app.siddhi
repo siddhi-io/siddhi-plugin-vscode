@@ -1,0 +1,60 @@
+@App:name('JsonStringMathListFunctions')
+@App:description('JSON, string, math and list extension functions evaluated per event and logged separately')
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8214/JsonStringMathListFunctions/InputStream',
+        @map(type='json'))
+define stream InputStream (id string, text string, base double, neg double, frac double, doc string, a string, b string, c string, d string);
+
+@sink(type='log', prefix='[json-string-math-list-functions]')
+define stream JsonResultStream (label string, id string, name string, salary double, married bool, hasName bool, hasZip bool, city string);
+
+@sink(type='log', prefix='[json-string-math-list-functions]')
+define stream StrResultStream (label string, id string, upperText string, joined string, replaced string, textLength int, sub string);
+
+@sink(type='log', prefix='[json-string-math-list-functions]')
+define stream MathResultStream (label string, id string, powered double, root double, absolute double, rounded long);
+
+@sink(type='log', prefix='[json-string-math-list-functions]')
+define stream ListResultStream (label string, id string, size int, grown int, second object, added object, hasC bool, hasD bool);
+
+@info(name='jsonQuery')
+from InputStream
+select 'json' as label, id,
+       json:getString(doc, '$.name') as name,
+       json:getDouble(doc, '$.salary') as salary,
+       json:getBool(doc, '$.married') as married,
+       json:isExists(doc, '$.name') as hasName,
+       json:isExists(doc, '$.zip') as hasZip,
+       json:getString(doc, '$.address.city') as city
+insert into JsonResultStream;
+
+@info(name='strQuery')
+from InputStream
+select 'str' as label, id,
+       str:upper(text) as upperText,
+       str:concat(text, '-', id) as joined,
+       str:replaceAll(text, 'o', '0') as replaced,
+       str:length(text) as textLength,
+       str:substr(text, 6) as sub
+insert into StrResultStream;
+
+@info(name='mathQuery')
+from InputStream
+select 'math' as label, id,
+       math:power(base, 2.0) as powered,
+       math:sqrt(144.0) as root,
+       math:abs(neg) as absolute,
+       math:round(frac) as rounded
+insert into MathResultStream;
+
+@info(name='listQuery')
+from InputStream
+select 'list' as label, id,
+       list:size(list:create(a, b, c)) as size,
+       list:size(list:add(list:create(a, b, c), d)) as grown,
+       list:get(list:create(a, b, c), 1) as second,
+       list:get(list:add(list:create(a, b, c), d), 3) as added,
+       list:contains(list:create(a, b, c), c) as hasC,
+       list:contains(list:create(a, b, c), d) as hasD
+insert into ListResultStream;

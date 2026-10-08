@@ -1,0 +1,31 @@
+@App:name('TextMapper')
+@App:description('HTTP loop-back round trip through the text mapper with a custom payload and regex')
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8215/TextMapper/TriggerStream',
+        @map(type='json'))
+define stream TriggerStream (symbol string, price double, volume long, active bool);
+
+@sink(type='http', publisher.url='http://localhost:8216/TextMapper/TextIn',
+      method='POST',
+      @map(type='text', @payload('sym={{symbol}};px={{price}};qty={{volume}};ok={{active}}')))
+define stream TextOutStream (symbol string, price double, volume long, active bool);
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8216/TextMapper/TextIn',
+        @map(type='text', regex.A='sym=([^;]+);px=([^;]+);qty=([^;]+);ok=(true|false)',
+             @attributes(symbol='A[1]', price='A[2]', volume='A[3]', active='A[4]')))
+define stream TextInStream (symbol string, price double, volume long, active bool);
+
+@sink(type='log', prefix='[text-mapper]')
+define stream TextReceivedStream (label string, symbol string, price double, volume long, active bool);
+
+@info(name='fanOutText')
+from TriggerStream
+select symbol, price, volume, active
+insert into TextOutStream;
+
+@info(name='receiveText')
+from TextInStream
+select 'text' as label, symbol, price, volume, active
+insert into TextReceivedStream;

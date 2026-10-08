@@ -18,7 +18,10 @@
     "esModuleInterop": true
   },
   "exclude": [
-    "./resources"
+    "./resources",
+    "./e2e",
+    "./.e2e-dist",
+    "./e2e-results"
   ]
 }
 

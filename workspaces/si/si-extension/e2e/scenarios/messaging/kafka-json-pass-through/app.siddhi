@@ -1,0 +1,31 @@
+@App:name('KafkaJsonPassThrough')
+@App:description('Kafka JSON source to a log sink and, above a threshold, to a Kafka JSON sink')
+
+@source(type='kafka',
+        topic.list='e2e-kafka-json-in',
+        partition.no.list='0',
+        threading.option='single.thread',
+        group.id='e2e-kafka-json',
+        bootstrap.servers='localhost:9092',
+        @map(type='json'))
+define stream SweetInputStream (name string, amount double);
+
+@sink(type='kafka',
+      topic='e2e-kafka-json-out',
+      bootstrap.servers='localhost:9092',
+      partition.no='0',
+      @map(type='json'))
+define stream HighAmountStream (name string, amount double);
+
+@sink(type='log', prefix='[kafka-json-pass-through]')
+define stream KafkaLogStream (name string, amount double);
+
+@info(name='log-all')
+from SweetInputStream
+select name, amount
+insert into KafkaLogStream;
+
+@info(name='filter-high')
+from SweetInputStream[amount > 10.0]
+select name, amount
+insert into HighAmountStream;

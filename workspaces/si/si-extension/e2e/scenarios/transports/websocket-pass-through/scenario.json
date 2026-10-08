@@ -1,0 +1,15 @@
+{
+  "description": "Events relayed over a websocket sink and websocket source reach the log sink with exact field values",
+  "requires": [],
+  "extensions": [],
+  "ports": [8204, 8212],
+  "apps": ["server.siddhi", "client.siddhi"],
+  "steps": [
+    { "type": "http-post", "url": "http://localhost:8212/WebsocketPassThroughClient/TriggerStream", "body": { "symbol": "AAPL-{{runId}}", "price": 150.25, "volume": 1000 } },
+    { "type": "http-post", "url": "http://localhost:8212/WebsocketPassThroughClient/TriggerStream", "body": { "symbol": "GOOG-{{runId}}", "price": 2800.5, "volume": 500 } },
+    { "type": "http-post", "url": "http://localhost:8212/WebsocketPassThroughClient/TriggerStream", "body": { "symbol": "IBM-{{runId}}", "price": 101.75, "volume": 9876543210 } },
+    { "type": "expect-log", "app": "server.siddhi", "name": "AAPL arrives over websocket with exact fields", "pattern": "\\[websocket-pass-through\\] : Event\\{.*data=\\[AAPL-{{runId}}, 150\\.25, 1000\\]" },
+    { "type": "expect-log", "app": "server.siddhi", "name": "GOOG arrives over websocket with exact fields", "pattern": "\\[websocket-pass-through\\] : Event\\{.*data=\\[GOOG-{{runId}}, 2800\\.5, 500\\]" },
+    { "type": "expect-log", "app": "server.siddhi", "name": "IBM arrives over websocket with exact fields", "pattern": "\\[websocket-pass-through\\] : Event\\{.*data=\\[IBM-{{runId}}, 101\\.75, 9876543210\\]" }
+  ]
+}
