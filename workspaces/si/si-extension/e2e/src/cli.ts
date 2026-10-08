@@ -237,9 +237,11 @@ export async function main(argv: string[]): Promise<number> {
                 await runLsCheck({
                     launch: lsLaunch({ javaHome, javaMajor, packHome: home, ls }),
                     logPath: path.join(logDir, "language-server.log"),
-                    apps: scenarios.flatMap((scenario) =>
-                        scenario.appPaths.map((appPath, index) => ({ name: `${scenario.id}/${scenario.apps[index]}`, path: appPath }))
-                    ),
+                    apps: scenarios
+                        .filter((scenario) => scenario.requires.every((service) => availableServices.includes(service)))
+                        .flatMap((scenario) =>
+                            scenario.appPaths.map((appPath, index) => ({ name: `${scenario.id}/${scenario.apps[index]}`, path: appPath }))
+                        ),
                     leakApp: { path: path.join(LS_FIXTURES_ROOT, "connection-leak.siddhi") },
                     connectionCount: availableServices.includes("mysql") ? () => mysqlConnectionCount(services) : undefined,
                 }),
