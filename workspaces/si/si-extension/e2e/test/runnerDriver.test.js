@@ -104,3 +104,13 @@ test("a command that cannot be spawned does not hang", async () => {
     await runner.terminate();
     assert.equal(runner.hasExited(), true);
 });
+
+test("output written while the process shuts down is captured before it counts as finished", async () => {
+    const logPath = tempLog();
+    const runner = Runner.spawn(launch("fake-runner-farewell.js"), logPath);
+    await runner.waitForLog(/ready/, 5000);
+    await runner.terminate();
+    assert.ok(runner.lines.includes("farewell line"));
+    assert.ok(fs.readFileSync(logPath, "utf8").includes("farewell line"));
+    assert.equal(runner.hasExited(), true);
+});

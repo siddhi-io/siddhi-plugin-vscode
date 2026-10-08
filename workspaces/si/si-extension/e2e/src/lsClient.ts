@@ -68,7 +68,7 @@ export class LanguageServerClient {
     private constructor(private readonly child: ChildProcess, logPath: string) {
         this.logFd = fs.openSync(logPath, "w");
         this.exited = new Promise<void>((resolve) => {
-            child.once("exit", (code) => {
+            child.once("close", (code) => {
                 this.exitCode = code;
                 this.failPending(new Error(`language server exited with code ${code}`));
                 resolve();

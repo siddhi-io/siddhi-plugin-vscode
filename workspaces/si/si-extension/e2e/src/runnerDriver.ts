@@ -38,7 +38,7 @@ export class Runner {
         this.pid = child.pid ?? -1;
         this.logFd = fs.openSync(logPath, "w");
         this.exited = new Promise<void>((resolve) => {
-            child.once("exit", (code) => {
+            child.once("close", (code) => {
                 this.exitCode = code;
                 this.failPending(new Error(`process exited with code ${code}`));
                 resolve();
