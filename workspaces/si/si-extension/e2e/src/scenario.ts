@@ -83,6 +83,9 @@ function validateStep(raw: any, where: string, apps: string[], id: string): Step
             throw problem(id, `${where} (${raw.type}) requires '${field}'`);
         }
     }
+    if (raw.type === "expect-kafka-topic" && Array.isArray(raw.contains) && raw.contains.length === 0) {
+        throw problem(id, `${where} (${raw.type}) contains must not be empty`);
+    }
     if (raw.pattern !== undefined) {
         assertRegex(id, where, raw.pattern);
     }
@@ -123,6 +126,10 @@ export function validateScenario(raw: any, id: string, dir: string): ScenarioFil
     if (!Array.isArray(steps) || steps.length === 0) {
         throw problem(id, "steps must be a non-empty array");
     }
+    const validatedSteps = steps.map((step, index) => validateStep(step, `steps[${index}]`, raw.apps, id));
+    if (!validatedSteps.some((step) => step.type.startsWith("expect-"))) {
+        throw problem(id, "steps must contain at least one expect-* step");
+    }
     return {
         description: raw.description,
         requires: requires as Service[],
@@ -131,7 +138,7 @@ export function validateScenario(raw: any, id: string, dir: string): ScenarioFil
         apps: raw.apps,
         allow,
         setup: setup.map((step, index) => validateStep(step, `setup[${index}]`, raw.apps, id)),
-        steps: steps.map((step, index) => validateStep(step, `steps[${index}]`, raw.apps, id)),
+        steps: validatedSteps,
     };
 }
 

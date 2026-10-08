@@ -102,3 +102,11 @@ test("renderTemplate replaces variables everywhere and rejects unknown ones", ()
     assert.deepEqual(out, { a: "x-r123", b: [{ c: "r123" }], n: 1 });
     assert.throws(() => renderTemplate({ a: "{{nope}}" }, { runId: "r1" }), /Unknown template variable \{\{nope\}\}/);
 });
+
+test("validateScenario requires an expect-* step and a non-empty kafka contains", () => {
+    const dir = makeRoot([["a", "b", valid()]]) + "/a/b";
+    const steps = [{ type: "http-post", url: "http://localhost:8201/x", body: {} }];
+    assert.throws(() => validateScenario({ ...valid(), steps }, "b", dir), /Scenario 'b': steps must contain at least one expect-\* step/);
+    const kafka = { type: "expect-kafka-topic", topic: "t", contains: [] };
+    assert.throws(() => validateScenario({ ...valid(), steps: [kafka] }, "b", dir), /Scenario 'b': .*contains must not be empty/);
+});
