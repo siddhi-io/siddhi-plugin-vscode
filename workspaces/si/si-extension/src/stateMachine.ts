@@ -178,13 +178,9 @@ const stateMachine = createMachine<MachineContext>(
                     statusBarItem.text = "$(sync~spin) Initializing WSO2 Integrator: SI Language Server...";
                     statusBarItem.show();
                     try {
-                        try {
-                            await siExtensionInstance.init();
-                        } catch (exception) {
-                            return reject(
-                                "Failed to activate Siddhi extension. " +
-                                    (exception instanceof Error ? exception.message : exception)
-                            );
+                        await siExtensionInstance.init();
+                        if (!siExtensionInstance.langClient) {
+                            throw new Error("Language client did not initialize");
                         }
                         resolve(siExtensionInstance.langClient);
                         debug("LS is ready " + new Date().toLocaleTimeString());
@@ -263,6 +259,7 @@ export const stateService = interpret(stateMachine);
 
 export const StateMachine = {
     initialize: () => stateService.start(),
+    stop: () => stateService.stop(),
     service: () => {
         return stateService;
     },

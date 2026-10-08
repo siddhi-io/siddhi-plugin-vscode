@@ -14,6 +14,7 @@ import { activateProjectExplorer } from "./project-explorer/activate";
 import { StateMachine } from "./stateMachine";
 import { RPCLayer } from './RPCLayer';
 import { extension } from "./SIExtensionContext";
+import { siExtensionInstance } from "./core/extension";
 
 export async function activate(context: vscode.ExtensionContext) {
   extension.context = context;
@@ -22,4 +23,9 @@ export async function activate(context: vscode.ExtensionContext) {
   activateVisualizer(context);
   activateProjectExplorer(context);
   StateMachine.initialize();
+}
+
+export async function deactivate(): Promise<void> {
+  StateMachine.stop();
+  await siExtensionInstance.dispose();
 }
