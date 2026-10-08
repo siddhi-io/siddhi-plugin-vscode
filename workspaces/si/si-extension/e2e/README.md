@@ -37,7 +37,7 @@ If other services already use ports 9092 or 3307, either stop them or pass `--sk
 3. Starts the language server, opens every scenario app, and checks there are no diagnostics, that repeated edits do not grow MySQL connections, and that it exits 0.
 4. Runs each scenario: starts its apps through the runner, executes its steps, stops the apps, and scans the runner logs for class-loading and linkage errors and unexpected ERROR/WARN lines.
 
-Each extension is installed independently. If the installer cannot install one (for example it answers `manuallyInstall` because its dependency jars are not downloadable), the run continues, the problem is listed in the report under "Extension installation problems", and the scenarios that need that extension are skipped. A failing `install-jars` still aborts the run.
+Each extension is installed independently. If the installer cannot install one (for example it answers `manuallyInstall` because its dependency jars are not downloadable), the remaining extensions are still installed, the problem is listed in the report under "Extension installation problems", and the scenarios that need that extension are skipped. The run then exits non-zero, because an extension the IDE cannot install is a pack or IDE problem. A failing `install-jars` still aborts the run.
 
 A scenario whose services or ports are unavailable is reported as skipped, never passed. A run in which no scenario passed exits non-zero.
 

@@ -158,3 +158,9 @@ test("renderMarkdown lists extension installation problems only when there are s
     assert.match(markdown, /## Extension installation problems/);
     assert.match(markdown, /- prometheus: manuallyInstall/);
 });
+
+test("overallExitCode fails when an extension could not be installed, even if scenarios pass", () => {
+    assert.equal(overallExitCode(summary({ failedExtensions: { prometheus: "manuallyInstall" } })), 1);
+    assert.equal(overallExitCode(summary({ failedExtensions: {} })), 0);
+    assert.equal(overallExitCode(summary()), 0);
+});

@@ -33,6 +33,9 @@ const ICON: Record<Status, string> = {
 };
 
 export function overallExitCode(summary: RunSummary): number {
+    if (Object.keys(summary.failedExtensions ?? {}).length > 0) {
+        return 1;
+    }
     if (summary.scenarios.some((scenario) => scenario.status === "fail")) {
         return 1;
     }
