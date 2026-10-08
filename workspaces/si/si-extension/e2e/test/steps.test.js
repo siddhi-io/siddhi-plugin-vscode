@@ -107,3 +107,18 @@ test("wait returns no result", async () => {
     assert.equal(await executeStep({ type: "wait", ms: 50 }, context(null)), undefined);
     assert.ok(Date.now() - start >= 45);
 });
+
+test("sql steps route to the container of the named service and default to mysql", async () => {
+    const withService = await executeStep(
+        { type: "sql", statement: "SELECT 1", service: "postgres" },
+        { runners: new Map(), defaultApp: "app.siddhi", services: { prefix: "no-such-prefix" } }
+    );
+    assert.equal(withService.status, "fail");
+    assert.match(withService.detail, /no-such-prefix-postgres/);
+    const byDefault = await executeStep(
+        { type: "sql", statement: "SELECT 1" },
+        { runners: new Map(), defaultApp: "app.siddhi", services: { prefix: "no-such-prefix" } }
+    );
+    assert.equal(byDefault.status, "fail");
+    assert.match(byDefault.detail, /no-such-prefix-mysql/);
+});

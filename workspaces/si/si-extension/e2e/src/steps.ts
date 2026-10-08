@@ -8,7 +8,7 @@
  */
 
 import { describeError, sleep } from "./exec";
-import { Services, kafkaExec, mysqlQuery } from "./infra";
+import { Services, kafkaExec, mysqlQuery, postgresQuery } from "./infra";
 import { CheckResult, fail, pass } from "./results";
 import { Runner } from "./runnerDriver";
 import { Step } from "./scenario";
@@ -18,6 +18,9 @@ export interface StepContext {
     defaultApp: string;
     services: Services;
 }
+
+const sqlQuery = (step: Step, context: StepContext, statement: string): string =>
+    step.service === "postgres" ? postgresQuery(context.services, statement) : mysqlQuery(context.services, statement);
 
 const BOOTSTRAP = "localhost:9092";
 
@@ -94,7 +97,7 @@ export async function executeStep(step: Step, context: StepContext): Promise<Che
                 );
                 return undefined;
             case "sql":
-                mysqlQuery(context.services, need(step.statement, "statement"));
+                sqlQuery(step, context, need(step.statement, "statement"));
                 return undefined;
             case "expect-log": {
                 const pattern = need(step.pattern, "pattern");
@@ -135,7 +138,7 @@ export async function executeStep(step: Step, context: StepContext): Promise<Che
                 const deadline = Date.now() + (step.timeoutMs ?? 20000);
                 let actual = "";
                 for (;;) {
-                    actual = mysqlQuery(context.services, statement);
+                    actual = sqlQuery(step, context, statement);
                     if (actual === equals || Date.now() >= deadline) {
                         break;
                     }

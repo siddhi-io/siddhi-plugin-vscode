@@ -110,3 +110,26 @@ test("validateScenario requires an expect-* step and a non-empty kafka contains"
     const kafka = { type: "expect-kafka-topic", topic: "t", contains: [] };
     assert.throws(() => validateScenario({ ...valid(), steps: [kafka] }, "b", dir), /Scenario 'b': .*contains must not be empty/);
 });
+
+test("validateScenario accepts a postgres sql step when postgres is required", () => {
+    const dir = makeRoot([["a", "b", valid()]]) + "/a/b";
+    const raw = {
+        ...valid(),
+        requires: ["postgres"],
+        steps: [{ type: "expect-sql", statement: "SELECT 1", equals: "1", service: "postgres" }],
+    };
+    assert.equal(validateScenario(raw, "b", dir).steps[0].service, "postgres");
+});
+
+test("validateScenario rejects an unknown sql service and a service that is not required", () => {
+    const dir = makeRoot([["a", "b", valid()]]) + "/a/b";
+    const withStep = (requires, step) => ({ ...valid(), requires, steps: [step] });
+    const unknown = { type: "expect-sql", statement: "SELECT 1", equals: "1", service: "oracle" };
+    assert.throws(() => validateScenario(withStep(["mysql"], unknown), "b", dir), /unknown service 'oracle'/);
+    const notRequired = { type: "sql", statement: "SELECT 1", service: "postgres" };
+    const expectStep = { type: "expect-log", pattern: "x" };
+    assert.throws(
+        () => validateScenario({ ...valid(), requires: ["mysql"], steps: [notRequired, expectStep] }, "b", dir),
+        /uses service 'postgres' but requires does not list it/
+    );
+});

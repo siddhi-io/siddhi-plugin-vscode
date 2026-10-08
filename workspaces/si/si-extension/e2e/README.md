@@ -56,6 +56,8 @@ Each scenario is a directory `scenarios/<area>/<id>/` with one or more `.siddhi`
 }
 ```
 
+`requires` may list `kafka`, `mysql` and `postgres`. The `sql` and `expect-sql` steps take an optional `"service"` (`"mysql"` by default, or `"postgres"`); a step that names a service needs it in `requires`.
+
 Step types: `wait`, `http-post`, `kafka-create-topic`, `kafka-produce`, `sql`, `expect-log`, `expect-no-log`, `expect-kafka-topic`, `expect-sql`. `{{runId}}` in any string is replaced by a per-run id, so events and rows from earlier runs never match. Use names that describe the behaviour, not numbers.
 
 ## Known issues

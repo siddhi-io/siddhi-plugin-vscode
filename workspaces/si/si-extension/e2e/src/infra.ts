@@ -19,6 +19,10 @@ export const MYSQL_USER = "sitest";
 export const MYSQL_PASSWORD = "sitest123";
 export const MYSQL_DATABASE = "si_test_db";
 
+export const POSTGRES_USER = "sitest";
+export const POSTGRES_PASSWORD = "sitest123";
+export const POSTGRES_DATABASE = "si_test_db";
+
 const COMPOSE_PROJECT = "si-e2e";
 
 export function containerName(services: Services, service: Service): string {
@@ -68,6 +72,28 @@ export function mysqlQuery(services: Services, statement: string): string {
             "-N",
             "-B",
             "-e",
+            statement,
+        ],
+        { timeoutMs: 60000 }
+    ).stdout.trim();
+}
+
+export function postgresQuery(services: Services, statement: string): string {
+    return runOrThrow(
+        "docker",
+        [
+            "exec",
+            "-e",
+            `PGPASSWORD=${POSTGRES_PASSWORD}`,
+            containerName(services, "postgres"),
+            "psql",
+            "-U",
+            POSTGRES_USER,
+            "-d",
+            POSTGRES_DATABASE,
+            "-t",
+            "-A",
+            "-c",
             statement,
         ],
         { timeoutMs: 60000 }

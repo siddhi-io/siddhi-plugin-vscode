@@ -41,9 +41,10 @@ export interface Step {
     contains?: string[];
     notContains?: string[];
     equals?: string;
+    service?: Service;
 }
 
-export const SERVICE_NAMES = ["kafka", "mysql"] as const;
+export const SERVICE_NAMES = ["kafka", "mysql", "postgres"] as const;
 export type Service = (typeof SERVICE_NAMES)[number];
 
 export interface ScenarioFile {
@@ -74,7 +75,7 @@ function assertRegex(id: string, where: string, pattern: unknown): void {
     }
 }
 
-function validateStep(raw: any, where: string, apps: string[], id: string): Step {
+function validateStep(raw: any, where: string, apps: string[], id: string, requires: string[]): Step {
     if (typeof raw !== "object" || raw === null || !(raw.type in STEP_FIELDS)) {
         throw problem(id, `${where} has unknown step type '${raw && raw.type}'`);
     }
@@ -85,6 +86,14 @@ function validateStep(raw: any, where: string, apps: string[], id: string): Step
     }
     if (raw.type === "expect-kafka-topic" && Array.isArray(raw.contains) && raw.contains.length === 0) {
         throw problem(id, `${where} (${raw.type}) contains must not be empty`);
+    }
+    if (raw.service !== undefined) {
+        if (!(SERVICE_NAMES as readonly string[]).includes(raw.service)) {
+            throw problem(id, `${where} has unknown service '${raw.service}'`);
+        }
+        if (!requires.includes(raw.service)) {
+            throw problem(id, `${where} uses service '${raw.service}' but requires does not list it`);
+        }
     }
     if (raw.pattern !== undefined) {
         assertRegex(id, where, raw.pattern);
@@ -126,7 +135,7 @@ export function validateScenario(raw: any, id: string, dir: string): ScenarioFil
     if (!Array.isArray(steps) || steps.length === 0) {
         throw problem(id, "steps must be a non-empty array");
     }
-    const validatedSteps = steps.map((step, index) => validateStep(step, `steps[${index}]`, raw.apps, id));
+    const validatedSteps = steps.map((step, index) => validateStep(step, `steps[${index}]`, raw.apps, id, requires));
     if (!validatedSteps.some((step) => step.type.startsWith("expect-"))) {
         throw problem(id, "steps must contain at least one expect-* step");
     }
@@ -137,7 +146,7 @@ export function validateScenario(raw: any, id: string, dir: string): ScenarioFil
         ports: raw.ports ?? [],
         apps: raw.apps,
         allow,
-        setup: setup.map((step, index) => validateStep(step, `setup[${index}]`, raw.apps, id)),
+        setup: setup.map((step, index) => validateStep(step, `setup[${index}]`, raw.apps, id, requires)),
         steps: validatedSteps,
     };
 }

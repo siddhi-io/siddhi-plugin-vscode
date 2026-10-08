@@ -15,6 +15,7 @@ const { containerName, requiredServices } = require("../../.e2e-dist/e2e/src/inf
 test("containerName joins the prefix and the service", () => {
     assert.equal(containerName({ prefix: "si-e2e" }, "kafka"), "si-e2e-kafka");
     assert.equal(containerName({ prefix: "si-test" }, "mysql"), "si-test-mysql");
+    assert.equal(containerName({ prefix: "si-test" }, "postgres"), "si-test-postgres");
 });
 
 test("requiredServices unions scenario requirements and extras, sorted and unique", () => {
