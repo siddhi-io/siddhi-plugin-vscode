@@ -82,6 +82,10 @@ export const USAGE = `Usage: pnpm run test:integrator-e2e -- --pack <zip-url|zip
   --help                      show this text
 `;
 
+export function makeRunId(date: Date): string {
+    return `r${date.toISOString().slice(0, 19).replace(/[-:T]/g, "")}`;
+}
+
 export function parseArgs(argv: string[], env: NodeJS.ProcessEnv): CliOptions {
     const options: CliOptions = {
         only: [],
@@ -249,7 +253,7 @@ export async function main(argv: string[]): Promise<number> {
             );
         }
 
-        const runId = `r${startedAt.toISOString().slice(11, 19).replace(/:/g, "")}`;
+        const runId = makeRunId(startedAt);
         const results: ScenarioResult[] = [];
         for (const scenario of scenarios) {
             log(`scenario ${scenario.area}/${scenario.id}`);

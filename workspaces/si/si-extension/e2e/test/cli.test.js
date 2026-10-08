@@ -10,7 +10,7 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
-const { parseArgs } = require("../../.e2e-dist/e2e/src/cli");
+const { makeRunId, parseArgs } = require("../../.e2e-dist/e2e/src/cli");
 
 test("parseArgs applies defaults", () => {
     const options = parseArgs(["--pack", "p.zip"], { JAVA_HOME: "/jdk" });
@@ -75,4 +75,8 @@ test("--pack is required unless --dry-run or --help is given", () => {
     assert.throws(() => parseArgs([], {}), /--pack is required/);
     assert.equal(parseArgs(["--dry-run"], {}).dryRun, true);
     assert.equal(parseArgs(["--help"], {}).help, true);
+});
+
+test("makeRunId includes the UTC date and time", () => {
+    assert.equal(makeRunId(new Date("2026-10-08T11:10:44Z")), "r20261008111044");
 });
