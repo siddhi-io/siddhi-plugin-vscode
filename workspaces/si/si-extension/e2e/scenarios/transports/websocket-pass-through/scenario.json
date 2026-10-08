@@ -5,7 +5,6 @@
   "ports": [8204, 8212],
   "apps": ["server.siddhi", "client.siddhi"],
   "steps": [
-    { "type": "wait", "ms": 8000 },
     { "type": "http-post", "url": "http://localhost:8212/WebsocketPassThroughClient/TriggerStream", "body": { "symbol": "AAPL-{{runId}}", "price": 150.25, "volume": 1000 } },
     { "type": "http-post", "url": "http://localhost:8212/WebsocketPassThroughClient/TriggerStream", "body": { "symbol": "GOOG-{{runId}}", "price": 2800.5, "volume": 500 } },
     { "type": "http-post", "url": "http://localhost:8212/WebsocketPassThroughClient/TriggerStream", "body": { "symbol": "IBM-{{runId}}", "price": 101.75, "volume": 9876543210 } },

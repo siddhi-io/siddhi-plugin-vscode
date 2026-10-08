@@ -28,7 +28,7 @@ The pack must be a `.zip`; it is extracted into a new directory on every run. Re
 | `--dry-run` | Validate scenarios and print the plan. |
 | `--keep-infra`, `--keep-work` | Leave services or the work directory in place. |
 
-If other services already use ports 9092 or 3307, either stop them or pass `--skip-infra --container-prefix <prefix>` to use them.
+If other services already use ports 9092, 3307 or 5433, either stop them or pass `--skip-infra --container-prefix <prefix>` to use them.
 
 ## What a run does
 
