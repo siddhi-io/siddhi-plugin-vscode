@@ -13,7 +13,7 @@ import { debug, log, showOutputChannel } from "../utils/logger";
 import * as readline from "readline";
 import { activateEventSimulator, deactivateEventSimulator } from "../visualizer/activate";
 import { extension } from "../SIExtensionContext";
-import { findLSJarPath, getLog4jConfigFile, getSiddhiFileNameWithoutExtension, prepareClassPath } from "../utils/utils";
+import { findLSJarPath, getClassPath, getLog4jConfigFile, getSiddhiFileNameWithoutExtension } from "../utils/utils";
 const child_process = require("child_process");
 
 let rl: readline.Interface;
@@ -56,7 +56,7 @@ export async function startSiddhiApp(siddhiHome: string, javaHome: string, progr
         executable += ".exe";
     }
 
-    let args: string[] = [...(await prepareClassPath(siddhiHome))];
+    let args: string[] = [...getClassPath(siddhiHome)];
 
     if (process.env.RUNTIME_DEBUG === "true") {
         args.push("-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=5005,quiet=y,");

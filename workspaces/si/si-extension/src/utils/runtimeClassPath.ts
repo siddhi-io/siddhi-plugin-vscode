@@ -12,13 +12,12 @@ import * as path from "path";
 export function buildRuntimeClassPath(
     siddhiHome: string,
     languageServerPath: string,
-    kafkaClientJars: string[],
     delimiter: string = path.delimiter
 ): string[] {
     const entries = [
-        ...kafkaClientJars,
         languageServerPath,
         path.join(String(siddhiHome), "lib", "*"),
+        path.join(String(siddhiHome), ".jars", "*"),
         path.join(String(siddhiHome), "wso2", "lib", "plugins", "*"),
     ];
     return ["-cp", entries.join(delimiter)];
