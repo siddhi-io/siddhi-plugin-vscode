@@ -8,7 +8,7 @@
  */
 
 import * as path from "path";
-import { run } from "./exec";
+import { describeError, run } from "./exec";
 import { installJarsLaunch, lsLaunch } from "./launch";
 import { LanguageServerClient } from "./lsClient";
 import { diffSnapshots, snapshotJars } from "./pack";
@@ -31,7 +31,13 @@ function runInstallJars(input: PrepareInput): void {
     }
 }
 
-export async function prepareExtensions(input: PrepareInput): Promise<string[]> {
+export interface PrepareResult {
+    changes: string[];
+    failedExtensions: Record<string, string>;
+}
+
+export async function prepareExtensions(input: PrepareInput): Promise<PrepareResult> {
+    const failedExtensions: Record<string, string> = {};
     const before = snapshotJars(input.packHome);
     runInstallJars(input);
     if (input.extensions.length > 0) {
@@ -46,13 +52,17 @@ export async function prepareExtensions(input: PrepareInput): Promise<string[]> 
                 throw new Error(`extension installer did not initialize: ${JSON.stringify(initialized)}`);
             }
             for (const extension of input.extensions) {
-                const response = await client.request(
-                    "extensionInstaller/installDependencies",
-                    { extensionName: extension },
-                    15 * 60 * 1000
-                );
-                if (!response || response.error || response.status !== 0) {
-                    throw new Error(`installing '${extension}' failed: ${JSON.stringify(response).slice(0, 500)}`);
+                try {
+                    const response = await client.request(
+                        "extensionInstaller/installDependencies",
+                        { extensionName: extension },
+                        15 * 60 * 1000
+                    );
+                    if (!response || response.error || response.status !== 0) {
+                        failedExtensions[extension] = JSON.stringify(response).slice(0, 300);
+                    }
+                } catch (error) {
+                    failedExtensions[extension] = describeError(error).slice(0, 300);
                 }
             }
         } finally {
@@ -60,5 +70,5 @@ export async function prepareExtensions(input: PrepareInput): Promise<string[]> 
         }
         runInstallJars(input);
     }
-    return diffSnapshots(before, snapshotJars(input.packHome));
+    return { changes: diffSnapshots(before, snapshotJars(input.packHome)), failedExtensions };
 }

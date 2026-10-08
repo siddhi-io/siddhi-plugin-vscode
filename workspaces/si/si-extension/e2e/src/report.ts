@@ -19,6 +19,7 @@ export interface RunSummary {
     javaHome: string;
     javaMajor: number | null;
     installerChanges: string[];
+    failedExtensions?: Record<string, string>;
     ls: CheckResult[];
     scenarios: ScenarioResult[];
     ideRun: boolean;
@@ -102,6 +103,12 @@ export function renderMarkdown(summary: RunSummary): string {
             }
             lines.push("");
         }
+    }
+
+    const failedExtensions = Object.entries(summary.failedExtensions ?? {});
+    if (failedExtensions.length > 0) {
+        lines.push("## Extension installation problems", "");
+        lines.push(...failedExtensions.map(([extension, message]) => `- ${extension}: ${cell(message)}`), "");
     }
 
     lines.push("## Installer changes", "", "<details><summary>Files added or removed in lib/, _lib/ and .jars/</summary>", "");

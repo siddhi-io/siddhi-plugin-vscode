@@ -26,6 +26,14 @@ export interface ScenarioEnvironment {
     runId: string;
     logDir: string;
     availableServices: Service[];
+    failedExtensions: Record<string, string>;
+}
+
+export function extensionSkipReason(extensions: string[], failed: Record<string, string>): string | undefined {
+    const reasons = extensions
+        .filter((extension) => extension in failed)
+        .map((extension) => `extension '${extension}' could not be installed: ${failed[extension]}`);
+    return reasons.length > 0 ? reasons.join("; ") : undefined;
 }
 
 export async function runScenario(scenario: Scenario, env: ScenarioEnvironment): Promise<ScenarioResult> {
@@ -45,6 +53,10 @@ export async function runScenario(scenario: Scenario, env: ScenarioEnvironment):
     const missing = scenario.requires.filter((service) => !env.availableServices.includes(service));
     if (missing.length > 0) {
         return skipped(`services not running: ${missing.join(", ")}`);
+    }
+    const extensionProblem = extensionSkipReason(scenario.extensions, env.failedExtensions);
+    if (extensionProblem !== undefined) {
+        return skipped(extensionProblem);
     }
     const busy: number[] = [];
     for (const port of scenario.ports) {

@@ -150,3 +150,11 @@ test("renderMarkdown shows stored findings count when findingsTotal is not set (
     assert.match(markdown, /2 error-log finding\(s\)/);
     assert.doesNotMatch(markdown, /and .* more/);
 });
+
+test("renderMarkdown lists extension installation problems only when there are some", () => {
+    const without = renderMarkdown(summary());
+    assert.doesNotMatch(without, /Extension installation problems/);
+    const markdown = renderMarkdown(summary({ failedExtensions: { prometheus: "manuallyInstall" } }));
+    assert.match(markdown, /## Extension installation problems/);
+    assert.match(markdown, /- prometheus: manuallyInstall/);
+});

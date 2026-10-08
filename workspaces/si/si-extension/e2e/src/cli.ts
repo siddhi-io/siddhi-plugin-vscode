@@ -19,7 +19,7 @@ import { extractPack, isUrl, resolveZip } from "./pack";
 import { prepareExtensions } from "./prepare";
 import { RunSummary, overallExitCode, renderMarkdown } from "./report";
 import { CheckResult, ScenarioResult } from "./results";
-import { runScenario } from "./runScenario";
+import { extensionSkipReason, runScenario } from "./runScenario";
 import { SERVICE_NAMES, Service, loadScenarios } from "./scenario";
 import { describeError, isPortInUse, registerCleanup, run, runCleanups } from "./exec";
 import { LsJars, extractLsJars, findLsJars, readVsixVersion } from "./vsix";
@@ -231,7 +231,7 @@ export async function main(argv: string[]): Promise<number> {
             new Set([...scenarios.flatMap((scenario) => scenario.extensions), ...(options.skipLs ? [] : ["rdbms-mysql"])])
         ).sort();
         log(`preparing the pack (extensions: ${extensions.join(", ") || "none"})`);
-        const installerChanges = await prepareExtensions({ javaHome, javaMajor, packHome: home, ls, extensions, logDir });
+        const { changes: installerChanges, failedExtensions } = await prepareExtensions({ javaHome, javaMajor, packHome: home, ls, extensions, logDir });
 
         const issues = loadKnownIssues(KNOWN_ISSUES_FILE);
         let lsChecks: CheckResult[] = [];
@@ -242,7 +242,11 @@ export async function main(argv: string[]): Promise<number> {
                     launch: lsLaunch({ javaHome, javaMajor, packHome: home, ls }),
                     logPath: path.join(logDir, "language-server.log"),
                     apps: scenarios
-                        .filter((scenario) => scenario.requires.every((service) => availableServices.includes(service)))
+                        .filter(
+                            (scenario) =>
+                                scenario.requires.every((service) => availableServices.includes(service)) &&
+                                extensionSkipReason(scenario.extensions, failedExtensions) === undefined
+                        )
                         .flatMap((scenario) =>
                             scenario.appPaths.map((appPath, index) => ({ name: `${scenario.id}/${scenario.apps[index]}`, path: appPath }))
                         ),
@@ -265,6 +269,7 @@ export async function main(argv: string[]): Promise<number> {
                 runId,
                 logDir,
                 availableServices,
+                failedExtensions,
             });
             result.checks = applyKnownIssues(result.checks, issues);
             log(`  -> ${result.status}`);
@@ -281,6 +286,7 @@ export async function main(argv: string[]): Promise<number> {
             javaHome,
             javaMajor,
             installerChanges,
+            failedExtensions,
             ls: lsChecks,
             scenarios: results,
             ideRun: false,
