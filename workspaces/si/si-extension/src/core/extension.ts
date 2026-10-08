@@ -13,9 +13,12 @@ import { ExtendedLanguageClient } from "./ExtendedLanguageClient";
 import { getServerPathFromConfig } from "../utils/onboardingUtils";
 import { INVALID_SERVER_PATH_MSG, LANGUAGE_CLIENT_ID, LANGUAGE_CLIENT_NAME } from "../constants";
 import { outputChannel } from "../utils/logger";
+import { LanguageClientLifecycle } from "./languageClientLifecycle";
 
 export class SIExtension {
     private clientOptions: LanguageClientOptions;
+    private lifecycle = new LanguageClientLifecycle<ExtendedLanguageClient>();
+    private initialization?: Promise<void>;
     public langClient?: ExtendedLanguageClient;
 
     constructor() {
@@ -28,21 +31,43 @@ export class SIExtension {
     }
 
     async init(): Promise<void> {
+        if (this.initialization) {
+            return this.initialization;
+        }
+
+        this.initialization = this.initialize();
+        try {
+            await this.initialization;
+        } finally {
+            this.initialization = undefined;
+        }
+    }
+
+    async dispose(): Promise<void> {
+        if (this.initialization) {
+            await this.initialization;
+        }
+        await this.lifecycle.dispose();
+        this.langClient = undefined;
+    }
+
+    private async initialize(): Promise<void> {
         try {
             let siHome = getServerPathFromConfig();
             if (siHome == null) {
                 return Promise.reject(INVALID_SERVER_PATH_MSG);
             }
-  
-            await installJars(siHome);
-            this.langClient = new ExtendedLanguageClient(
-                LANGUAGE_CLIENT_ID,
-                LANGUAGE_CLIENT_NAME,
-                getServerOptions(siHome),
-                this.clientOptions
-            );
-            this.langClient.setTrace(Trace.Verbose);
-            this.langClient.start();
+            this.langClient = await this.lifecycle.initialize(async () => {
+                await installJars(siHome);
+                const client = new ExtendedLanguageClient(
+                    LANGUAGE_CLIENT_ID,
+                    LANGUAGE_CLIENT_NAME,
+                    getServerOptions(siHome),
+                    this.clientOptions
+                );
+                client.setTrace(Trace.Verbose);
+                return client;
+            });
         } catch (exception) {
             const errorMessage = exception instanceof Error ? exception.message : String(exception);
             return Promise.reject(errorMessage);

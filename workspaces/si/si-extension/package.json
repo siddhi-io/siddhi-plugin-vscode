@@ -310,6 +310,7 @@
     "test": "pnpm run pretest && node ./out/test/runTest.js",
     "test:compatibility": "rm -rf .test-dist && tsc src/utils/runtimeCompatibility.ts --target es2022 --module commonjs --outDir .test-dist && node --test test/runtimeCompatibility.test.js",
     "test:classpath": "rm -rf .test-dist && tsc src/utils/runtimeClassPath.ts --target es2022 --module commonjs --outDir .test-dist && node --test test/runtimeClassPath.test.js",
+    "test:language-client-lifecycle": "rm -rf .test-dist && tsc src/core/languageClientLifecycle.ts --target es2022 --module commonjs --outDir .test-dist && node --test test/languageClientLifecycle.test.js",
     "download-ls": "node scripts/download-ls.js",
     "e2e-test": "pnpm run compile-tests && pnpm exec playwright test",
     "copyFonts": "copyfiles -f ./node_modules/@wso2/font-wso2-vscode/dist/* ./resources/font-wso2-vscode/dist/",
