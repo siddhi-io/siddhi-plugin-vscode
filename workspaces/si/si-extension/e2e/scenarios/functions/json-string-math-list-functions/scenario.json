@@ -1,0 +1,14 @@
+{
+  "description": "JSON, string, math and list functions return exact computed values",
+  "requires": [],
+  "extensions": [],
+  "ports": [8214],
+  "apps": ["app.siddhi"],
+  "steps": [
+    { "type": "http-post", "url": "http://localhost:8214/JsonStringMathListFunctions/InputStream", "body": { "id": "ev-{{runId}}", "text": "Hello World", "base": 2.5, "neg": -7.5, "frac": 3.6, "doc": "{\"name\":\"John\",\"age\":23,\"salary\":12000.5,\"married\":true,\"address\":{\"city\":\"Colombo\"}}", "a": "x", "b": "y", "c": "z", "d": "w" } },
+    { "type": "expect-log", "name": "json functions extract exact values", "pattern": "\\[json-string-math-list-functions\\] : Event\\{.*data=\\[json, ev-{{runId}}, John, 12000\\.5, true, true, false, Colombo\\]" },
+    { "type": "expect-log", "name": "string functions transform exactly", "pattern": "\\[json-string-math-list-functions\\] : Event\\{.*data=\\[str, ev-{{runId}}, HELLO WORLD, Hello World-ev-{{runId}}, Hell0 W0rld, 11, World\\]" },
+    { "type": "expect-log", "name": "math functions compute exactly", "pattern": "\\[json-string-math-list-functions\\] : Event\\{.*data=\\[math, ev-{{runId}}, 6\\.25, 12\\.0, 7\\.5, 4\\]" },
+    { "type": "expect-log", "name": "list functions build and read lists exactly", "pattern": "\\[json-string-math-list-functions\\] : Event\\{.*data=\\[list, ev-{{runId}}, 3, 4, y, w, true, false\\]" }
+  ]
+}
