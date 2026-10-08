@@ -64,7 +64,7 @@ Step types: `wait`, `http-post`, `kafka-create-topic`, `kafka-produce`, `sql`, `
 
 ## In CI
 
-The workflow `Integrator E2E` (`.github/workflows/integrator-e2e.yml`) runs the same command. Trigger it manually with the pack URL, or enable `runIntegratorE2E` (with `e2ePackUrl`) when dispatching the release workflow; when enabled, a failure blocks the release.
+The workflow `Integrator E2E` (`.github/workflows/integrator-e2e.yml`) runs the same command. Trigger it manually with the pack URL. An opt-in release gate is planned as a separate change.
 
 ## Development
 
