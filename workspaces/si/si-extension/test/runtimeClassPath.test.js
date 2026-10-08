@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const path = require("node:path");
 const test = require("node:test");
 
 const { buildRuntimeClassPath } = require("../.test-dist/runtimeClassPath");
@@ -18,7 +19,12 @@ test("uses a Windows classpath delimiter without changing precedence", () => {
         buildRuntimeClassPath("C:\\wso2si", "C:\\extension\\ls\\*", ";"),
         [
             "-cp",
-            "C:\\extension\\ls\\*;C:\\wso2si/lib/*;C:\\wso2si/.jars/*;C:\\wso2si/wso2/lib/plugins/*",
+            [
+                "C:\\extension\\ls\\*",
+                path.join("C:\\wso2si", "lib", "*"),
+                path.join("C:\\wso2si", ".jars", "*"),
+                path.join("C:\\wso2si", "wso2", "lib", "plugins", "*"),
+            ].join(";"),
         ]
     );
 });
