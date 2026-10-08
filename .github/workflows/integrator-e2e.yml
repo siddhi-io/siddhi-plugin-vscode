@@ -1,0 +1,113 @@
+name: Integrator E2E
+
+on:
+  workflow_dispatch:
+    inputs:
+      pack_url:
+        description: 'URL of the SI pack .zip (a public GitHub release asset)'
+        required: true
+        type: string
+      vsix_url:
+        description: 'URL of a .vsix to test (default: build the checked-out ref)'
+        required: false
+        type: string
+        default: ''
+      vsix_artifact:
+        description: 'Name of an artifact containing the .vsix to test (used by the release workflow)'
+        required: false
+        type: string
+        default: ''
+      only:
+        description: 'Comma-separated scenario ids (default: all)'
+        required: false
+        type: string
+        default: ''
+  workflow_call:
+    inputs:
+      pack_url:
+        required: true
+        type: string
+      vsix_url:
+        required: false
+        type: string
+        default: ''
+      vsix_artifact:
+        required: false
+        type: string
+        default: ''
+      only:
+        required: false
+        type: string
+        default: ''
+
+jobs:
+  integrator-e2e:
+    name: Integrator E2E
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Setup Rush
+        uses: gigara/setup-rush@v1.2.0
+        with:
+          pnpm: 10.11.0
+          node: 22.x
+          rush-install: true
+
+      - name: Setup JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Get the VSIX from an artifact
+        if: ${{ inputs.vsix_artifact != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.vsix_artifact }}
+          path: vsix-under-test
+
+      - name: Download the VSIX
+        if: ${{ inputs.vsix_artifact == '' && inputs.vsix_url != '' }}
+        env:
+          VSIX_URL: ${{ inputs.vsix_url }}
+        run: |
+          mkdir -p vsix-under-test
+          curl -fL --retry 3 -o vsix-under-test/streaming-integrator.vsix "$VSIX_URL"
+
+      - name: Build the VSIX from this ref
+        if: ${{ inputs.vsix_artifact == '' && inputs.vsix_url == '' }}
+        run: |
+          node common/scripts/install-run-rush.js build
+          mkdir -p vsix-under-test
+          cp workspaces/si/si-extension/streaming-integrator-*.vsix vsix-under-test/
+
+      - name: Run the Integrator E2E harness
+        working-directory: workspaces/si/si-extension
+        env:
+          PACK_URL: ${{ inputs.pack_url }}
+          ONLY: ${{ inputs.only }}
+        run: |
+          vsix=$(find "$GITHUB_WORKSPACE"/vsix-under-test -name '*.vsix' | head -n 1)
+          args=(--pack "$PACK_URL" --vsix "$vsix" --java-home "$JAVA_HOME" --out "$GITHUB_WORKSPACE/e2e-results")
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          node ../../../common/scripts/install-run-rushx.js test:integrator-e2e "${args[@]}"
+
+      - name: Publish the report
+        if: ${{ always() }}
+        run: |
+          if [ -f e2e-results/report.md ]; then cat e2e-results/report.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload results and logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: integrator-e2e-results
+          path: e2e-results/
+          if-no-files-found: ignore
