@@ -1,0 +1,32 @@
+@App:name('PostgresStore')
+@App:description('HTTP events are logged and upserted into a PostgreSQL table through the rdbms store')
+
+@source(type='http',
+        receiver.url='http://0.0.0.0:8218/PostgresStore/InventoryStream',
+        @map(type='json'))
+define stream InventoryStream (itemId string, itemName string, quantity int, price double);
+
+@sink(type='log', prefix='[postgres-store]')
+define stream InventoryLogStream (itemId string, itemName string, quantity int, price double);
+
+@store(type='rdbms',
+       jdbc.url='jdbc:postgresql://localhost:5433/si_test_db',
+       username='sitest',
+       password='sitest123',
+       jdbc.driver.name='org.postgresql.Driver',
+       pool.properties='maximumPoolSize:5,idleTimeout:60000')
+@PrimaryKey('itemId')
+define table PostgresInventoryTable (itemId string, itemName string, quantity int, price double);
+
+@info(name='log-events')
+from InventoryStream
+select itemId, itemName, quantity, price
+insert into InventoryLogStream;
+
+@info(name='to-postgres')
+from InventoryStream
+select itemId, itemName, quantity, price
+update or insert into PostgresInventoryTable
+    set PostgresInventoryTable.itemName = itemName, PostgresInventoryTable.quantity = quantity,
+        PostgresInventoryTable.price = price
+    on PostgresInventoryTable.itemId == itemId;

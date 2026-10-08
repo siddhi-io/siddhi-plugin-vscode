@@ -1,0 +1,17 @@
+{
+  "description": "HTTP events are persisted to PostgreSQL through the rdbms store and upserted by primary key",
+  "requires": ["postgres"],
+  "extensions": ["rdbms-postgresql"],
+  "ports": [8218],
+  "apps": ["app.siddhi"],
+  "steps": [
+    { "type": "http-post", "url": "http://localhost:8218/PostgresStore/InventoryStream", "body": { "itemId": "i1-{{runId}}", "itemName": "Widget", "quantity": 100, "price": 9.99 } },
+    { "type": "http-post", "url": "http://localhost:8218/PostgresStore/InventoryStream", "body": { "itemId": "i2-{{runId}}", "itemName": "Gadget", "quantity": 50, "price": 24.99 } },
+    { "type": "http-post", "url": "http://localhost:8218/PostgresStore/InventoryStream", "body": { "itemId": "i3-{{runId}}", "itemName": "Doohickey", "quantity": 200, "price": 4.99 } },
+    { "type": "expect-log", "name": "first event logged", "pattern": "\\[postgres-store\\] : Event\\{.*data=\\[i1-{{runId}}, Widget, 100, 9\\.99\\]" },
+    { "type": "expect-sql", "service": "postgres", "name": "three rows persisted", "statement": "SELECT COUNT(*) FROM PostgresInventoryTable WHERE itemId LIKE '%-{{runId}}'", "equals": "3" },
+    { "type": "http-post", "url": "http://localhost:8218/PostgresStore/InventoryStream", "body": { "itemId": "i1-{{runId}}", "itemName": "Widget Deluxe", "quantity": 150, "price": 12.99 } },
+    { "type": "expect-sql", "service": "postgres", "name": "upsert changed the quantity", "statement": "SELECT quantity FROM PostgresInventoryTable WHERE itemId = 'i1-{{runId}}'", "equals": "150" },
+    { "type": "expect-sql", "service": "postgres", "name": "upsert did not add a row", "statement": "SELECT COUNT(*) FROM PostgresInventoryTable WHERE itemId LIKE '%-{{runId}}'", "equals": "3" }
+  ]
+}
