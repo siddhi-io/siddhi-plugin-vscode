@@ -111,16 +111,16 @@ export function installJars(carbonHome: string): Promise<void> {
 
     // Handle stderr
     javaProcess.stderr.on("data", (data) => {
-        debug(`Error while installing jars: ${data}`);
+        debug(`${data}`);
     });
 
     return new Promise((resolve) => {
         javaProcess.on("error", (error) => {
-            debug(`Error while installing jars: ${error}`);
+            debug(`Failed to start install-jars process: ${error}`);
             resolve();
         });
         javaProcess.on("close", (code) => {
-            debug(`Installing jars completed.`);
+            debug(code === 0 ? "Installing jars completed." : `Installing jars failed with exit code ${code}.`);
             resolve();
         });
     });
