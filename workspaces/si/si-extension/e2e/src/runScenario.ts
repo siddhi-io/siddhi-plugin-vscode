@@ -14,7 +14,7 @@ import { runnerLaunch } from "./launch";
 import { CheckResult, Finding, ScenarioResult, fail, pass, scenarioStatus, skip } from "./results";
 import { Runner } from "./runnerDriver";
 import { Scenario, Service, Step, renderTemplate } from "./scenario";
-import { scanLines } from "./scanners";
+import { MAX_FINDINGS, scanLines } from "./scanners";
 import { StepContext, executeStep } from "./steps";
 import { LsJars } from "./vsix";
 
@@ -35,6 +35,7 @@ export async function runScenario(scenario: Scenario, env: ScenarioEnvironment):
         status: "pass",
         checks: [],
         findings: [],
+        findingsTotal: 0,
         logPaths: [],
         commandLines: [],
         openJars: [],
@@ -109,10 +110,11 @@ export async function runScenario(scenario: Scenario, env: ScenarioEnvironment):
         }
     }
 
-    const findings: Finding[] = started.flatMap(({ runner }) => scanLines(runner.lines, allow));
+    const allFindings: Finding[] = started.flatMap(({ runner }) => scanLines(runner.lines, allow));
     result.openJars = Array.from(new Set(result.openJars)).sort();
     result.checks = checks;
-    result.findings = findings;
-    result.status = scenarioStatus(checks, findings);
+    result.findings = allFindings.slice(0, MAX_FINDINGS);
+    result.findingsTotal = allFindings.length;
+    result.status = scenarioStatus(checks, allFindings);
     return result;
 }

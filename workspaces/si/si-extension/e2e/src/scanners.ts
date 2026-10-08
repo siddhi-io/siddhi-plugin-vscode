@@ -9,6 +9,8 @@
 
 import { Finding } from "./results";
 
+export const MAX_FINDINGS = 200;
+
 export const PATTERNS: ReadonlyArray<{ id: string; regex: RegExp }> = [
     { id: "NoClassDefFoundError", regex: /NoClassDefFoundError/ },
     { id: "ClassNotFoundException", regex: /ClassNotFoundException/ },

@@ -114,3 +114,39 @@ test("renderMarkdown shows inputs, results, known issues, findings and the IDE s
     assert.match(markdown, /\+ \.jars\/x\.jar/);
     assert.match(markdown, /IDE smoke test: not run/);
 });
+
+test("renderMarkdown shows true findings count when findingsTotal is set and indicates more findings available", () => {
+    const findings = Array.from({ length: 25 }, (_, i) => ({
+        pattern: `Pattern${i}`,
+        line: `line ${i}`,
+    }));
+    const markdown = renderMarkdown(
+        summary({
+            scenarios: [
+                scenario("high-findings-scenario", "fail", {
+                    findings,
+                    findingsTotal: 64088,
+                }),
+            ],
+        })
+    );
+    assert.match(markdown, /64088 error-log finding\(s\)/);
+    assert.match(markdown, /and 64068 more \(see report\.json and the logs\)/);
+});
+
+test("renderMarkdown shows stored findings count when findingsTotal is not set (backward compatibility)", () => {
+    const markdown = renderMarkdown(
+        summary({
+            scenarios: [
+                scenario("low-findings-scenario", "pass", {
+                    findings: [
+                        { pattern: "Error1", line: "error line 1" },
+                        { pattern: "Error2", line: "error line 2" },
+                    ],
+                }),
+            ],
+        })
+    );
+    assert.match(markdown, /2 error-log finding\(s\)/);
+    assert.doesNotMatch(markdown, /and .* more/);
+});

@@ -75,7 +75,8 @@ export function renderMarkdown(summary: RunSummary): string {
     lines.push("## Scenarios", "", "| Area | Scenario | Result | Notes |", "|---|---|---|---|");
     for (const scenario of summary.scenarios) {
         const failed = scenario.checks.filter((check) => check.status === "fail" || check.status === "skip");
-        const notes = [...failed.map((check) => `${check.name}: ${check.detail}`), ...(scenario.findings.length > 0 ? [`${scenario.findings.length} error-log finding(s)`] : [])];
+        const findingsCount = scenario.findingsTotal ?? scenario.findings.length;
+        const notes = [...failed.map((check) => `${check.name}: ${check.detail}`), ...(findingsCount > 0 ? [`${findingsCount} error-log finding(s)`] : [])];
         lines.push(`| ${scenario.area} | ${scenario.id} | ${ICON[scenario.status]} | ${cell(notes.join("; "))} |`);
     }
     lines.push("");
@@ -87,13 +88,17 @@ export function renderMarkdown(summary: RunSummary): string {
         lines.push("## Known issues", "", "| Check | Result | Detail |", "|---|---|---|", ...checkRows(known), "");
     }
 
-    const withFindings = summary.scenarios.filter((scenario) => scenario.findings.length > 0);
+    const withFindings = summary.scenarios.filter((scenario) => (scenario.findingsTotal ?? scenario.findings.length) > 0);
     if (withFindings.length > 0) {
         lines.push("## Error-log findings", "");
         for (const scenario of withFindings) {
             lines.push(`### ${scenario.id}`, "");
             for (const finding of scenario.findings.slice(0, 20)) {
                 lines.push(`- \`${finding.pattern}\`: ${cell(finding.line)}`);
+            }
+            const findingsCount = scenario.findingsTotal ?? scenario.findings.length;
+            if (findingsCount > 20) {
+                lines.push(`- ... and ${findingsCount - 20} more (see report.json and the logs)`);
             }
             lines.push("");
         }

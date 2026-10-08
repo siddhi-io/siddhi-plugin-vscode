@@ -27,6 +27,7 @@ export interface ScenarioResult {
     status: Status;
     checks: CheckResult[];
     findings: Finding[];
+    findingsTotal?: number;
     logPaths: string[];
     commandLines: string[];
     openJars: string[];
