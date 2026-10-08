@@ -4,6 +4,9 @@
 typings/**
 out/test/**
 test/**
+e2e/**
+.e2e-dist/**
+e2e-results/**
 src/**
 !src/web/**
 **/*.map
