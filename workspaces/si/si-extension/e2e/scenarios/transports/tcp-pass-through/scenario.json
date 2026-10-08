@@ -1,0 +1,17 @@
+{
+  "description": "Events relayed over a TCP sink and TCP source reach the log sink with exact field values",
+  "requires": [],
+  "extensions": [],
+  "ports": [9892, 8211],
+  "allow": ["Error connecting to .localhost:9892., Connection refused.*will retry"],
+  "apps": ["app.siddhi"],
+  "steps": [
+    { "type": "wait", "ms": 8000 },
+    { "type": "http-post", "url": "http://localhost:8211/TcpPassThrough/TriggerStream", "body": { "symbol": "AAPL-{{runId}}", "price": 150.25, "volume": 1000 } },
+    { "type": "http-post", "url": "http://localhost:8211/TcpPassThrough/TriggerStream", "body": { "symbol": "GOOG-{{runId}}", "price": 2800.5, "volume": 500 } },
+    { "type": "http-post", "url": "http://localhost:8211/TcpPassThrough/TriggerStream", "body": { "symbol": "IBM-{{runId}}", "price": 101.75, "volume": 9876543210 } },
+    { "type": "expect-log", "name": "AAPL arrives over TCP with exact fields", "pattern": "\\[tcp-pass-through\\] : Event\\{.*data=\\[AAPL-{{runId}}, 150\\.25, 1000\\]" },
+    { "type": "expect-log", "name": "GOOG arrives over TCP with exact fields", "pattern": "\\[tcp-pass-through\\] : Event\\{.*data=\\[GOOG-{{runId}}, 2800\\.5, 500\\]" },
+    { "type": "expect-log", "name": "IBM arrives over TCP with exact fields", "pattern": "\\[tcp-pass-through\\] : Event\\{.*data=\\[IBM-{{runId}}, 101\\.75, 9876543210\\]" }
+  ]
+}
